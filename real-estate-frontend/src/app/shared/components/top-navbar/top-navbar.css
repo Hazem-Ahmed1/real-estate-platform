@@ -1,0 +1,38 @@
+
+.navbar-big{
+  background-color: var(--primary-color);
+}
+
+
+.top-navbar {
+  color: var(--text-light);
+  min-height: 40px;
+  padding: 8px 0;
+  font-size: 12px;
+}
+
+.top-navbar i {
+  margin: 1px;
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.top-navbar-social i {
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.top-navbar-social i:hover {
+  opacity: 0.7;
+}
+
+.phone{
+  font-family: var(--font-family-en);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.seperator{
+  opacity: 0.5;
+}
+

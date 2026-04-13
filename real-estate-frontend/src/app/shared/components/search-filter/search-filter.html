@@ -1,0 +1,32 @@
+<div class="search-shell">
+  <div class="search-box shadow">
+    <button class="search-refresh" type="button" aria-label="تحديث الفلاتر" (click)="resetFilters()">
+      <i class="fa-solid fa-magnifying-glass"></i>
+    </button>
+
+    <div class="search-fields">
+      @for (field of fields; track field.key; let last = $last) {
+        <div class="field" (click)="toggleDropdown(field.key)">
+          <div class="field-label">
+            <span>{{ field.label }}</span>
+            <i class="fa-solid fa-angle-down"></i>
+          </div>
+
+          <div class="field-value">{{ values[field.key] }}</div>
+
+          @if (active === field.key) {
+            <ul class="dropdown" (click)="$event.stopPropagation()">
+              @for (option of field.options; track option) {
+                <li (click)="select(field.key, option, $event)">{{ option }}</li>
+              }
+            </ul>
+          }
+        </div>
+
+        @if (!last) {
+          <div class="divider"></div>
+        }
+      }
+    </div>
+  </div>
+</div>

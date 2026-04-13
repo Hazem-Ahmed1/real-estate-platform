@@ -1,0 +1,160 @@
+
+.search-shell {
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  padding: 8px;
+}
+
+.search-box {
+  background: #fff;
+  border-radius: 18px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  direction: ltr;
+}
+
+/* ICON */
+.search-refresh {
+  width: 65px;
+  height: 65px;
+  border: none;
+  background: var(--primary-color);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 24px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.search-refresh:hover {
+  transform: rotate(-20deg);
+}
+
+/* FIELDS */
+.search-fields {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  justify-content: space-between;
+  direction: rtl;
+}
+
+/* FIELD */
+.field {
+  position: relative;
+  min-width: 100px;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* LABEL (CLICKABLE) */
+.field-label {
+  font-size: 12px;
+  color: var(--primary-color);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.field-label i {
+  color: #a4a4aa;
+  font-size: 11px;
+}
+
+/* VALUE */
+.field-value {
+  font-size: 13px;
+  color: #8b8b92;
+  margin-top: 5px;
+}
+
+/* DROPDOWN */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px 0;
+  list-style: none;
+  min-width: 130px;
+  border: 1px solid #f0f0f4;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  z-index: 20;
+}
+
+.dropdown li {
+  padding: 8px 12px;
+  cursor: pointer;
+  text-align: center;
+  color: var(--text-dark);
+}
+
+.dropdown li:hover {
+  background: #f6f6fa;
+}
+
+/* DIVIDER */
+.divider {
+  width: 1px;
+  height: 45px;
+  background: #ececf0;
+}
+
+/* MOBILE */
+@media (max-width: 991px) {
+  .search-shell {
+    border-radius: 18px;
+    padding: 6px;
+  }
+
+  .search-box {
+    direction: rtl;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .search-refresh {
+    width: 56px;
+    height: 56px;
+    font-size: 20px;
+    align-self: flex-start;
+  }
+
+  .search-fields {
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .divider {
+    display: none;
+  }
+
+  .field {
+    width: calc(50% - 6px);
+    min-width: 0;
+    border: 1px solid #f0f0f4;
+    border-radius: 12px;
+    padding: 8px 6px;
+    background: #fff;
+  }
+}
+
+@media (max-width: 575px) {
+  .field {
+    width: 100%;
+  }
+}

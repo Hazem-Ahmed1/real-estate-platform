@@ -1,0 +1,146 @@
+.footer {
+  background-color: var(--bg-gray);
+}
+
+/* LOGO */
+.footer-logo {
+  height: 60px;
+}
+
+/* TEXT */
+.footer-text {
+  line-height: 25px;
+  font-size: 14px;
+  letter-spacing: 0%;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+/* SOCIAL */
+.footer-follow {
+  margin-top: 30px;
+  font-weight: 400;
+  color: var(--text-dark);
+  font-size: 14px;
+  line-height: 100%;
+}
+
+/* TITLES */
+.footer-title {
+  color: var(--primary-color);
+  font-weight: 600;
+  margin-bottom: 15px;
+  font-size: 18px;
+  position: relative;
+  line-height: 100%;
+
+}
+
+.footer-title::after {
+  content: "";
+  width: 40px;
+  height: 2px;
+  background: var(--primary-color);
+  display: block;
+  margin-top: 6px;
+}
+
+/* LINKS */
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin-top: 25px;
+}
+
+.footer-links li {
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.footer-links li:hover {
+  color: var(--primary-color);
+}
+
+/* CONTACT */
+.footer-contact {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-contact li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.footer-contact li  a{
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.footer-contact i {
+  margin-top: 3px;
+}
+
+
+
+.footer-social i {
+  width: 31.583999633789062px;
+  height: 31.583999633789062px;
+  background: var(--primary-color);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  font-size: 12px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.footer-social i:hover {
+  background: var(--accent-color);
+}
+
+.footer-bottom {
+  background-color: var(--primary-color);
+  color: #fff;
+  font-size: 13px;
+}
+
+.footer-bottom-links a {
+  color: #fff;
+  margin-left: 15px;
+  text-decoration: none;
+}
+
+.footer-bottom-links a:hover {
+  text-decoration: underline;
+}
+
+/* MOBILE */
+@media (max-width: 767px) {
+
+  .footer {
+    text-align: center;
+  }
+
+  .footer-contact li {
+    justify-content: center;
+  }
+
+  .footer-title::after{
+    display: none;
+  }
+
+}

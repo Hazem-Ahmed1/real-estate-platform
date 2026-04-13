@@ -1,0 +1,67 @@
+.hero {
+  position: relative;
+  height: 80vh;
+  overflow: hidden;
+}
+
+/* VIDEO */
+.hero-video {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* OVERLAY */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+/* CONTENT */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  color: #fff;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* BADGE */
+.hero-badge {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  display: inline-block;
+  margin-bottom: 15px;
+}
+
+/* TITLE */
+.hero-title {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+/* DESC */
+.hero-desc {
+  max-width: 700px;
+  margin: 15px auto 25px;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 24px;
+  }
+
+  .hero-desc {
+    font-size: 13px;
+  }
+}

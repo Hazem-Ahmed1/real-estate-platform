@@ -1,0 +1,45 @@
+<div class="project-card" tabindex="0">
+  <!-- IMAGE -->
+  <img [src]="project().imageUrl" [alt]="project().title" />
+
+  <!-- BADGE -->
+  <div class="card-badge">
+    @if (project().type == 'للبيع') {
+      <i class="fa-solid fa-wand-magic-sparkles"></i>
+    } @else {
+      <i class="fa-solid fa-key"></i>
+    }
+    {{ project().type }}
+  </div>
+
+  <!-- OVERLAY -->
+  <div class="card-overlay">
+    <!-- HOVER ACTIONS -->
+    <div class="card-actions">
+      <a class="card-action" aria-label="الوحدات السكنية">
+        <span> <i class="fa-regular fa-house"></i>  الوحدات السكنية </span>
+      </a>
+
+      <a class="card-action" aria-label="عرض التفاصيل">
+        <span><i class="fa-solid fa-bars-staggered"></i>  عرض التفاصيل </span>
+      </a>
+    </div>
+
+    <!-- TEXT -->
+    <div class="card-content">
+      <h5 class="title">
+        {{ project().title }}
+      </h5>
+
+      <div class="location">
+        <i class="fa-solid fa-location-dot"></i>
+        {{ project().location }}
+      </div>
+    </div>
+
+    <!-- ARROW -->
+    <div class="card-arrow">
+      <i class="fa-solid fa-arrow-left-long"></i>
+    </div>
+  </div>
+</div>

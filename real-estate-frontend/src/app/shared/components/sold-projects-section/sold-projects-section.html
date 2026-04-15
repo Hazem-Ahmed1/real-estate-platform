@@ -1,0 +1,19 @@
+<section class="sold-projects-section">
+  <div class="container">
+    <app-home-section-header-with-filters
+      title="مشــــاريع مبــــاعة"
+      subTitle="مشاريعنا"
+      url="/test"
+      (filterChange)="filter($event)"
+    />
+
+    <!-- CARDS -->
+    <div class="row g-4">
+      @for (project of projects; track $index) {
+        <div class="col-lg-4 col-md-6">
+          <app-sold-project-card [project]="project"></app-sold-project-card>
+        </div>
+      }
+    </div>
+  </div>
+</section>

@@ -20,8 +20,11 @@
   --font-family-en:"Poppins", sans-serif;
   --primary-color: #5B60A5;
   --text-light: #ffffff;
+  --text-green:#15A94B;
   --text-muted:#A0A0A0;
   --text-dark: #000000;
+  --text-semi-dark :#424242;
+  --text-gold:#f9b300;
   --bg-light: #FFFFFF;
   --bg-gray:#F9F9F9;
   --accent-color: #5865AD;

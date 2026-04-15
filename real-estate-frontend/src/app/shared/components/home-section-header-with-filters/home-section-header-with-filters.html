@@ -1,0 +1,22 @@
+    <div class="section-header d-flex justify-content-between align-items-center mb-4">
+      <div class="title text-end">
+        <span class="sub"> {{subTitle()}} </span>
+        <h2> {{title()}}</h2>
+      </div>
+      <div class="text-start">
+        <div class="all-link">
+          <a [routerLink]="url()">شاهد كل القائمة <i class="fa-solid fa-arrow-left"></i></a>
+        </div>
+        <div class="filters d-flex gap-2">
+          <button class="btn filter-btn active" (click)="FilterBy('all')">الــكل</button>
+          <button class="btn filter-btn" (click)="FilterBy('sell')">
+            للبيع
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </button>
+          <button class="btn filter-btn" (click)="FilterBy('rent')">
+            للإيجار
+            <i class="fa-solid fa-key"></i>
+          </button>
+        </div>
+      </div>
+    </div>

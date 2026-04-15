@@ -1,0 +1,49 @@
+.stats-section {
+  padding: 80px 0;
+  background: #f5f5f7;
+}
+
+/* GRID */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+/* TEXT */
+.sub {
+  color: #28a745;
+  font-size: 13px;
+}
+
+.title {
+  color: var(--primary-color);
+  font-weight: 700;
+  margin: 10px 0;
+}
+
+.desc {
+  color: #777;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+/* NUMBERS */
+.numbers {
+  margin-top: 20px;
+}
+
+.num {
+  text-align: center;
+}
+
+.value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.num p {
+  font-size: 12px;
+  color: #777;
+}

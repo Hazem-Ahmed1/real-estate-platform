@@ -6,5 +6,6 @@ export const routes: Routes = [
     path:"",
     component:Home
   },
-  
+
+
 ];

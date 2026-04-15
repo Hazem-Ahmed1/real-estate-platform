@@ -1,0 +1,21 @@
+<section class="units-section">
+  <div class="container">
+
+    <app-home-section-header-with-filters
+
+      (filterChange)="filter($event)"
+      title="الوحــــدات الأكـــثر مبيـــعا"
+      subTitle="وحــداتنا"
+      url="/test"
+    />
+
+    <!-- CARDS -->
+    <div class="row g-4">
+      @for (unit of units; track $index) {
+      <div class="col-lg-4 col-md-6">
+        <app-unit-card [unit]="unit"></app-unit-card>
+      </div>
+    }
+    </div>
+  </div>
+</section>

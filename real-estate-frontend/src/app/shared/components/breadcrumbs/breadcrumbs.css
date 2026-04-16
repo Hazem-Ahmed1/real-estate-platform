@@ -1,0 +1,24 @@
+
+
+/* Flip Bootstrap separator */
+.breadcrumb-item + .breadcrumb-item::before {
+  content: ">";
+  float: right;
+  margin: 0px 15px;
+}
+
+/* Link styling */
+.breadcrumb a {
+  color: #6c757d;
+  transition: 0.3s;
+}
+
+.breadcrumb a:hover {
+  color: var(--primary-color);
+}
+
+/* Active item */
+.breadcrumb-item.active {
+  color: var(--primary-color);
+  font-weight: 600;
+}

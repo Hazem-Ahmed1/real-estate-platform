@@ -1,0 +1,22 @@
+<section class="why-us text-center">
+  <div class="container">
+    <!-- Header -->
+    <div class="mb-5">
+      <small class="text-success fw-bold">لماذا نحن</small>
+      <h2 class="fw-bold main-title mt-3">خـــــبراء العقــــارات محليـــا وعالميـــــا</h2>
+      <p class="text-desc mt-3">
+        مرحبًا بكم في منصتنا العقارية الاستثمارية الرائدة، حيث نقدم لكم فرصة مثالية لاستكشاف
+        والاستثمار في أفضل العقارات المتاحة في السوق.
+      </p>
+    </div>
+
+    <!-- Cards -->
+    <div class="row g-4 justify-content-center">
+      @for (card of cards(); track $index) {
+        <div class="col-md-6 col-lg-3">
+          <app-why-us-card [data]="card"></app-why-us-card>
+        </div>
+      }
+    </div>
+  </div>
+</section>

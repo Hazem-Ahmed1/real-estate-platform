@@ -176,11 +176,12 @@
 }
 
 .feature {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  margin-left: 7px;
   white-space: nowrap;
-  justify-content: start;
+  justify-content: flex-start;
 }
 
 .feature i {
@@ -272,4 +273,12 @@
 
 .price-lock i {
   font-size: 12px;
+}
+
+
+
+@media (max-width: 1200px){
+  .unit-features{
+    font-size: 11px;
+  }
 }

@@ -1,16 +1,15 @@
 import { Component } from '@angular/core';
-import { Hero } from "../../../shared/components/hero/hero";
-import { ProjectsSection } from "../../../shared/components/projects-section/projects-section";
-import { UnitsSection } from "../../../shared/components/units-section/units-section";
-import { SoldProjectsSection } from "../../../shared/components/sold-projects-section/sold-projects-section";
-import { StatusCard } from "../../../shared/components/status-card/status-card";
-import { StatusSection } from "../../../shared/components/status-section/status-section";
-import { WhyUsSection } from "../../../shared/components/why-us-section/why-us-section";
-import { ContactSection } from "../../../shared/components/contact-section/contact-section";
+import { ProjectsSection } from "./projects-section/projects-section";
+import { StatusSection } from "./status-section/status-section";
+import { UnitsSection } from './units-section/units-section';
+import { SoldProjectsSection } from './sold-projects-section/sold-projects-section';
+import { WhyUsSection } from './why-us-section/why-us-section';
+import { ContactSection } from './contact-section/contact-section';
+import { Hero } from './hero/hero';
 
 @Component({
   selector: 'app-home',
-  imports: [Hero, ProjectsSection, UnitsSection, SoldProjectsSection, StatusCard, StatusSection, WhyUsSection, ContactSection],
+  imports: [Hero, ProjectsSection, UnitsSection, SoldProjectsSection, StatusSection, WhyUsSection, ContactSection],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })

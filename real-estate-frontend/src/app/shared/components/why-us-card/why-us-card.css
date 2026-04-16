@@ -1,49 +1,63 @@
 .card-box {
-  background: #f8f9fb;
-  border-radius: 16px;
+  background: #5B60A508;
+  border-radius: 19.66px;
   transition: 0.3s;
   cursor: pointer;
-
-  .icon {
-    width: 50px;
-    height: 50px;
-    margin: auto;
-    background: #e9ecff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    i {
-      font-size: 20px;
-      color: #4a5bdc;
-    }
-  }
-
-  &:hover {
-    transform: translateY(-5px);
-  }
+  height: 268px;
+  color: var(--primary-color);
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }
 
-.highlighted {
-  background: #5a67d8;
-  color: white;
+.card-box .icon {
+  width: 43px;
+  height: 43px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .icon {
-    background: white;
+.card-box .icon i {
+  font-size: 16px;
+  color: var(--text-light);
+}
 
-    i {
-      color: #5a67d8;
-    }
-  }
+.title-card{
+  color: var(--primary-color);
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+.description{
+  color: var(--text-dark);
+  line-height:1.8;
+  font-size: 12px;
+  max-width: 200px;
+  height: 75px ;
+}
+.card-box:hover {
+  transform: translateY(-5px);
+  background: var(--primary-color);
+  color: var(--text-light);
+}
 
-  p {
-    color: #eee;
-  }
+/* ICON ON HOVER */
+.card-box:hover .icon {
+  background: var(--text-light);
+}
 
-  .read-more {
-    color: white;
-  }
+.card-box:hover .title-card{
+  color: var(--text-light);
+}
+
+.card-box:hover .icon i {
+  color: var(--primary-color);
+}
+
+/* TEXT ON HOVER */
+.card-box:hover p,
+.card-box:hover .read-more {
+  color: var(--text-light);
 }
 
 .read-more {

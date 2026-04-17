@@ -19,8 +19,7 @@
         <label>البريد الالكتروني</label>
         <input
           type="email"
-                    placeholder="البريد الالكتروني"
-
+          placeholder="البريد الالكتروني"
           class="form-control"
           (input)="updateField('email', $any($event.target).value)"
         />
@@ -30,8 +29,7 @@
         <label>موضوع الرسالة</label>
         <input
           type="text"
-                              placeholder="أدخل موضوع الرسالة"
-
+          placeholder="أدخل موضوع الرسالة"
           class="form-control"
           (input)="updateField('subject', $any($event.target).value)"
         />
@@ -44,12 +42,11 @@
           class="form-control"
           placeholder="اكتب هنا"
           (input)="updateField('message', $any($event.target).value)"
-        >
-        </textarea>
+        ></textarea>
       </div>
 
       <div class="col-12 text-end">
-        <button class="btn send-btn">ارسال <i class="fa-solid fa-arrow-left"></i> </button>
+        <button class="btn send-btn">ارسال <i class="fa-solid fa-arrow-left"></i></button>
       </div>
     </div>
   </div>

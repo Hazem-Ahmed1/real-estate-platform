@@ -22,3 +22,25 @@
   color: var(--primary-color);
   font-weight: 600;
 }
+
+hr{
+  color: rgba(0, 0, 0, 0.498);
+  margin-bottom: 3rem !important;
+}
+
+.breadcrumb-item {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeUp 0.4s ease forwards;
+}
+
+.breadcrumb-item:nth-child(1) { animation-delay: 0.1s; }
+.breadcrumb-item:nth-child(2) { animation-delay: 0.2s; }
+.breadcrumb-item:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

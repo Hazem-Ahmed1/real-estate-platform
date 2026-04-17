@@ -1,9 +1,13 @@
-<app-breadcrumb
-  [items]="[
-    { label: 'الرئيسية', url: '/home' },
-    { label: 'المشاريع'}
-]"
-/>
+<app-breadcrumb [items]="[{ label: 'الرئيسية', url: '/' }, { label: 'المشاريع' }]" />
 
+<div class="container">
+  <app-filters
+    subTitle="عـــقاراتنا"
+    title="المشـــــــاريع الحـــالية"
+  ></app-filters>
 
+  <app-projects-list [projects]="projects"></app-projects-list>
+  <app-pagination [currentPage]="currentPage" [totalPages]="10" (pageChange)="onPageChange($event)"/>
 
+</div>
+<app-contact-section></app-contact-section>

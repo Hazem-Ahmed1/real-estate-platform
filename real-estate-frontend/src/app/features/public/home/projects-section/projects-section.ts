@@ -2,10 +2,11 @@ import { Component } from '@angular/core';
 import { ProjectCard } from '../../../../shared/components/project-card/project-card';
 import { IProject } from '../../../../models/IProject';
 import { HomeSectionHeaderWithFilters } from "../../../../shared/components/home-section-header-with-filters/home-section-header-with-filters";
+import { ProjectsList } from "../../../../shared/components/projects-list/projects-list";
 
 @Component({
   selector: 'app-projects-section',
-  imports: [ProjectCard, HomeSectionHeaderWithFilters],
+  imports: [HomeSectionHeaderWithFilters, ProjectsList],
   templateUrl: './projects-section.html',
   styleUrl: './projects-section.css',
 })

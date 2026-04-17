@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { HomeSectionHeaderWithFilters } from '../../../../shared/components/home-section-header-with-filters/home-section-header-with-filters';
 import { UnitCard } from '../../../../shared/components/unit-card/unit-card';
+import { UnitsList } from "../../../../shared/components/units-list/units-list";
 
 @Component({
   selector: 'app-units-section',
-  imports: [UnitCard, HomeSectionHeaderWithFilters],
+  imports: [HomeSectionHeaderWithFilters, UnitsList],
   templateUrl: './units-section.html',
   styleUrl: './units-section.css',
 })
@@ -45,6 +46,7 @@ export class UnitsSection {
     type: 'للبيع',
     imageURL: 'images/p1.jpg'
   },
+
   // duplicate for demo
 ];
 }

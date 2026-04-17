@@ -1,1 +1,8 @@
-<p>units-list works!</p>
+<!-- CARDS -->
+<div class="row g-4">
+  @for (unit of units(); track $index) {
+    <div class="col-lg-4 col-md-6">
+      <app-unit-card [unit]="unit"></app-unit-card>
+    </div>
+  }
+</div>

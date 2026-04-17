@@ -1,1 +1,8 @@
-<p>sold-projects-list works!</p>
+    <!-- CARDS -->
+    <div class="row g-4">
+      @for (project of projects(); track $index) {
+        <div class="col-lg-4 col-md-6">
+          <app-sold-project-card [project]="project"></app-sold-project-card>
+        </div>
+      }
+    </div>

@@ -1,9 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
+import { UnitCardModel } from '../../../models/IUnit';
+import { UnitCard } from "../unit-card/unit-card";
 
 @Component({
   selector: 'app-units-list',
-  imports: [],
+  imports: [UnitCard],
   templateUrl: './units-list.html',
   styleUrl: './units-list.css',
 })
-export class UnitsList {}
+export class UnitsList {
+  units = input.required<UnitCardModel[]>();
+}

@@ -1,0 +1,16 @@
+.form-card {
+  background: var(--primary-color);
+  border-radius: 20px;
+  color: #fff;
+}
+
+.form-control {
+  border-radius: 10px;
+  border: none;
+}
+
+.send-btn {
+  background: #f4a300;
+  color: #fff;
+  border-radius: 20px;
+}

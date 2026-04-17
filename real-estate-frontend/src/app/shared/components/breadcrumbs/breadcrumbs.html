@@ -1,20 +1,53 @@
 <section class="container">
-  <nav class="d-flex justify-content-start">
-    <ol class="breadcrumb my-5">
-      @for (item of items(); let last = $last; track $index) {
-        @if (!last) {
-          <li class="breadcrumb-item">
-            <a [routerLink]="item.url" class="text-decoration-none">
-              {{ item.label }}
-            </a>
-          </li>
-        } @else {
-          <li class="breadcrumb-item active">
-            {{ item.label }}
-          </li>
-        }
-      }
-    </ol>
-  </nav>
-  <hr>
+  <div class="row align-items-center holder">
+
+    <!-- BREADCRUMB -->
+    <div class="col-12 col-lg-6">
+      <nav>
+        <ol class="breadcrumb my-0">
+          @for (item of items(); let last = $last; track $index) {
+            @if (!last) {
+              <li class="breadcrumb-item pt-2">
+                <a [routerLink]="item.url">
+                  {{ item.label }}
+                </a>
+              </li>
+            } @else {
+              <li class="breadcrumb-item pt-2 active">
+                {{ item.label }}
+              </li>
+            }
+          }
+        </ol>
+      </nav>
+    </div>
+
+    <!-- EXTRA INFO -->
+    @if (price() || status()) {
+      <div class="col-12 col-lg-6">
+
+        <div class="breadcrumb-extra d-flex flex-column flex-lg-row align-items-start justify-content-end align-items-lg-center gap-2 gap-lg-3 mt-3 mt-lg-0">
+
+          @if (status()) {
+            <span class="status w-lg-auto pt-2">
+              <i class="fa-solid fa-bag-shopping"></i>
+              {{ status() }}
+            </span>
+          }
+
+          @if (price()) {
+            <span class="price  w-lg-auto pt-2">
+              <i class="fa-solid fa-sack-dollar"></i>
+              {{ price() }} ر.س
+            </span>
+          }
+
+        </div>
+
+      </div>
+    }
+
+  </div>
+
+  <hr />
 </section>

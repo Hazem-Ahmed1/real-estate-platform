@@ -1,6 +1,13 @@
-<app-breadcrumb
-  [items]="[
-    { label: 'الرئيسية', url: '/home' },
-    { label: 'المشاريع المباعة'},
-  ]"
-></app-breadcrumb>
+<app-breadcrumb [items]="[{ label: 'الرئيسية', url: '/' }, { label: 'المشــــاريع المبــــاعة' }]" />
+
+<div class="container">
+  <app-filters
+    subTitle="مشاريعنا"
+    title="مشــــاريع مبــــاعة"
+  ></app-filters>
+
+  <app-sold-projects-list [projects]="projects"></app-sold-projects-list>
+  <app-pagination [currentPage]="currentPage" [totalPages]="10" (pageChange)="onPageChange($event)"/>
+
+</div>
+<app-contact-section></app-contact-section>

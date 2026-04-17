@@ -1,4 +1,4 @@
-<nav class="navbar-main container navbar navbar-expand-lg px-3 px-lg-5">
+<nav class="navbar-main container navbar navbar-expand-lg">
   <!-- Top row (logo + burger stay fixed; menu opens underneath) -->
   <div class="navbar-header d-flex align-items-center order-lg-1 ms-lg-auto">
     <!-- Logo (always visible) -->
@@ -24,21 +24,21 @@
   <div class="collapse navbar-collapse justify-content-center order-lg-2" id="navbarContent">
     <ul class="navbar-menu navbar-nav gap-lg-4 text-center">
       <li class="nav-item">
-        <a class="nav-link active" href="#">الرئيسية</a>
+        <a class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" routerLink="/">الرئيسية</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#">اتصل بنا</a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link" href="#">المدونة</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">من نحن؟</a>
+        <a class="nav-link" routerLink="/contact-us" routerLinkActive="active">اتصل بنا</a>
       </li>
 
       <li class="nav-item">
-        <a class="nav-link" href="#">المشاريع</a>
+        <a class="nav-link" href="#" routerLinkActive="active">المدونة</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#" routerLinkActive="active">من نحن؟</a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/projects" routerLinkActive="active">المشاريع</a>
       </li>
       <!-- Mobile CTA (inside menu only) -->
       <li class="nav-item d-lg-none mt-2">

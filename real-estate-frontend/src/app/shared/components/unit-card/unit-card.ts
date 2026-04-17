@@ -5,7 +5,7 @@ import { UnitCardModel } from '../../../models/IUnit';
 
 @Component({
   selector: 'app-unit-card',
-  imports: [NgOptimizedImage,DecimalPipe],
+  imports: [DecimalPipe],
   templateUrl: './unit-card.html',
   styleUrl: './unit-card.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

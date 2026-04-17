@@ -2,10 +2,11 @@ import { Component } from '@angular/core';
 import { HomeSectionHeaderWithFilters } from '../../../../shared/components/home-section-header-with-filters/home-section-header-with-filters';
 import { SoldProjectCard } from '../../../../shared/components/sold-project-card/sold-project-card';
 import { ISoldProject } from '../../../../models/ISoldProject';
+import { SoldProjectsList } from "../../../../shared/components/sold-projects-list/sold-projects-list";
 
 @Component({
   selector: 'app-sold-projects-section',
-  imports: [SoldProjectCard, HomeSectionHeaderWithFilters],
+  imports: [HomeSectionHeaderWithFilters, SoldProjectsList],
   templateUrl: './sold-projects-section.html',
   styleUrl: './sold-projects-section.css',
 })
@@ -53,6 +54,7 @@ export class SoldProjectsSection {
       streetsText: 'ثلاث شوارع',
       type: 'تم الإيجار',
     },
+
   ];
   filter(val: string) {
     if (val == 'rent') {

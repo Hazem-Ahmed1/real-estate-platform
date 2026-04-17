@@ -1,8 +1,7 @@
 import { Component, input, output } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
+import { FilterType } from '../../../models/FilterType';
 
-
-type FilterType = 'all' | 'rent' | 'sell'
 
 @Component({
   selector: 'app-home-section-header-with-filters',

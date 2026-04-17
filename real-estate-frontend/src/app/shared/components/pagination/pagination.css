@@ -1,0 +1,48 @@
+.pagination-container {
+  margin: 40px 0;
+}
+
+/* BUTTON */
+.page-btn {
+  width: 45px;
+  height: 45px;
+  border-radius: 18px;
+  border: 1px solid #5B60A580;
+  background: transparent;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+/* ACTIVE */
+.page-btn.active {
+  background: #000;
+  color: #fff;
+  border: none;
+}
+
+/* LEFT GREEN */
+.page-btn.filled {
+  background: #28a745;
+  color: #fff;
+  border: none;
+}
+
+/* RIGHT OUTLINE */
+.page-btn.outline {
+  background: transparent;
+}
+
+/* DISABLED */
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* HOVER */
+.page-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}

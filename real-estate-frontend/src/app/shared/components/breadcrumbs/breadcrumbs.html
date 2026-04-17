@@ -1,26 +1,20 @@
 <section class="container">
   <nav class="d-flex justify-content-start">
-
-  <ol class="breadcrumb my-5">
-
-    @for(item of items(); let last = $last;track $index) {
-
-      @if (!last) {
-        <li class="breadcrumb-item">
-          <a [routerLink]="item.url" class="text-decoration-none">
+    <ol class="breadcrumb my-5">
+      @for (item of items(); let last = $last; track $index) {
+        @if (!last) {
+          <li class="breadcrumb-item">
+            <a [routerLink]="item.url" class="text-decoration-none">
+              {{ item.label }}
+            </a>
+          </li>
+        } @else {
+          <li class="breadcrumb-item active">
             {{ item.label }}
-          </a>
-        </li>
-      } @else {
-        <li class="breadcrumb-item active">
-          {{ item.label }}
-        </li>
+          </li>
+        }
       }
-
-    }
-
-  </ol>
-
-</nav>
-
+    </ol>
+  </nav>
+  <hr>
 </section>

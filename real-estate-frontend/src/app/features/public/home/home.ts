@@ -4,8 +4,8 @@ import { StatusSection } from "./status-section/status-section";
 import { UnitsSection } from './units-section/units-section';
 import { SoldProjectsSection } from './sold-projects-section/sold-projects-section';
 import { WhyUsSection } from './why-us-section/why-us-section';
-import { ContactSection } from './contact-section/contact-section';
 import { Hero } from './hero/hero';
+import { ContactSection } from '../../../shared/components/contact-section/contact-section';
 
 @Component({
   selector: 'app-home',

@@ -1,6 +1,13 @@
-<app-breadcrumb
-  [items]="[
-    { label: 'الرئيسية', url: '/home' },
-    { label: 'الوحدات'},
-  ]"
-></app-breadcrumb>
+<app-breadcrumb [items]="[{ label: 'الرئيسية', url: '/' }, { label: 'الوحــــدات' }]" />
+
+<div class="container">
+  <app-filters
+    subTitle="وحــداتنا"
+    title="الوحــــدات الأكـــثر مبيـــعا"
+  ></app-filters>
+
+  <app-units-list [units]="units"></app-units-list>
+  <app-pagination [currentPage]="currentPage" [totalPages]="10" (pageChange)="onPageChange($event)"/>
+
+</div>
+<app-contact-section></app-contact-section>

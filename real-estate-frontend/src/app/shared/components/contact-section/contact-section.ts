@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ContactForm } from '../../../../shared/components/contact-form/contact-form';
+import { ContactForm } from '../contact-form/contact-form';
 
 @Component({
   selector: 'app-contact-section',

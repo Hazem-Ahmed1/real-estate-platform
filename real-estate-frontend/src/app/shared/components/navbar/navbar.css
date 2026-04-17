@@ -65,15 +65,15 @@
   height: 70px;
 }
 
-
-  ul{
-    padding-right: 0;
-  }
+ul {
+  padding-right: 0;
+}
 .navbar-toggler {
   border: none;
   font-size: 22px;
   color: var(--primary-color);
 }
+
 
 @media (max-width: 991px) {
   .navbar-main {
@@ -85,7 +85,6 @@
     flex-direction: row-reverse;
     justify-content: space-between;
   }
-
 
   .navbar-collapse {
     flex-basis: 100%;

@@ -3,17 +3,13 @@
     <app-home-section-header-with-filters
       title="مشــــاريع مبــــاعة"
       subTitle="مشاريعنا"
-      url="/test"
+      url="/sold-projects"
       (filterChange)="filter($event)"
     />
 
-    <!-- CARDS -->
-    <div class="row g-4">
-      @for (project of projects; track $index) {
-        <div class="col-lg-4 col-md-6">
-          <app-sold-project-card [project]="project"></app-sold-project-card>
-        </div>
-      }
-    </div>
+    <app-sold-projects-list [projects]="projects">
+
+    </app-sold-projects-list>
+
   </div>
 </section>

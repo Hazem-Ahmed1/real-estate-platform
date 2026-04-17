@@ -4,6 +4,7 @@ import { Projects } from './features/public/projects/projects';
 import { SoldProjects } from './features/public/sold-projects/sold-projects';
 import { Units } from './features/public/units/units';
 import { Contact } from './features/public/contact/contact';
+import { UnitPage } from './features/public/unit-page/unit-page';
 
 export const routes: Routes = [
   {
@@ -26,6 +27,10 @@ export const routes: Routes = [
   ,{
     path:"contact-us",
     component:Contact
+  }
+  ,{
+    path:"unit",
+    component:UnitPage
   }
 
 

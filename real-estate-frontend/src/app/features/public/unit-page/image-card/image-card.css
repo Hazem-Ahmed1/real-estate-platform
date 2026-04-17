@@ -1,0 +1,53 @@
+.image-card {
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+}
+
+/* IMAGE */
+.image-card .image {
+  transition: transform 0.4s ease;
+}
+
+/* OVERLAY (INSET EFFECT) */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition: 0.4s ease;
+
+  /* inset shadow effect */
+  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.6);
+}
+
+/* PLAY BUTTON */
+.play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  background: #f4a300;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition: 0.3s;
+}
+
+/* 🔥 HOVER EFFECT */
+.image-card:hover .image {
+  transform: scale(1.05);
+}
+
+.image-card:hover .overlay {
+  opacity: 1;
+}
+
+.image-card:hover .play-btn {
+  transform: translate(-50%, -50%) scale(1.1);
+}

@@ -1,0 +1,49 @@
+<div class="unit-specs mb-5">
+  <div class="main-info d-flex justify-content-between align-items-center mb-4">
+    <span class="title">
+      {{ data().title }}
+    </span>
+  </div>
+
+  <div class="specs d-flex flex-wrap gap-3">
+    <span>
+      <i class="fa-solid fa-location-dot"></i>
+      {{ data().location }}
+    </span>
+
+    @if (data().beds) {
+      <span>
+        <i class="fa-solid fa-bed"></i>
+        عدد الغرف : {{ data().beds }}
+      </span>
+    }
+
+    @if (data().baths) {
+      <span>
+        <i class="fa-solid fa-bath"></i>
+        عدد الحمامات : {{ data().baths }}
+      </span>
+    }
+
+    @if (data().lounges) {
+      <span>
+        <i class="fa-solid fa-couch"></i>
+        عدد الصالات : {{ data().lounges }}
+      </span>
+    }
+
+    @if (data().area) {
+      <span>
+        <i class="fa-solid fa-ruler-combined"></i>
+        المساحة : {{ data().area }}
+      </span>
+    }
+
+    @if (data().streetsText) {
+      <span>
+        <i class="fa-solid fa-road"></i>
+        {{ data().streetsText }}
+      </span>
+    }
+  </div>
+</div>

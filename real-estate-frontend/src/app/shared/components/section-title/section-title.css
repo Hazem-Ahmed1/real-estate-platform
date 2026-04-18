@@ -1,0 +1,89 @@
+.section-title-wrap {
+  position: relative;
+  margin-top: 3.5rem;
+  direction: rtl;
+  text-align: right;
+}
+
+/* الكونتينر */
+.section-title-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* المهم */
+}
+
+/* السطر اللي فوق */
+.title-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+/* كلمة صورة */
+.section-subtitle {
+  color: var(--text-green);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+/* الخط */
+.green-line {
+  width: 60px;
+  height: 4px;
+  background: var(--text-green);
+  border-radius: 2px;
+}
+
+/* النجمة */
+.decor-star {
+  width: 40px;
+  height: 40px;
+  background: var(--text-green);
+  clip-path: polygon(
+    50% 0%, 55% 42%, 100% 50%, 55% 58%,
+    50% 100%, 45% 58%, 0% 50%, 45% 42%
+  );
+}
+
+/* الدواير */
+.bg-circles {
+  position: absolute;
+  top: -20px;
+  right: 0; /* مربوطة باليمين */
+  width: 100px;
+  height: 100px;
+  z-index: 0;
+}
+
+.circle {
+  position: absolute;
+  border: 1px solid #e1e3ea;
+  border-radius: 50%;
+}
+
+.circle-1 {
+  width: 100px;
+  height: 100px;
+  /* right: 0; */
+  right: 60px;
+  top: -10px;
+}
+
+.circle-2 {
+  width: 120px;
+  height: 120px;
+  /* right: -20px; */
+  right:40px;
+  top: -20px;
+}
+
+/* العنوان */
+.main-title {
+  color: var(--primary-color);
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.3;
+  margin: 0;
+  text-align: right;
+}

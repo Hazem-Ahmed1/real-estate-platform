@@ -9,6 +9,9 @@ import { ProjectGallery } from '../../../shared/components/project-gallery/proje
 import { IconFeatureGrid } from '../../../shared/components/icon-feature-grid/icon-feature-grid';
 import { ProjectMap } from '../../../shared/components/project-map/project-map';
 import { RouterLink } from '@angular/router';
+import { TopNavbar } from "../../../shared/components/top-navbar/top-navbar";
+import { Navbar } from "../../../shared/components/navbar/navbar";
+import { Footer } from "../../../shared/components/footer/footer";
 
 @Component({
   selector: 'app-project-details',
@@ -23,7 +26,10 @@ import { RouterLink } from '@angular/router';
     IconFeatureGrid,
     ProjectMap,
     RouterLink,
-  ],
+    TopNavbar,
+    Navbar,
+    Footer
+],
   templateUrl: './project-details.html',
   styleUrl: './project-details.css',
 })

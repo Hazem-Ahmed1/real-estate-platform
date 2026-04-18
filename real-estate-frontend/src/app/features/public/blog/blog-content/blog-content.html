@@ -1,0 +1,49 @@
+<section class="py-4 py-md-5">
+  <div class="container-xl">
+    <div class="row g-3 g-md-4">
+      @for (post of blogPosts; track post.id) {
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="blog-card d-flex flex-column h-100 rounded-5  overflow-hidden">
+            <!-- Image -->
+            <div class="position-relative  blog-card__img-wrap">
+              <img
+                [src]="post.image"
+                [alt]="post.title"
+                class="w-100 h-100 object-fit-cover blog-card__img"
+              />
+              @if (post.date) {
+                <span
+                  class="position-absolute bottom-0 start-0 m-3 bg-white bg-opacity-90 rounded-4 px-2 py-3 fw-bold small blog-card__date"
+                >
+                  {{ post.date }}
+                </span>
+              }
+            </div>
+
+            <!-- Body -->
+            <div class="d-flex flex-column p-2 p-md-4">
+              <h3 class="blog-card__title fw-bold mb-2">{{ post.title }}</h3>
+
+              @if (post.excerpt) {
+                <p class="blog-card__excerpt text-secondary small mb-3">
+                  {{ post.excerpt }}
+                </p>
+              }
+
+              <a
+                href="#"
+                class="blog-card__link fw-bold small text-decoration-none"
+              >
+                اقـرأ المزيـد
+                <i class="fa-solid fa-arrow-left"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      } @empty {
+        <div class="col-12 text-center py-5 text-secondary">لا توجد مقالات متاحة حالياً</div>
+      }
+    </div>
+  </div>
+</section>

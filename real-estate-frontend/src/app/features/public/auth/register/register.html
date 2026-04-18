@@ -1,0 +1,165 @@
+<main class="auth-page register-page" dir="rtl">
+  <div class="container auth-container">
+    <section class="auth-grid">
+      <article class="auth-card text-end">
+        <h2 class="card-title mb-1">إنشاء حساب جديد</h2>
+        <p class="card-subtitle mb-4">ابدأ رحلتك معنا واستفد من جميع خدمات المنصة</p>
+
+        <button class="btn google-btn w-100" type="button" (click)="continueWithGoogle()">
+          <i class="fa-brands fa-google" aria-hidden="true"></i>
+          <span>التسجيل باستخدام Google</span>
+        </button>
+
+        <div class="divider my-4" aria-hidden="true"><span>أو</span></div>
+
+        <form [formGroup]="registerForm" (ngSubmit)="submit()" novalidate>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="field-label" for="registerName">الاسم الكامل</label>
+              <div class="field-wrap">
+                <input
+                  id="registerName"
+                  class="form-control"
+                  type="text"
+                  formControlName="fullName"
+                  placeholder="الاسم الثلاثي"
+                  [class.is-invalid]="isControlInvalid('fullName')"
+                />
+              </div>
+              @if (isControlInvalid('fullName')) {
+                <p class="error-message">الاسم مطلوب ويجب ألا يقل عن 3 أحرف.</p>
+              }
+            </div>
+
+            <div class="col-md-6">
+              <label class="field-label" for="registerEmail">البريد الإلكتروني</label>
+              <div class="field-wrap">
+                <input
+                  id="registerEmail"
+                  class="form-control"
+                  type="email"
+                  formControlName="email"
+                  placeholder="example@mail.com"
+                  [class.is-invalid]="isControlInvalid('email')"
+                />
+              </div>
+              @if (isControlInvalid('email')) {
+                <p class="error-message">يرجى إدخال بريد إلكتروني صحيح.</p>
+              }
+            </div>
+
+            <div class="col-md-6">
+              <label class="field-label" for="registerPhone">رقم الجوال</label>
+              <div class="field-wrap">
+                <input
+                  id="registerPhone"
+                  class="form-control"
+                  type="tel"
+                  formControlName="phone"
+                  placeholder="05xxxxxxxx"
+                  [class.is-invalid]="isControlInvalid('phone')"
+                />
+              </div>
+              @if (isControlInvalid('phone')) {
+                <p class="error-message">أدخل رقم جوال سعودي صحيح.</p>
+              }
+            </div>
+
+            <div class="col-md-6">
+              <label class="field-label" for="registerPassword">كلمة المرور</label>
+              <div class="field-wrap">
+                <input
+                  id="registerPassword"
+                  class="form-control"
+                  type="password"
+                  formControlName="password"
+                  placeholder="********"
+                  [class.is-invalid]="isControlInvalid('password')"
+                />
+              </div>
+              @if (isControlInvalid('password')) {
+                <p class="error-message">8 أحرف على الأقل مع حرف ورقم.</p>
+              }
+            </div>
+
+            <div class="col-12">
+              <label class="field-label" for="registerConfirmPassword">تأكيد كلمة المرور</label>
+              <div class="field-wrap">
+                <input
+                  id="registerConfirmPassword"
+                  class="form-control"
+                  type="password"
+                  formControlName="confirmPassword"
+                  placeholder="********"
+                  [class.is-invalid]="isControlInvalid('confirmPassword') || hasPasswordMismatch()"
+                />
+              </div>
+              @if (isControlInvalid('confirmPassword')) {
+                <p class="error-message">يرجى إعادة إدخال كلمة المرور.</p>
+              }
+              @if (hasPasswordMismatch()) {
+                <p class="error-message">كلمتا المرور غير متطابقتين.</p>
+              }
+            </div>
+          </div>
+
+          <label class="terms-check d-flex align-items-start gap-2 mt-3">
+            <input type="checkbox" formControlName="termsAccepted" />
+            <span>
+              أوافق على
+              <a href="#" (click)="$event.preventDefault()">الشروط والأحكام</a>
+              وسياسة الخصوصية.
+            </span>
+          </label>
+          @if (isControlInvalid('termsAccepted')) {
+            <p class="error-message mt-2">يجب الموافقة على الشروط لإتمام التسجيل.</p>
+          }
+
+          <button class="btn submit-btn w-100 mt-4" type="submit" [disabled]="isSubmitting()">
+            <span>{{ isSubmitting() ? 'جاري إنشاء الحساب...' : 'إنشاء الحساب' }}</span>
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+          </button>
+        </form>
+
+        <p class="switch-auth mt-4 mb-0 text-center">
+          لديك حساب بالفعل؟
+          <a routerLink="/login">تسجيل الدخول</a>
+        </p>
+      </article>
+
+      <article class="auth-side text-end">
+        <span class="auth-pill">عقارك يبدأ بخطوة</span>
+        <h1 class="auth-heading mt-3">حساب واحد لكل خدماتك</h1>
+        <p class="auth-subtitle mt-3">
+          أنشئ حسابك لتتبع الوحدات المفضلة، استلام العروض الحصرية، والتواصل السريع مع فريقنا.
+        </p>
+
+        <div class="benefits-list mt-4">
+          <div class="benefit-item">
+            <i class="fa-solid fa-badge-check" aria-hidden="true"></i>
+            <div>
+              <h6>عروض حصرية</h6>
+              <p class="mb-0">احصل على إشعارات فورية بأحدث الفرص العقارية.</p>
+            </div>
+          </div>
+
+          <div class="benefit-item">
+            <i class="fa-solid fa-headset" aria-hidden="true"></i>
+            <div>
+              <h6>دعم مباشر</h6>
+              <p class="mb-0">فريقنا متاح لمساعدتك في أي وقت خلال الرحلة.</p>
+            </div>
+          </div>
+
+          <div class="benefit-item">
+            <i class="fa-solid fa-heart" aria-hidden="true"></i>
+            <div>
+              <h6>حفظ المفضلة</h6>
+              <p class="mb-0">احتفظ بالمشاريع والوحدات التي تهمك في مكان واحد.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+  </div>
+</main>

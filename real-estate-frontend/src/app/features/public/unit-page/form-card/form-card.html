@@ -1,19 +1,31 @@
-<div class="form-card p-4 text-end">
+<div class="form-card" dir="rtl">
+  <i class="fa-solid fa-building decor-watermark" aria-hidden="true"></i>
+  <div class="decor-line" aria-hidden="true"></div>
+  <div class="decor-orbit" aria-hidden="true">
+    <span class="decor-star"></span>
+  </div>
 
-  <h6 class="mb-3">تواصل معنا</h6>
+  <div class="form-inner p-5 text-end d-flex flex-column h-100">
+    <h5 class="title mb-4 text-center">تواصل معنا</h5>
 
-  <input class="form-control mb-2" placeholder="الاسم الكامل">
-  <input class="form-control mb-2" placeholder="رقم الهاتف">
+    <label class="field-label" for="fullName">الاسم الكامل<span class="req">*</span></label>
+    <input id="fullName" class="form-control mb-3" placeholder="الاسم الثلاثي" />
 
-  <textarea class="form-control mb-3" rows="3" placeholder="اكتب طلبك"></textarea>
+    <label class="field-label" for="phone">رقم الجوال<span class="req">*</span></label>
+    <input id="phone" class="form-control mb-3" placeholder="رقم الجوال" />
 
-  <button class="btn send-btn w-100">
-    ارسال طلبك الآن
-    <i class="fa-solid fa-arrow-left"></i>
-  </button>
+    <label class="field-label" for="notes">ملاحظات مرفقة</label>
+    <textarea id="notes" class="form-control notes" rows="4" placeholder="اكتب هنا..."></textarea>
 
-  <small class="d-block mt-3 text-center">
-    تواصل معنا عبر واتساب
-  </small>
+    <button class="btn send-btn w-100 mt-4" type="button">
+      <span>ارسل طلبك الآن</span>
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
 
+    <div class="whatsapp mt-auto pt-4 d-flex align-items-center justify-content-center gap-3">
+      <i class="fa-solid fa-arrow-left"></i>
+      <span>تواصل معنا عبر واتساب</span>
+      <i class="fa-brands fa-whatsapp"></i>
+    </div>
+  </div>
 </div>

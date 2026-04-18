@@ -1,0 +1,73 @@
+<main class="auth-page login-page">
+  <div class="container auth-container">
+    <section class="row justify-content-center">
+      <article class="auth-card col-lg-6 text-end">
+        <h2 class="card-title mb-1">تسجيل الدخول</h2>
+        <p class="card-subtitle mb-4">أدخل بياناتك للوصول إلى حسابك</p>
+
+        <form [formGroup]="loginForm" (ngSubmit)="submit()" novalidate>
+          <div class="field-group mb-3">
+            <label class="field-label" for="loginEmail">البريد الإلكتروني</label>
+            <div class="field-wrap">
+              <input
+                id="loginEmail"
+                class="form-control"
+                type="email"
+                formControlName="email"
+                placeholder="yourname@mail.com"
+                [class.is-invalid]="isControlInvalid('email')"
+              />
+            </div>
+            @if (isControlInvalid('email')) {
+              <p class="error-message" aria-live="polite">يرجى إدخال بريد إلكتروني صحيح.</p>
+            }
+          </div>
+
+          <div class="field-group mb-2">
+            <label class="field-label" for="loginPassword">كلمة المرور</label>
+            <div class="field-wrap">
+              <input
+                id="loginPassword"
+                class="form-control"
+                type="password"
+                formControlName="password"
+                placeholder="كلمة السر"
+                [class.is-invalid]="isControlInvalid('password')"
+              />
+            </div>
+            @if (isControlInvalid('password')) {
+              <p class="error-message" aria-live="polite">
+                كلمة المرور مطلوبة ويجب ألا تقل عن 8 أحرف.
+              </p>
+            }
+          </div>
+
+          <div class="options-row d-flex align-items-center justify-content-between mb-4">
+            <label class="remember-me d-flex align-items-center gap-2">
+              <input type="checkbox" formControlName="rememberMe" />
+              <span>تذكرني</span>
+            </label>
+            <a class="forgot-link" routerLink="/contact-us">نسيت كلمة المرور؟</a>
+          </div>
+
+          <button class="btn submit-btn w-100" type="submit" [disabled]="isSubmitting()">
+            <span>{{ isSubmitting() ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول' }}</span>
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+          </button>
+        </form>
+        <div class="divider my-4" aria-hidden="true"><span>أو</span></div>
+
+        <button class="btn google-btn w-100" type="button" (click)="continueWithGoogle()">
+          <i class="fa-brands fa-google" aria-hidden="true"></i>
+          <span>تسجيل الدخول باستخدام Google</span>
+        </button>
+
+
+        <p class="switch-auth mt-4 mb-0 text-center">
+          ليس لديك حساب؟
+          <a routerLink="/register">إنشاء حساب جديد</a>
+        </p>
+      </article>
+    </section>
+  </div>
+</main>

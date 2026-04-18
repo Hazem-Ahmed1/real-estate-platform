@@ -1,0 +1,140 @@
+.icon-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.icon-grid-item {
+  position: relative;
+  padding: 1.1rem 0.9rem 1rem;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(18, 29, 64, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+.item-title {
+  color: var(--primary-color);
+  font-size: 1.05rem;
+  font-weight: 700;
+  transition: color 0.3s ease;
+}
+
+.item-subtitle {
+  color: var(--text-gold);
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.1;
+  transition: color 0.3s ease;
+}
+
+.icon-grid--features {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.icon-grid--features .icon-wrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  color: var(--primary-color);
+  background: rgba(91, 96, 165, 0.14);
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.icon-grid--features .item-title {
+  font-size: 1.08rem;
+}
+
+.icon-grid--warranties {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.icon-grid--warranties .icon-wrap {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--primary-color);
+  box-shadow: 0 10px 20px rgba(91, 96, 165, 0.22);
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.icon-grid--warranties .item-title {
+  font-size: 0.98rem;
+}
+
+.icon-grid-icon {
+  transition: color 0.3s ease;
+}
+
+.icon-grid-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 18px 34px rgba(20, 34, 74, 0.15);
+}
+
+.icon-grid--features .icon-grid-item:hover {
+  background: #eef0ff;
+}
+
+.icon-grid--features .icon-grid-item:hover .icon-wrap {
+  background: #5b60a5;
+  transform: scale(1.06);
+}
+
+.icon-grid--features .icon-grid-item:hover .icon-grid-icon {
+  color: #fff;
+}
+
+.icon-grid--warranties .icon-grid-item {
+  background: #fcfdff;
+}
+
+.icon-grid--warranties .icon-grid-item:hover {
+  background: #f2f4ff;
+}
+
+.icon-grid--warranties .icon-grid-item:hover .icon-wrap {
+  background: #4b5198;
+  transform: scale(1.06);
+}
+
+.icon-grid--warranties .icon-grid-item:hover .item-subtitle {
+  color: #df9e00;
+}
+
+@media (max-width: 1199px) {
+  .icon-grid--warranties {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 991px) {
+  .icon-grid--features,
+  .icon-grid--warranties {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 575px) {
+  .icon-grid--features,
+  .icon-grid--warranties {
+    grid-template-columns: 1fr;
+  }
+
+  .item-title {
+    font-size: 1rem;
+  }
+
+  .item-subtitle {
+    font-size: 1.15rem;
+  }
+}
+
+.stagger-fade-in {
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

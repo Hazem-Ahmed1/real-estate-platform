@@ -1,0 +1,86 @@
+.stat-card {
+  border-radius: 14px;
+  height: 130px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  cursor: default;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  /* box-shadow: 0 10px 25px rgba(0,0,0,0.2); */
+}
+
+.stat-bg {
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.stat-card:hover .stat-bg {
+  transform: scale(1.05);
+}
+
+.stat-overlay {
+  padding: 1.3rem 1.25rem 1.1rem;
+  background:linear-gradient(180deg,rgba(0, 0, 0, 0.36) 0%,rgba(0, 0, 0, 0.32) 30%) ;
+  transition: background 0.4s ease;
+}
+
+.stat-card:hover .stat-overlay {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.01) 0%, rgba(0, 0, 0, 0.68) 100%);
+}
+
+.stat-label {
+  font-size: 1rem;
+  transition: opacity 0.35s ease, transform 0.45s ease;
+}
+
+.stat-value-wrap {
+  gap: 0.2rem;
+  transition: opacity 0.35s ease, transform 0.45s ease;
+}
+
+.stat-value {
+  font-size: 1.7rem;
+}
+
+.plus-sign {
+  color: var(--text-gold);
+  font-size: 1.35rem;
+  opacity: 0.95;
+  transform: translateY(1px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.stat-card:hover .plus-sign {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.stat-card:hover .stat-label {
+  opacity: 0;
+  transform: translateY(-14px);
+}
+
+.stat-card:hover .stat-value-wrap {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+@media (max-width: 991px) {
+  .stat-card {
+    height: 110px;
+  }
+
+  .stat-overlay {
+    padding: 1.05rem 1rem 0.9rem;
+  }
+
+  .stat-label {
+    font-size: 0.95rem;
+  }
+
+  .stat-value {
+    font-size: 1.65rem;
+  }
+}

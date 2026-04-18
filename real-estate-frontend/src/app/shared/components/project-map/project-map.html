@@ -1,0 +1,17 @@
+<div class="map-container w-100">
+  <div class="map-floating-ui" dir="rtl">
+    <div class="map-coordinates-card" aria-label="إحداثيات وعنوان المشروع">
+      <p class="map-coordinates-line">{{ coordinateLabel() }}</p>
+      <p class="map-address">
+        <span class="map-address-line">{{ infoAddressLine1() }}</span>
+        <span class="map-address-line">{{ infoAddressLine2() }}</span>
+      </p>
+      <a class="map-expand-link" [href]="largerMapUrl()" target="_blank" rel="noopener noreferrer">
+        <i class="fa-solid fa-location-dot map-expand-icon" aria-hidden="true"></i>
+        <span class="map-expand-text">عرض على الخريطة اكبر</span>
+        <i class="fa-solid fa-arrow-left map-expand-icon" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+  <div #mapRoot class="map-canvas" role="application" aria-label="خريطة موقع المشروع"></div>
+</div>

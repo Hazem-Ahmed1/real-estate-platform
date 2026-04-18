@@ -1,0 +1,17 @@
+
+<div class="section-title-wrap mb-5 slide-in text-end" dir="rtl">
+    <div class="section-title-content d-flex flex-column align-items-start">
+        <div class="title-top d-flex align-items-center justify-content-end mb-0">
+            <div class="bg-circles">
+                <span class="circle circle-1"></span>
+                <span class="circle circle-2"></span>
+            </div>
+            <span class="green-line"></span>
+            <span class="section-subtitle fw-bolder">{{ subtitle() }}</span>
+            <div class="decor-star"></div>
+        </div>
+        @if(title() !== null){
+        <h2 class="main-title mt-4 mb-0">{{ title() }}</h2>
+        }
+    </div>
+</div>

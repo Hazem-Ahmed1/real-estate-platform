@@ -14,6 +14,7 @@ import { Register } from './features/public/auth/register/register';
 import { AdminDashboard } from './features/admin/dashboard/dashboard';
 import { PublicLayout } from './core/layout/public-layout/public-layout';
 import { AdminLayout } from './core/layout/admin-layout/admin-layout';
+import { Blog } from './features/public/blog/blog';
 
 export const routes: Routes = [
   {
@@ -86,6 +87,10 @@ export const routes: Routes = [
   {
     path: "unit-details",
     component: UnitDetails,
+  },
+  {
+    path:"blog",
+    component:Blog
   },
 
   {

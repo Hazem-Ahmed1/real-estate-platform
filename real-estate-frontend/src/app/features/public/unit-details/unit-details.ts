@@ -9,6 +9,9 @@ import { IconFeatureGrid } from '../../../shared/components/icon-feature-grid/ic
 import { ProjectMap } from '../../../shared/components/project-map/project-map';
 import { ContactSection } from '../../../shared/components/contact-section/contact-section';
 import { FormsModule } from '@angular/forms';
+import { Footer } from "../../../shared/components/footer/footer";
+import { Navbar } from "../../../shared/components/navbar/navbar";
+import { TopNavbar } from "../../../shared/components/top-navbar/top-navbar";
 
 type UnitDetailsTab = 'features' | 'warranties' | 'designs' | 'nearby';
 
@@ -24,8 +27,11 @@ type UnitDetailsTab = 'features' | 'warranties' | 'designs' | 'nearby';
     ProjectMap,
     ContactSection,
     FormsModule,
-    CommonModule
-  ],
+    CommonModule,
+    Footer,
+    Navbar,
+    TopNavbar
+],
   templateUrl: './unit-details.html',
   styleUrl: './unit-details.css',
 })

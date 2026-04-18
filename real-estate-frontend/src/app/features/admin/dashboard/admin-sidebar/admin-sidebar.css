@@ -1,0 +1,140 @@
+:host {
+  display: block;
+}
+
+.admin-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 16rem;
+  min-height: 100vh;
+  background: var(--admin-sidebar-bg);
+  color: var(--admin-white);
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--admin-sidebar-border);
+  z-index: 20;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  border-bottom: 1px solid var(--admin-sidebar-border);
+}
+
+.brand-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: var(--admin-primary-500);
+}
+
+.brand-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.brand-subtitle {
+  margin: 0;
+  font-size: 12px;
+  color: var(--admin-primary-300);
+}
+
+.sidebar-nav {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  flex: 1;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: var(--admin-sidebar-link);
+  text-decoration: none;
+  transition: background-color 220ms ease, color 220ms ease, border-color 220ms ease;
+  border: 1px solid transparent;
+}
+
+.nav-link:hover {
+  background: var(--admin-sidebar-hover);
+  color: var(--admin-white);
+}
+
+.nav-link-active {
+  background: var(--admin-sidebar-active-bg);
+  color: var(--admin-primary-200);
+  border-color: var(--admin-sidebar-active-border);
+}
+
+.sidebar-user {
+  border-top: 1px solid var(--admin-sidebar-border);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--admin-primary-700);
+  color: var(--admin-primary-100);
+}
+
+.user-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-name,
+.user-role {
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.user-role {
+  font-size: 12px;
+  color: var(--admin-sidebar-link-muted);
+}
+
+.logout-btn {
+  background: transparent;
+  border: 0;
+  color: var(--admin-sidebar-link-muted);
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  color: var(--admin-white);
+}
+
+@media (max-width: 991.98px) {
+  .admin-sidebar {
+    position: relative;
+    width: 100%;
+    min-height: auto;
+    border-left: 0;
+    border-bottom: 1px solid var(--admin-sidebar-border);
+  }
+}

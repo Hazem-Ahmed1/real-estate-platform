@@ -1,0 +1,125 @@
+<section class="kpi-grid" aria-label="المؤشرات الرئيسية">
+  @for (kpi of kpis(); track kpi.label) {
+    <article class="kpi-card">
+      <div class="kpi-head">
+        <div [class]="kpi.badgeClass">
+          <i [class]="kpi.iconClass" aria-hidden="true"></i>
+        </div>
+        <span class="kpi-label">{{ kpi.label }}</span>
+      </div>
+      <h3 class="kpi-value">{{ kpi.value }}</h3>
+      <div class="kpi-trend">
+        <span [class]="trendTextClass(kpi.direction)">
+          <i [class]="trendIconClass(kpi.direction)" aria-hidden="true"></i>
+          {{ kpi.trend }}
+        </span>
+        <span class="kpi-trend-note">مقارنة بالفترة السابقة</span>
+      </div>
+    </article>
+  }
+</section>
+
+<section class="chart-grid" aria-label="الرسوم والتحليل">
+  <article class="card traffic-card">
+    <div class="card-head">
+      <h3>اتجاه حركة الزيارات</h3>
+      <div class="chart-filters">
+        <button type="button" class="mini-btn mini-btn-active">يومي</button>
+        <button type="button" class="mini-btn">أسبوعي</button>
+        <button type="button" class="mini-btn">شهري</button>
+      </div>
+    </div>
+
+    <div class="chart-area" role="img" aria-label="رسم بياني لحركة الزيارات">
+      <div class="chart-bars">
+        @for (bar of chartBars(); track $index) {
+          <div [class]="'chart-bar ' + bar.colorClass" [style.height.%]="bar.height"></div>
+        }
+      </div>
+      <div class="chart-gridlines" aria-hidden="true">
+        <span>100k</span>
+        <span>75k</span>
+        <span>50k</span>
+        <span>25k</span>
+        <span></span>
+      </div>
+    </div>
+  </article>
+
+  <article class="card sources-card">
+    <h3>مصادر الزيارات</h3>
+
+    <div class="donut-wrap" role="img" aria-label="نسبة مصادر الزيارات">
+      <div class="donut-chart"></div>
+      <div class="donut-center">
+        <p class="donut-value">842K</p>
+        <p class="donut-label">الإجمالي</p>
+      </div>
+    </div>
+
+    <div class="sources-list">
+      @for (source of sources(); track source.label) {
+        <div class="source-item">
+          <div class="source-label-wrap">
+            <span [class]="'dot ' + source.colorClass"></span>
+            <span class="source-label">{{ source.label }}</span>
+          </div>
+          <span class="source-percent">{{ source.percent }}</span>
+        </div>
+      }
+    </div>
+  </article>
+</section>
+
+<section class="details-grid" aria-label="تفاصيل الصفحات والمناطق">
+  <article class="card pages-card">
+    <h3>أكثر الصفحات زيارة</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>الصفحة</th>
+            <th>المشاهدات</th>
+            <th>الارتداد</th>
+            <th>الاتجاه</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (page of topPages(); track page.page) {
+            <tr>
+              <td>{{ page.page }}</td>
+              <td>{{ page.views }}</td>
+              <td>{{ page.bounce }}</td>
+              <td>
+                <i
+                  [class]="trendIconClass(page.direction) + ' ' + trendTextClass(page.direction)"
+                  aria-hidden="true"
+                ></i>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <article class="card regions-card">
+    <h3>أفضل المناطق</h3>
+    <div class="regions-list">
+      @for (region of regions(); track region.name) {
+        <div class="region-item">
+          <div class="region-head">
+            <div class="region-title-wrap">
+              <span class="region-flag">{{ region.flag }}</span>
+              <span class="region-title">{{ region.name }}</span>
+            </div>
+            <span class="region-value">{{ region.value }}</span>
+          </div>
+          <div class="region-track">
+            <div [class]="'region-bar ' + region.barClass" [style.width.%]="region.width"></div>
+          </div>
+        </div>
+      }
+    </div>
+  </article>
+</section>

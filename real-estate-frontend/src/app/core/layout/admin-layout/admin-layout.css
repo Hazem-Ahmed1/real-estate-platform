@@ -1,0 +1,32 @@
+:host {
+  display: block;
+}
+
+.admin-shell {
+  min-height: 100vh;
+  background: var(--admin-bg-page);
+  color: var(--admin-text-primary);
+}
+
+.admin-main {
+  margin-right: 16rem;
+  min-height: 100vh;
+}
+
+.admin-content {
+  padding: 28px;
+  display: grid;
+  gap: 22px;
+}
+
+@media (max-width: 991.98px) {
+  .admin-main {
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .admin-content {
+    padding: 14px;
+  }
+}

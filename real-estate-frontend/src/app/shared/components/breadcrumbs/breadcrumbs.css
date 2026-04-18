@@ -7,10 +7,23 @@
   margin: 0px 15px;
 }
 
+
+.holder{
+  margin-top: 1.7rem;
+  margin-bottom: 2rem;
+
+}
 /* Link styling */
 .breadcrumb a {
-  color: #6c757d;
+  color: var(--text-dark);
   transition: 0.3s;
+  text-decoration: none;
+}
+
+/* Keep breadcrumb content vertically aligned with the right-side extra info */
+.breadcrumb {
+  margin-bottom: 0;
+  padding-left: 0;
 }
 
 .breadcrumb a:hover {
@@ -43,4 +56,33 @@ hr{
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+
+.breadcrumb-extra {
+  font-size: 16px;
+}
+
+/* PRICE */
+.price {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.price i {
+  margin-right: 5px;
+}
+
+/* STATUS */
+.status {
+  color: var(--text-green);
+  font-weight: 600;
+}
+
+.status i {
+  margin-right: 5px;
+}
+
+.sep{
+  color: rgba(0, 0, 0, 0.05);
 }

@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { WhyUsCard } from '../../../../shared/components/why-us-card/why-us-card';
+import { WhyUsCard } from './why-us-card/why-us-card';
 
 interface Card {
   title: string;

@@ -15,4 +15,6 @@ export interface BreadcrumbItem {
 })
 export class BreadcrumbComponent {
   items = input.required<BreadcrumbItem[]>();
+  price = input<number | null>(null);
+  status = input<string | null>(null);
 }

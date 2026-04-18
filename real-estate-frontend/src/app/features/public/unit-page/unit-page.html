@@ -1,0 +1,26 @@
+<app-breadcrumb
+  [price]="5000"
+  status="متاح للبيع (تملك الآن)"
+  [items]="[{ label: 'الرئيسية', url: '/' }, { label: 'المشاريع' }]"
+/>
+
+<div class="container">
+  <app-unit-specs [data]="unit"></app-unit-specs>
+
+  <div class="text-end mb-4 position-relative title-holder">
+    <span class="tag">صورة</span>
+    <h3 class="title">صورة 360 درجة للوحـــدة</h3>
+  </div>
+
+  <div class="row g-4 align-items-center">
+    <!-- RIGHT: IMAGE -->
+    <div class="col-lg-8">
+      <app-image-card></app-image-card>
+    </div>
+    <!-- LEFT: FORM -->
+    <div class="col-lg-4">
+      <app-form-card></app-form-card>
+    </div>
+  </div>
+</div>
+<app-contact-section></app-contact-section>

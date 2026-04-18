@@ -1,0 +1,36 @@
+.unit-specs {
+  font-size: 14px;
+}
+
+
+
+/* TOP */
+.title {
+  font-weight: 600;
+  font-size: 20px;
+  color: var(--text-dark);
+}
+
+/* BOTTOM */
+.specs span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted-dark);
+  font-size: 14px;
+  font-weight: 700;
+  position: relative;
+}
+
+.specs i {
+  color: var(--primary-color);
+}
+
+
+.specs span:not(:last-child)::after {
+  content: "|";
+  margin: 0 8px;
+  color: #0000004D;
+}
+
+

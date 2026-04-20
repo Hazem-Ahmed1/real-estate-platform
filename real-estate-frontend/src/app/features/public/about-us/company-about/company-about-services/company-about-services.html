@@ -1,0 +1,30 @@
+<div class="services-side">
+
+    <div class="label">
+        <span class="star">✦</span>
+        <span class="text">حول الشركة</span>
+        <div class="line"></div>
+    </div>
+
+    <h2 class="title">
+        حول شركة مجموعة جدة الاولى<br />
+        لـــلاستثـــمرات العقـاريـــة
+    </h2>
+
+    <div class="list">
+        <div class="card" *ngFor="let s of services">
+            <!-- Icon FIRST → renders on RIGHT in RTL flex row -->
+            <div class="card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path [attr.d]="s.icon" />
+                </svg>
+            </div>
+            <div class="card-text">
+                <h3>{{ s.title }}</h3>
+                <p>{{ s.description }}</p>
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,8 @@
+<div class="gallery">
+  <div class="main">
+    <img [src]="mainImage" alt="أبراج تجارية" />
+  </div>
+  <div class="thumb" *ngFor="let img of thumbs">
+    <img [src]="img" alt="صورة عقارية" />
+  </div>
+</div>

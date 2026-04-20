@@ -16,6 +16,7 @@ import { PublicLayout } from './core/layout/public-layout/public-layout';
 import { AdminLayout } from './core/layout/admin-layout/admin-layout';
 import { Blog } from './features/public/blog/blog';
 import { BlogWithSidebar } from './features/public/blog-with-sidebar/blog-with-sidebar';
+import { AboutUs } from './features/public/about-us/about-us';
 
 export const routes: Routes = [
   {
@@ -70,6 +71,10 @@ export const routes: Routes = [
       {
         path: 'blog-with-sidebar',
         component: BlogWithSidebar,
+      },
+      {
+        path: 'about-us',
+        component: AboutUs,
       },
     ],
   },

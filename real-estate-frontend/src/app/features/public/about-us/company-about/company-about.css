@@ -1,0 +1,22 @@
+:host {
+  display: block;
+}
+
+.about {
+  display: flex;
+  flex-direction: row-reverse;         /* Desktop: image LEFT, text RIGHT (RTL) */
+  align-items: center;
+  gap: 40px;
+  padding: 40px 0 50px;
+  background: var(--bg-light);
+  overflow: visible;
+  box-sizing: border-box;
+
+  @media (max-width: 992px) {
+    flex-direction: column-reverse;    /* Mobile: Text FIRST (top), Image SECOND (bottom) */
+    gap: 32px;
+    padding: 32px 0;
+    overflow: hidden; 
+  }
+}
+

@@ -1,0 +1,23 @@
+<div class="card-box p-4" [class.highlighted]="isActive">
+  <!-- Absolute Palm Tree Decoration -->
+  <i class="fa-solid fa-tree decoration-shape"></i>
+
+  <div class="card-content-wrapper">
+    <div class="icon mb-3">
+      <i class="fa-solid" [ngClass]="data.icon"></i>
+    </div>
+
+    <h6 class="fw-bold title-card">{{ data.title }}</h6>
+
+    <p class="small description">
+      {{ data.description }}
+    </p>
+  </div>
+
+  <div class="read-more-wrapper">
+    <a href="#" class="read-more">
+      اقرأ المزيد
+      <i class="fa-solid fa-arrow-left arrow-icon"></i>
+    </a>
+  </div>
+</div>

@@ -1,0 +1,132 @@
+.card-box {
+  background: #5B60A508;
+  border-radius: 19.66px;
+  transition: 0.3s;
+  cursor: pointer;
+  min-height: 310px; /* Secure height bounds */
+  height: 100%;      /* Ensure stretch across all grid siblings */
+  color: var(--primary-color);
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden; /* Guarantee nothing bleeds out ever */
+  
+  @media (max-width: 900px) {
+    text-align: center;
+    padding-bottom: 20px !important;
+  }
+}
+
+/* ── Decorative Corner Shape ────────────────────────────── */
+.decoration-shape {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  font-size: 24px;
+  color: var(--primary-color);
+  opacity: 0.8;
+  transition: 0.3s;
+}
+
+.card-box:hover .decoration-shape, .card-box.highlighted .decoration-shape {
+  color: var(--text-light); /* Flip white on active state */
+}
+
+/* ── Structure Enforcers ────────────────────────────────── */
+.card-content-wrapper {
+  flex-grow: 1; /* Pushes the read-more perfectly to the bottom */
+}
+
+.card-box .icon {
+  width: 55px; /* Increased icon box size */
+  height: 55px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0;
+  
+  @media (max-width: 900px) {
+    margin: 0 auto 15px auto; /* Center perfectly on mobile/tablet */
+  }
+}
+
+.card-box .icon i {
+  font-size: 20px; /* Increased font size for visually prominent icons */
+  color: var(--text-light);
+}
+
+.title-card{
+  color: var(--primary-color);
+  font-size: 18px; /* Bigger titles */
+  margin-bottom: 15px;
+}
+
+.description{
+  color: var(--text-dark);
+  line-height: 1.9; /* Improved spacing */
+  font-size: 14px;  /* More readable minimum text */
+  max-width: 100%;
+  
+  @media (max-width: 900px) {
+    max-width: 100%; /* Fully scale on mobile */
+  }
+}
+
+/* ── Hover / Active Physics ────────────────────────AAAAAA */
+.card-box:hover, .card-box.highlighted {
+  transform: translateY(-5px);
+  background: var(--primary-color);
+  color: var(--text-light);
+}
+
+/* ICON ON HOVER / HIGHLIGHT */
+.card-box:hover .icon, .card-box.highlighted .icon {
+  background: var(--text-light);
+}
+
+.card-box:hover .title-card, .card-box.highlighted .title-card {
+  color: var(--text-light);
+}
+
+.card-box:hover .icon i, .card-box.highlighted .icon i {
+  color: var(--primary-color);
+}
+
+/* TEXT ON HOVER / HIGHLIGHT */
+.card-box:hover p, .card-box.highlighted p,
+.card-box:hover .read-more, .card-box.highlighted .read-more {
+  color: var(--text-light);
+}
+
+/* ── Read More Setup & Animation ────────────────────────── */
+.read-more-wrapper {
+  margin-top: 15px;
+}
+
+.read-more {
+  color: #28a745;
+  font-size: 14px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Space between text and arrow */
+  
+  @media (max-width: 900px) {
+    justify-content: center;
+  }
+}
+
+.arrow-icon {
+  transition: transform 0.3s ease;
+}
+
+/* Move left since RTL means arrow left is pointing towards reading direction */
+.card-box:hover .arrow-icon, .card-box.highlighted .arrow-icon {
+  transform: translateX(-5px);
+}
+

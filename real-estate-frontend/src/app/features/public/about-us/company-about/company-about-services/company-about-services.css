@@ -1,0 +1,129 @@
+:host {
+  /* Uses global variables from styles.css — no local color overrides */
+  --radius: 12px;
+  display: block;
+  flex: 1;
+}
+
+/* ── Right side: text + features ─────────────────────────── */
+.services-side {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0;
+}
+
+/* ── Section label (✦ حول الشركة ——) ────────────────────── */
+.label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+
+  @media (max-width: 900px) {
+    justify-content: center;
+  }
+
+  .star { color: var(--text-green); font-size: 18px; }
+  .text { color: var(--text-green); font-size: 15px; font-weight: 700; }
+  .line { width: 40px; height: 2px; background: var(--text-green); }
+}
+
+/* ── Main heading ─────────────────────────────────────────── */
+.title {
+  font-size: 32px;          /* Scaled up from 28px */
+  font-weight: 700;
+  color: var(--primary-color);
+  line-height: 1.5;         /* Dynamic line height */
+  margin-bottom: 24px;      /* Increased spacing */
+  text-align: right;
+
+  @media (max-width: 900px) {
+    text-align: center;
+    font-size: 28px;
+  }
+}
+
+/* ── Feature cards list ───────────────────────────────────── */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;                /* Enhanced card spacing */
+}
+
+/* ── Single card row ──────────────────────────────────────── */
+.card {
+  display: flex;
+  flex-direction: row;      /* icon RIGHT (1st in DOM), text LEFT (2nd in DOM) in RTL */
+  align-items: center;
+  gap: 16px;                /* Slightly wider gap */
+  padding: 16px;            /* Increased padding */
+  border-radius: var(--radius);
+  /* background: var(--bg-gray); */
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+
+  &:hover {
+    border-color: var(--text-green);
+    box-shadow: 0 4px 20px rgba(21, 169, 75, 0.12);
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 900px) {
+    flex-direction: column; /* Stack gracefully on mobile */
+    text-align: center;
+    justify-content: center;
+    gap: 12px;
+  }
+}
+
+/* ── Icon box ─────────────────────────────────────────────── */
+.card-icon {
+  width: 80px;              /* Slight bump from 75px */
+  height: 80px;
+  border-radius: 18px;
+  background: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.25s;
+
+  svg { width: 36px; height: 36px; }
+
+  @media (max-width: 900px) {
+    margin: 0 auto;
+  }
+}
+
+.card:hover .card-icon {
+  background: var(--accent-color);
+}
+
+/* ── Text (title + description) ──────────────────────────── */
+.card-text {
+  flex: 1;
+  text-align: right;
+
+  @media (max-width: 900px) {
+    text-align: center;
+  }
+
+  h3 {
+    font-size: 18px;        /* Scaled from 14px */
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+
+  p {
+    font-size: 14px;        /* Scaled from 11px */
+    font-weight: 500;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 0;
+  }
+}

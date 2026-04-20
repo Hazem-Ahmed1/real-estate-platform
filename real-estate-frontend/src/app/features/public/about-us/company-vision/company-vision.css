@@ -1,0 +1,20 @@
+:host {
+  display: block;
+}
+
+.vision {
+  display: flex;
+  flex-direction: row-reverse;         /* Desktop: Gallery RIGHT, Text LEFT (RTL) */
+  align-items: flex-start;             /* Aligns text and image bounds horizontally at the exact top edge */
+  gap: 40px;
+  padding: 40px;                       /* Apply balanced padding equal on all sides */
+  /* background: var(--bg-gray); */
+  box-sizing: border-box;
+
+  @media (max-width: 992px) {
+    flex-direction: column-reverse;    /* Mobile: Images FIRST (top), Text SECOND (bottom) */
+    gap: 32px;
+    padding: 32px 0;
+    overflow: hidden;
+  }
+}

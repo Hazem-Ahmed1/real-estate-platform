@@ -1,0 +1,60 @@
+:host {
+  /* Uses global variables from styles.css — no local overrides */
+  display: block;
+  flex: 1;
+}
+
+.text-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+
+  @media (max-width: 992px) {
+    flex: unset;
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+/* ── Section label (✦ رؤية شركة ——) ─────────────────────── */
+.label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+
+  @media (max-width: 900px) {
+    justify-content: center;
+  }
+
+  .star { color: var(--text-green); font-size: 18px; }
+  .text { color: var(--text-green); font-size: 15px; font-weight: 700; }
+  .line { width: 40px; height: 2px; background: var(--text-green); }
+}
+
+/* ── Main heading ─────────────────────────────────────────── */
+.title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--primary-color);
+  line-height: 1.5;
+  margin-bottom: 24px;
+  text-align: right;
+
+  @media (max-width: 900px) {
+    text-align: center;
+    font-size: 28px;
+  }
+}
+
+/* ── Body paragraph ───────────────────────────────────────── */
+.body {
+  font-size: 16px;
+  color: #A0A0A0;   /* global: #424242 */
+  line-height: 1.9;
+  text-align: right;
+
+  @media (max-width: 900px) {
+    text-align: center;
+  }
+}

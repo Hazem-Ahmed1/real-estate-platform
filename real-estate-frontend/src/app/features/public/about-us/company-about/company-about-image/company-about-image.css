@@ -1,0 +1,60 @@
+:host {
+  --radius: 24px;   /* Figma: Radius 24px */
+  display: block;   
+  flex: 1;          
+
+  @media (max-width: 992px) {
+    display: none;    /* TODO: enable image on mobile if needed */
+  }
+}
+
+.image-side {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+
+  /* The #EEEEEE decorative offset box from Figma (Rectangle 781) */
+  &::before {
+    content: "";
+    position: absolute;
+    bottom: -24px;
+    left: -24px;
+    width: 100%;
+    height: 470px;
+    background-color: #EEEEEE;
+    border-radius: var(--radius);
+    z-index: -1;
+
+    @media (max-width: 900px) {
+      top: -12px;
+      left: -12px;
+      height: 260px;
+    }
+  }
+}
+
+.image-wrapper {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 470px;       /* Figma: Height 470px */
+  border-radius: var(--radius);
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: scale(1.02);   /* slight scale to avoid edge bleeding */
+    transition: transform 0.6s ease;
+  }
+
+  &:hover img {
+    transform: scale(1.06);   /* subtle zoom on hover */
+  }
+
+  @media (max-width: 900px) {
+    height: 260px;
+  }
+}

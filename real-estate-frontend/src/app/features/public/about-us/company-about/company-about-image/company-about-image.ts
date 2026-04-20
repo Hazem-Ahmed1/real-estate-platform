@@ -7,5 +7,5 @@ import { Component } from '@angular/core';
   styleUrl: './company-about-image.css'
 })
 export class CompanyAboutImage {
-  imageUrl = 'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=800&q=80';
+  imageUrl = '/images/aboutUs.jpg';
 }

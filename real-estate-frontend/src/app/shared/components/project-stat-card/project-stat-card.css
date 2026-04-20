@@ -1,6 +1,6 @@
 .stat-card {
   border-radius: 14px;
-  height: 130px;
+  height: 174px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
   transition: transform 0.4s ease, box-shadow 0.4s ease;
   cursor: default;
@@ -31,7 +31,8 @@
 }
 
 .stat-label {
-  font-size: 1rem;
+  font-size: 18px;
+  font-weight: 500;
   transition: opacity 0.35s ease, transform 0.45s ease;
 }
 
@@ -41,7 +42,8 @@
 }
 
 .stat-value {
-  font-size: 1.7rem;
+  font-size: 26px;
+  font-weight: 700;
 }
 
 .plus-sign {

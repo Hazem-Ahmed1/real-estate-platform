@@ -1,0 +1,32 @@
+.project-hero {
+    text-align: center;
+}
+
+.project-title {
+    color: #111827;
+    font-weight: 600;
+    font-size: 16px;
+
+}
+
+.project-location {
+    font-size: 12px;
+    font-weight: 700;
+    justify-content: center;
+}
+
+.project-location i {
+    color: var(--primary-color);
+}
+
+/* ⚠️ تم حذف grid لأنه كان بيعمل conflict مع Bootstrap */
+
+@media (max-width: 991px) {
+    .project-title {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 575px) {
+    /* مفيش حاجة هنا لأننا مش مستخدمين grid */
+}

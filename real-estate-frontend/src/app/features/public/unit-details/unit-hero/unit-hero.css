@@ -1,0 +1,41 @@
+/* ===== TITLE أصغر شوية ===== */
+.unit-title {
+  font-size: 1.3rem; /* كان أكبر */
+  color: #111827;
+}
+
+/* ===== ROW كله ===== */
+.metadata-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 1.2rem;
+}
+
+/* ===== ITEM ===== */
+.metadata-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/* ===== ICONS (كلهم نفس اللون) ===== */
+.metadata-item i {
+  color: var(--primary-color);
+  font-size: 1rem;
+}
+
+/* ===== TEXT ===== */
+.metadata-label {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #6b7280;
+}
+
+.metadata-value {
+  font-weight: bold;
+  font-size: 0.9rem;
+    color: #6b7280;
+
+}

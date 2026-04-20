@@ -76,7 +76,7 @@ hr{
 /* STATUS */
 .status {
   color: var(--text-green);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .status i {

@@ -1,0 +1,41 @@
+.panorama-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1140 / 540;
+  border-radius: 38px;
+  overflow: hidden;
+  background: #e5ebf4;
+  box-shadow: 0 20px 44px rgba(20, 38, 79, 0.16);
+}
+
+.panorama-img {
+  object-fit: cover;
+}
+
+.fade-in {
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 991px) {
+  .panorama-card {
+    border-radius: 24px;
+  }
+}
+
+@media (max-width: 575px) {
+  .panorama-card {
+    border-radius: 16px;
+  }
+}

@@ -1,43 +1,58 @@
-/* Layout */
+/* ================== LAYOUT ================== */
 .gallery-layout {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 100%;
 }
 
-/* Images */
+/* ================== IMAGES ================== */
 .gallery-image {
   width: 100%;
   display: block;
   cursor: pointer;
+  /* transition: transform 0.3s ease, opacity 0.3s ease; */
 }
 
-/* Main Image */
-.gallery-image-main {
-  max-height: 420px;
-  object-fit: cover;
-  border-radius: 16px;
-
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-/* Thumbnails */
-.gallery-image-thumb {
-  height: 180px;
-  object-fit: cover;
-  border-radius: 12px;
-
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-/* Hover (ناعم) */
-.gallery-image:hover {
+/* .gallery-image:hover {
   transform: scale(1.02);
   opacity: 0.95;
+} */
+
+/* ================== MAIN IMAGE ================== */
+.gallery-main {
+  width: 100%;
+  aspect-ratio: 16 / 7.5; /* Slightly shorter than standard 16/9 */
+  border-radius: 16px;
+  overflow: hidden;
 }
 
-/* ===== MODAL ===== */
+.gallery-image-main {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
 
+/* ================== THUMBNAILS ================== */
+.gallery-thumbs .col-6,
+.gallery-thumbs .col-md-4,
+.gallery-thumbs .col-lg-3 {
+  display: flex;
+}
+
+.gallery-image-thumb {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  flex: 1;
+}
+
+.gallery-thumbs img {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* ================== MODAL ================== */
 .custom-gallery-modal {
   background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(6px);
@@ -48,97 +63,64 @@
   border: none;
 }
 
-/* Frame ثابت */
 .gallery-modal-frame {
   display: flex;
   justify-content: center;
   align-items: center;
-
   width: 100%;
-  height: 70vh;
+  height: 80vh;
 }
 
-/* صورة بحجم موحد */
+/* Image */
 .gallery-modal-image {
-  width: 900px;
-  height: 500px;
-
-  object-fit: cover; /* مهم جدًا */
-  border-radius: 16px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.4s ease;
+  cursor: zoom-in;
 }
 
-/* Close */
+/* Zoomed state */
+.gallery-modal-image.zoomed {
+  transform: scale(1.5);
+  cursor: zoom-out;
+}
+
+/* ================== BUTTONS ================== */
 .gallery-close-btn {
   position: fixed;
   top: 20px;
   right: 20px;
   z-index: 1055;
-
   width: 44px;
   height: 44px;
   border-radius: 50%;
-
   background: rgba(255,255,255,0.12);
   color: white;
   border: none;
-
   cursor: pointer;
-  transition: 0.2s ease;
 }
 
-.gallery-close-btn:hover {
-  background: rgba(255,255,255,0.25);
-}
-
-/* Navigation */
 .gallery-nav {
   position: fixed;
   top: 50%;
   transform: translateY(-50%);
   z-index: 1055;
-
   width: 50px;
   height: 50px;
   border-radius: 50%;
-
   background: rgba(255,255,255,0.12);
   color: white;
   border: none;
-
   font-size: 24px;
   cursor: pointer;
-  transition: 0.2s ease;
 }
 
-.gallery-nav:hover {
-  background: rgba(255,255,255,0.25);
-}
+.gallery-nav.prev { left: 20px; }
+.gallery-nav.next { right: 20px; }
 
-/* Positions */
-.gallery-nav.prev {
-  left: 20px;
-}
-
-.gallery-nav.next {
-  right: 20px;
-}
-
-/* Responsive */
+/* ================== RESPONSIVE ================== */
 @media (max-width: 768px) {
-  .gallery-image-main {
-    max-height: 260px;
-  }
-
-  .gallery-image-thumb {
-    height: 140px;
-  }
-
-  .gallery-modal-image {
-    width: 90%;
-    height: 250px;
-  }
-
   .gallery-nav {
     width: 40px;
     height: 40px;

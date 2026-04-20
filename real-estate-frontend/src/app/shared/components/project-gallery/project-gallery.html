@@ -7,22 +7,24 @@
         [src]="images[0]"
         class="gallery-image gallery-image-main"
         data-bs-toggle="modal"
-        data-bs-target="#galleryModal"
+        [attr.data-bs-target]="'#' + modalId"
+        (click)="openCarousel(0)"
       />
     </div>
   }
 
   <!-- Thumbnails -->
   @if (images.length > 1) {
-    <div class="row g-3 gallery-thumbs">
-      @for (img of images.slice(1); track $index) {
+    <div class="row g-3 gallery-thumbs justify-content-center">
+      @for (img of images.slice(1); track $index; let i = $index) {
         <div class="col-6 col-md-4 col-lg-3">
           <img
             [src]="img"
             class="gallery-image gallery-image-thumb"
             loading="lazy"
             data-bs-toggle="modal"
-            data-bs-target="#galleryModal"
+            [attr.data-bs-target]="'#' + modalId"
+            (click)="openCarousel(i + 1)"
           />
         </div>
       }
@@ -34,7 +36,7 @@
 <!-- Modal -->
 <div
   class="modal fade custom-gallery-modal"
-  id="galleryModal"
+  [id]="modalId"
   (click)="onBackdropClick($event)"
 >
   <div class="modal-dialog modal-dialog-centered">
@@ -44,15 +46,19 @@
       <button class="gallery-close-btn" data-bs-dismiss="modal">✕</button>
 
       <!-- Carousel -->
-      <div id="carouselGallery" class="carousel slide">
+      <div [id]="carouselId" class="carousel slide">
 
         <div class="carousel-inner">
           @for (img of images; track $index; let i = $index) {
-            <div class="carousel-item" [class.active]="i === 0">
+            <div class="carousel-item" [class.active]="i === currentIndex">
 
-              <!-- منع الإغلاق -->
               <div class="gallery-modal-frame" (click)="$event.stopPropagation()">
-                <img [src]="img" class="gallery-modal-image" />
+                <img
+                  [src]="img"
+                  class="gallery-modal-image"
+                  [class.zoomed]="isZoomed"
+                  (click)="toggleZoom()"
+                />
               </div>
 
             </div>
@@ -63,18 +69,17 @@
         <button
           class="gallery-nav prev"
           (click)="$event.stopPropagation()"
-          data-bs-target="#carouselGallery"
+          [attr.data-bs-target]="'#' + carouselId"
           data-bs-slide="prev"
         >
           ❯
-
         </button>
 
         <!-- Next -->
         <button
           class="gallery-nav next"
           (click)="$event.stopPropagation()"
-          data-bs-target="#carouselGallery"
+          [attr.data-bs-target]="'#' + carouselId"
           data-bs-slide="next"
         >
           ❮

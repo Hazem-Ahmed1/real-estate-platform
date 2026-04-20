@@ -15,6 +15,7 @@ import { AdminDashboard } from './features/admin/dashboard/dashboard';
 import { PublicLayout } from './core/layout/public-layout/public-layout';
 import { AdminLayout } from './core/layout/admin-layout/admin-layout';
 import { Blog } from './features/public/blog/blog';
+import { BlogWithSidebar } from './features/public/blog-with-sidebar/blog-with-sidebar';
 
 export const routes: Routes = [
   {
@@ -54,6 +55,22 @@ export const routes: Routes = [
         path: 'register',
         component: Register,
       },
+      {
+        path: 'project-details',
+        component: ProjectDetails,
+      },
+      {
+        path: 'unit-details',
+        component: UnitDetails,
+      },
+      {
+        path: 'blog',
+        component: Blog,
+      },
+      {
+        path: 'blog-with-sidebar',
+        component: BlogWithSidebar,
+      },
     ],
   },
   {
@@ -71,30 +88,4 @@ export const routes: Routes = [
       },
     ],
   },
-
-  {
-    path: "sold-projects",
-    component: SoldProjects,
-  },
-  {
-    path: "units",
-    component: Units,
-  },
-  {
-    path: "project-details",
-    component: ProjectDetails,
-  },
-  {
-    path: "unit-details",
-    component: UnitDetails,
-  },
-  {
-    path:"blog",
-    component:Blog
-  },
-
-  {
-    path:"contact-us",
-    component:Contact
-  }
 ];

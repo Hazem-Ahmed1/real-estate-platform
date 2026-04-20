@@ -1,0 +1,25 @@
+
+<!-- TITLE AND LOC -->
+<div class="row mb-3 top-line justify-content-center text-center">
+  <div class="col-lg-6 mb-2 mb-lg-0">
+    <h1 class="project-title mb-3">{{ title() }}</h1>
+    <div class="project-location d-flex align-items-center justify-content-center gap-2">
+      <i class="fa-solid fa-location-dot"></i>
+      <span>{{ location() }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 justify-content-center text-center">
+  @for (stat of stats(); track stat.label) {
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center">
+      
+        <app-project-stat-card
+          [value]="stat.value"
+          [label]="stat.label"
+          [iconUrl]="stat.iconUrl"
+        />
+
+    </div>
+  }
+</div>

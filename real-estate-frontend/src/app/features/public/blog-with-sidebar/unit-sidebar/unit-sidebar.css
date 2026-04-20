@@ -1,0 +1,66 @@
+.unit-sidebar {
+  display: flex;
+  flex-direction: column;
+}
+
+.unit-sidebar > div {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.unit-sidebar__item {
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.unit-sidebar__item:hover {
+  transform: scale(1.01);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.unit-sidebar__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* ← ده اللي هيظبط الأيقونة */
+  justify-content: center;
+  text-align: center;
+  color: #999;
+  padding: 40px 16px;
+  font-size: 13px;
+}
+
+.unit-sidebar__empty i {
+  font-size: 32px;
+  color: #ccc;
+  margin-bottom: 10px;
+}
+
+/* Responsive */
+@media (max-width: 1400px) {
+  .unit-sidebar {
+    margin-top: 24px;
+  }
+  .unit-sidebar > div {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .unit-sidebar {
+    position: relative;
+    top: auto;
+    max-height: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .unit-sidebar {
+    padding: 14px;
+  }
+}
+
+@media (max-width: 576px) {
+  .unit-sidebar > div {
+    grid-template-columns: 1fr;
+  }
+}

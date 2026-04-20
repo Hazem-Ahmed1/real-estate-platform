@@ -6,13 +6,13 @@
 .video-frame {
   position: relative;
   width: 100%;
-  aspect-ratio: 1140 / 673;
+    aspect-ratio: 1000 / 588;
   height: auto;
   overflow: hidden;
   border-radius: 38px;
   box-shadow: 0 22px 44px rgba(16, 28, 59, 0.26);
-  background: #0a1327;
-  padding: 2rem;
+  /* background: #0a1327; */
+  /* padding: 2rem; */
 }
 
 .video-frame::after {

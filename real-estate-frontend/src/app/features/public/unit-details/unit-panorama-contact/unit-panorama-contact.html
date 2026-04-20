@@ -1,0 +1,71 @@
+<app-section-title [subtitle]="'صورة'" [title]="'صورة 360 درجة للوحدة'" />
+
+<div class="row mb-5 g-4 align-items-stretch">
+  <!-- Panorama Section -->
+  <div class="col-12 col-lg-8">
+    <app-panorama-image [imageUrl]="panoramaImage()" altText="صورة بانورامية 360 للوحدة"
+      sizes="(max-width: 767px) 100vw, 66vw" class="h-100 d-block" />
+  </div>
+
+  <!-- Contact Form Section -->
+  <div class="col-12 col-lg-4 d-none d-lg-block">
+    <div class="fixed-contact-form h-100">
+      <div class="contact-card h-100 d-flex flex-column justify-content-between" dir="rtl">
+        <!-- Header / Section Title -->
+        <div class="contact-header">
+          <div class="title-top">
+            <div class="gold-line"></div>
+            <div class="bg-circles">
+              <span class="circle circle-1"></span>
+              <span class="circle circle-2"></span>
+            </div>
+            <div class="decor-star"></div>
+            <span class="section-subtitle">تواصل معنا</span>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <form #contactForm="ngForm" class="contact-form">
+          <!-- Name -->
+          <div class="form-group">
+            <label class="form-label">الاسم الكامل :</label>
+            <input type="text" class="form-input" name="fullName" ngModel required #name="ngModel"
+              placeholder="الاسم الكامل" />
+            @if (name.invalid && name.touched) {
+            <small class="error-text"> الاسم مطلوب </small>
+            }
+          </div>
+
+          <!-- Phone -->
+          <div class="form-group">
+            <label class="form-label">رقم الجوال :</label>
+            <input type="text" class="form-input" name="phone" ngModel required pattern="^01[0-9]{9}$" #phone="ngModel"
+              placeholder="رقم الجوال" />
+            @if (phone.errors?.['required'] && phone.touched) {
+            <small class="error-text">رقم الموبايل مطلوب</small>
+            }
+            @if (phone.errors?.['pattern'] && phone.touched) {
+            <small class="error-text">رقم الموبايل غير صحيح</small>
+            }
+          </div>
+
+          <!-- Message -->
+          <div class="form-group">
+            <label class="form-label">ملاحظات إضافية</label>
+            <textarea class="form-textarea" name="message" ngModel placeholder="اكتب هنا..." rows="3"></textarea>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="send-btn" (click)="submitForm(contactForm)">
+            ارسل طلبك الآن ←
+          </button>
+        </form>
+
+        <a href="https://wa.me/201001234567" target="_blank" rel="noopener noreferrer" class="contact-footer">
+          <i class="fa-brands fa-whatsapp"></i>
+          <span>تواصل معنا عبر واتساب ← </span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

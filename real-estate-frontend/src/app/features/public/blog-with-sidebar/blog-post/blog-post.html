@@ -1,0 +1,75 @@
+@if(post){
+<article class="blog-post">
+
+  <!-- Hero Image + Carousel -->
+  <div class="blog-post__hero">
+    <div class="blog-post__img-wrapper">
+      <img
+        [src]="currentImage"
+        [alt]="post.title"
+        class="blog-post__img"
+      />
+    </div>
+
+    @if (hasMultipleImages) {
+      <div class="blog-post__carousel-controls">
+        <button class="blog-post__carousel-btn" (click)="prevImage()" aria-label="السابق">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+        <button class="blog-post__carousel-btn" (click)="nextImage()" aria-label="التالي">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+      </div>
+
+      <!-- النقاط الدالة على الصورة الحالية -->
+      <div class="blog-post__indicators">
+        @for (img of images; track $index) {
+          <span
+            class="blog-post__indicator"
+            [class.active]="$index === currentImageIndex"
+            (click)="goToImage($index)"
+          ></span>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- محتوى المقال -->
+  <div class="blog-post__content">
+
+    <!-- التاريخ والعنوان
+    <div class="blog-post__meta">
+      <span class="blog-post__date">
+        <i class="fa-regular fa-calendar"></i>
+        {{ post.date }}
+      </span>
+    </div> -->
+
+    <h1 class="blog-post__title">{{ post.title }}</h1>
+    <div class="blog-post__body">
+      @for (section of post.sections; track $index) {
+        @if(section.title){
+          <h2 class="blog-post__section-title">
+            {{ section.title }}
+          </h2>
+        }
+
+        @for (paragraph of section.content; track $index) {
+          <p class="blog-post__paragraph">
+            {{ paragraph }}
+          </p>
+        }
+      }
+    </div>
+
+
+  </div>
+
+</article>
+}
+@else {
+  <div class="blog-post__empty">
+    <i class="fa-solid fa-file-circle-xmark"></i>
+    <p>لا يوجد مقال متاح حالياً</p>
+  </div>
+}

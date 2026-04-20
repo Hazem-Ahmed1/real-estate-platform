@@ -1,6 +1,8 @@
 .icon-grid {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
+  justify-content: center; /* 🔥 مهم */
 }
 
 .icon-grid-item {
@@ -27,8 +29,9 @@
   transition: color 0.3s ease;
 }
 
-.icon-grid--features {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+/* Features grid - 4 per row by default */
+.icon-grid--features .icon-grid-item {
+  width: calc(25% - 0.75rem);
 }
 
 .icon-grid--features .icon-wrap {
@@ -44,8 +47,9 @@
   font-size: 1.08rem;
 }
 
-.icon-grid--warranties {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+/* Warranties grid - 5 per row by default */
+.icon-grid--warranties .icon-grid-item {
+  width: calc(20% - 0.8rem);
 }
 
 .icon-grid--warranties .icon-wrap {
@@ -101,23 +105,24 @@
   color: #df9e00;
 }
 
+/* Flex Breakpoints substituting CSS Grid */
 @media (max-width: 1199px) {
-  .icon-grid--warranties {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+  .icon-grid--warranties .icon-grid-item {
+    width: calc(25% - 0.75rem); /* 4 per row */
   }
 }
 
 @media (max-width: 991px) {
-  .icon-grid--features,
-  .icon-grid--warranties {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .icon-grid--features .icon-grid-item,
+  .icon-grid--warranties .icon-grid-item {
+    width: calc(50% - 0.5rem); /* 2 per row */
   }
 }
 
 @media (max-width: 575px) {
-  .icon-grid--features,
-  .icon-grid--warranties {
-    grid-template-columns: 1fr;
+  .icon-grid--features .icon-grid-item,
+  .icon-grid--warranties .icon-grid-item {
+    width: 100%; /* 1 per row */
   }
 
   .item-title {

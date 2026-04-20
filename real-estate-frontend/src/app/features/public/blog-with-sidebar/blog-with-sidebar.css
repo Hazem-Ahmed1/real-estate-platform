@@ -1,0 +1,12 @@
+.blog-page {
+  min-height: 60vh;
+}
+
+@media (max-width: 991px) {
+  .blog-page .col-12:first-child {
+    order: 1;
+  }
+  .blog-page .col-12:last-child {
+    order: 2;
+  }
+}

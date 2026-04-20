@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, input } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
@@ -9,7 +10,7 @@ export interface BreadcrumbItem {
 @Component({
   selector: 'app-breadcrumb',
   standalone: true,
-  imports: [RouterModule],
+  imports: [RouterModule,CommonModule],
   templateUrl: './breadcrumbs.html',
   styleUrl: './breadcrumbs.css',
 })

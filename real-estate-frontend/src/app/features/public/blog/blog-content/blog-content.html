@@ -3,7 +3,7 @@
     <div class="row g-3 g-md-4">
       @for (post of blogPosts; track post.id) {
         <div class="col-12 col-sm-6 col-lg-4">
-          <div class="blog-card d-flex flex-column h-100 rounded-5  overflow-hidden">
+          <div class="blog-card d-flex flex-column h-100 rounded-5  overflow-hidden" (click)="blogDetaisl()">
             <!-- Image -->
             <div class="position-relative  blog-card__img-wrap">
               <img

@@ -10,20 +10,59 @@ export class ProjectGallery {
 
   @Input() images: string[] = [];
 
+  readonly uniqueId = Math.random().toString(36).substring(2, 9);
+  readonly modalId = `galleryModal_${this.uniqueId}`;
+  readonly carouselId = `carouselGallery_${this.uniqueId}`;
+
+  currentIndex: number = 0;
+  isZoomed: boolean = false;
+
+  // openCarousel(index: number) {
+  //   this.currentIndex = index;
+  //   this.isZoomed = false; // reset zoom
+
+  //   setTimeout(() => {
+  //     const carousel = document.getElementById('carouselGallery');
+  //     if (!carousel) return;
+
+  //     const bsCarousel =
+  //       (window as any).bootstrap?.Carousel.getInstance(carousel) ||
+  //       new (window as any).bootstrap.Carousel(carousel);
+
+  //     bsCarousel.to(index);
+  //   });
+  // }
+
+  openCarousel(index: number) {
+  this.currentIndex = index;
+  this.isZoomed = false;
+
+  const modalEl = document.getElementById(this.modalId);
+  if (!modalEl) return;
+
+  // لما المودال يفتح فعليًا
+  modalEl.addEventListener('shown.bs.modal', () => {
+    const carousel = document.getElementById(this.carouselId);
+    if (!carousel) return;
+
+    const bsCarousel =
+      (window as any).bootstrap.Carousel.getOrCreateInstance(carousel);
+
+    bsCarousel.to(index);
+  }, { once: true });
+}
+  toggleZoom() {
+    this.isZoomed = !this.isZoomed;
+  }
+
   onBackdropClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
 
-    // لو الضغط على صورة → لا تقفل
     if (target.closest('.gallery-modal-image')) return;
-
-    // لو الضغط على زرار navigation → لا تقفل
     if (target.closest('.gallery-nav')) return;
-
-    // لو الضغط على زرار close → لا تقفل (هو بيقفل لوحده)
     if (target.closest('.gallery-close-btn')) return;
 
-    // غير كده → اقفل
-    const modal = document.getElementById('galleryModal');
+    const modal = document.getElementById(this.modalId);
     if (!modal) return;
 
     const bsModal = (window as any).bootstrap?.Modal.getInstance(modal);

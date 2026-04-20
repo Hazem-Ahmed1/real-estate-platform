@@ -2,21 +2,21 @@
   <div class="row align-items-center holder">
 
     <!-- BREADCRUMB -->
-    <div class="col-12 col-lg-6">
+    <div class="col-12" [class.col-lg-6]="price() || status()">
       <nav>
         <ol class="breadcrumb my-0">
           @for (item of items(); let last = $last; track $index) {
-            @if (!last) {
-              <li class="breadcrumb-item pt-2">
-                <a [routerLink]="item.url">
-                  {{ item.label }}
-                </a>
-              </li>
-            } @else {
-              <li class="breadcrumb-item pt-2 active">
-                {{ item.label }}
-              </li>
-            }
+          @if (!last) {
+          <li class="breadcrumb-item pt-2">
+            <a [routerLink]="item.url">
+              {{ item.label }}
+            </a>
+          </li>
+          } @else {
+          <li class="breadcrumb-item pt-2 active">
+            {{ item.label }}
+          </li>
+          }
           }
         </ol>
       </nav>
@@ -24,27 +24,33 @@
 
     <!-- EXTRA INFO -->
     @if (price() || status()) {
-      <div class="col-12 col-lg-6">
+    <div class="col-12 col-lg-6">
 
-        <div class="breadcrumb-extra d-flex flex-column flex-lg-row align-items-start justify-content-end align-items-lg-center gap-2 gap-lg-3 mt-3 mt-lg-0">
+      <div
+        class="breadcrumb-extra d-flex flex-column flex-lg-row align-items-start justify-content-end align-items-lg-center gap-2 gap-lg-3 mt-3 mt-lg-0">
 
-          @if (status()) {
-            <span class="status w-lg-auto pt-2">
-              <i class="fa-solid fa-bag-shopping"></i>
-              {{ status() }}
-            </span>
+        @if (status()) {
+        <span class="status w-lg-auto pt-2">
+          <i class="fa-solid fa-bag-shopping"></i>
+          @if(status() === 'للبيع'){
+          متاح للبيع (تملك الآن)
           }
-
-          @if (price()) {
-            <span class="price  w-lg-auto pt-2">
-              <i class="fa-solid fa-sack-dollar"></i>
-              {{ price() }} ر.س
-            </span>
+          @else{
+          متاح للإيجار (تملك الآن)
           }
+        </span>
+        }
 
-        </div>
+        @if (price()) {
+        <span class="price  w-lg-auto pt-2">
+          <i class="fa-solid fa-sack-dollar"></i>
+          {{ price() | number }} ر.س
+        </span>
+        }
 
       </div>
+
+    </div>
     }
 
   </div>

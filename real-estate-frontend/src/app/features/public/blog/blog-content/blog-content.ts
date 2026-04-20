@@ -1,17 +1,6 @@
-
-
-
-
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-
-export interface BlogPost {
-  id: number;
-  image: string;
-  date: string;
-  title: string;
-  excerpt: string;
-}
+import { IBlogPost } from '../../../../models/IBlogPost';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-blog-content',
@@ -20,62 +9,78 @@ export interface BlogPost {
   styleUrl: './blog-content.css',
 })
 export class BlogContent {
-  blogPosts: BlogPost[] = [
+  blogPosts: IBlogPost[] = [
     {
       id: 1,
-      image:"images/imgForFullProject.jpg",
+      image: 'images/imgForFullProject.jpg',
       date: '07/24',
       title: '6 ملايين ريال مبيعات شركة منصات العقارية من مزاد « عبير الشمال »',
       excerpt: 'تطوير مشاريع عقارية متميزة تلي احتياجات السوق وتساهم في تحسين مستوى المعيشة للمجتمع...',
+      images: [],
+      sections: [],
     },
     {
       id: 2,
-      image: "/images/imgForFullProject.jpg",
+      image: '/images/imgForFullProject.jpg',
       date: '07/24',
       title: '6 ملايين ريال مبيعات شركة منصات العقارية من مزاد « عبير الشمال »',
       excerpt: 'تطوير مشاريع عقارية متميزة تلي احتياجات السوق وتساهم في تحسين مستوى المعيشة للمجتمع...',
+      images: [],
+      sections: [],
     },
     {
       id: 3,
-      image: "/images/imgForFullProject.jpg",
+      image: '/images/imgForFullProject.jpg',
       date: '07/24',
       title: '6 ملايين ريال مبيعات شركة منصات العقارية من مزاد « عبير الشمال »',
       excerpt: 'تطوير مشاريع عقارية متميزة تلي احتياجات السوق وتساهم في تحسين مستوى المعيشة للمجتمع...',
+      images: [],
+      sections: [],
     },
     {
       id: 4,
-      image: "/images/imgForFullProject.jpg",
+      image: '/images/imgForFullProject.jpg',
       date: '07/24',
       title: '6 ملايين ريال مبيعات شركة منصات العقارية من مزاد « عبير الشمال »',
       excerpt: 'تطوير مشاريع عقارية متميزة تلي احتياجات السوق وتساهم في تحسين مستوى المعيشة للمجتمع...',
+      images: [],
+      sections: [],
     },
     {
       id: 5,
-      image: "/images/imgForFullProject.jpg",
+      image: '/images/imgForFullProject.jpg',
       date: '07/24',
       title: '6 ملايين ريال مبيعات شركة منصات العقارية من مزاد « عبير الشمال »',
       excerpt: 'تطوير مشاريع عقارية متميزة تلي احتياجات السوق وتساهم في تحسين مستوى المعيشة للمجتمع...',
+      images: [],
+      sections: [],
     },
     {
       id: 6,
-      image: "/images/imgForFullProject.jpg",
+      image: '/images/imgForFullProject.jpg',
       date: '07/24',
       title: '6 ملايين ريال مبيعات شركة منصات العقارية من مزاد « عبير الشمال »',
       excerpt: 'تطوير مشاريع عقارية متميزة تلي احتياجات السوق وتساهم في تحسين مستوى المعيشة للمجتمع...',
+      images: [],
+      sections: [],
     },
     {
       id: 7,
-      image: "/images/imgForFullProject.jpg",
+      image: '/images/imgForFullProject.jpg',
       date: '07/24',
       title: '6 ملايين ريال مبيعات شركة منصات العقارية من مزاد « عبير الشمال »',
       excerpt: 'تطوير مشاريع عقارية متميزة تلي احتياجات السوق وتساهم في تحسين مستوى المعيشة للمجتمع...',
+      images: [],
+      sections: [],
     },
     {
       id: 8,
-      image: "/images/imgForFullProject.jpg",
+      image: '/images/imgForFullProject.jpg',
       date: '07/24',
       title: '6 ملايين ريال مبيعات شركة منصات العقارية من مزاد « عبير الشمال »',
       excerpt: 'تطوير مشاريع عقارية متميزة تلي احتياجات السوق وتساهم في تحسين مستوى المعيشة للمجتمع...',
+      images: [],
+      sections: [],
     },
     {
       id: 9,
@@ -83,6 +88,12 @@ export class BlogContent {
       date: '07/24',
       title: '6 ملايين ريال مبيعات شركة منصات العقارية من مزاد « عبير الشمال »',
       excerpt: 'تطوير مشاريع عقارية متميزة تلي احتياجات السوق وتساهم في تحسين مستوى المعيشة للمجتمع...',
+      images: [],
+      sections: [],
     },
   ];
+  constructor(private _router:Router){}
+  blogDetaisl(){
+    this._router.navigate(['/blog-with-sidebar']);
+  }
 }

@@ -7,7 +7,14 @@
                 <span class="circle circle-2"></span>
             </div>
             <span class="green-line"></span>
-            <span class="section-subtitle fw-bolder">{{ subtitle() }}</span>
+            <span class="section-subtitle fw-bolder">
+                @if(subtitle()=='صور'){
+                {{ subtitle() }}
+                }
+                @else{
+                {{ subtitle() +"   " }}
+                }
+            </span>
             <div class="decor-star"></div>
         </div>
         @if(title() !== null){

@@ -1,0 +1,245 @@
+/* Panorama image styles moved to shared/components/panorama-image/panorama-image.css */
+.contact-card {
+  background: var(--primary-color);
+  border-radius: 20px;
+  padding: 60px 22px 22px;
+  /* ← increase top padding so circles don't clip */
+  direction: rtl;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Section Title ── */
+.contact-header {
+  margin-bottom: 15px;
+}
+
+.title-top {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  position: relative;
+  justify-content: flex-start;
+}
+
+.section-subtitle {
+  color: #ffffff;
+  font-size: 1.2rem;
+  /* font-weight: 800; */
+  /* position: relative; */
+  /* right: -10px; */
+  /* text-align: right; */
+  z-index: 10;
+}
+
+.gold-line {
+  width: 45px;
+  height: 3px;
+  background: #fff;
+  border-radius: 2px;
+}
+
+.decor-star {
+  width: 40px;
+  height: 40px;
+  background: #fff;
+  flex-shrink: 0;
+  clip-path: polygon(50% 0%, 55% 42%, 100% 50%, 55% 58%,
+      50% 100%, 45% 58%, 0% 50%, 45% 42%);
+  position: relative;
+  right: 88px;
+  top: -33px;
+}
+
+/* Circles → top right, behind title */
+/* الدواير */
+.bg-circles {
+  position: absolute;
+  top: -20px;
+  right: 12px;
+  /* مربوطة باليمين */
+  width: 140px;
+  height: 140px;
+  z-index: 0;
+}
+
+.circle {
+  position: absolute;
+  border: 1px solid #e1e3ea;
+  border-radius: 50%;
+}
+
+.circle-1 {
+  width: 100px;
+  height: 100px;
+  /* right: 0; */
+  right: 60px;
+  top: -10px;
+}
+
+.circle-2 {
+  width: 120px;
+  height: 120px;
+  /* right: -20px; */
+  right: 40px;
+  top: -20px;
+}
+
+/* Make sure title text sits above circles */
+.title-top {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Form ── */
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.form-label {
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-align: right;
+  margin-top: 10px;
+}
+.contact-form .form-group:first-child .form-label{
+  margin-top: 17px;
+}
+.form-input {
+  width: 100%;
+  padding: 16px 14px;
+  border-radius: 12px;
+  border: none;
+  background: #ffffff;
+  color: #555;
+  font-size: 0.9rem;
+  text-align: right;
+  outline: none;
+  direction: rtl;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.form-input::placeholder {
+  color: #bbb;
+  font-size: 0.85rem;
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 15px;
+  border: none;
+  background: #ffffff;
+  color: #555;
+  font-size: 0.9rem;
+  text-align: right;
+  outline: none;
+  direction: rtl;
+  resize: none;
+  min-height: 70px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.form-textarea::placeholder {
+  color: #bbb;
+  font-size: 0.85rem;
+}
+
+.error-text {
+  color: #ff6b6b;
+  font-size: 0.5rem;
+  text-align: right;
+}
+
+/* ── Submit Button → bright yellow ── */
+.send-btn {
+  width: 100%;
+  padding: 13px;
+  background: #f5c518;
+  color: #fff;
+  font-size: 1rem;
+  /* font-weight: 600; */
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: background 0.2s ease, transform 0.1s ease;
+  letter-spacing: 0.3px;
+}
+
+.send-btn:hover:not(:disabled) {
+  background: #e0b400;
+  transform: translateY(-1px);
+}
+
+.send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Footer ── */
+.contact-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  background: transparent;
+  /* ← add this */
+  border: none;
+  /* ← add this */
+  width: 100%;
+  /* ← add this */
+}
+
+.contact-footer i {
+  font-size: 1.2rem;
+  color: #25d366;
+}
+
+@media (max-width: 991px) {
+  .unit-panorama-card {
+    height: 520px;
+    border-radius: 24px;
+  }
+}
+
+@media (max-width: 575px) {
+  .unit-panorama-card {
+    height: 420px;
+    border-radius: 18px;
+  }
+}
+
+/* ── Enforce 100% Height for Cross-Column Stretching ONLY on Desktop ── */
+@media (min-width: 992px) {
+  :host ::ng-deep app-panorama-image {
+    height: 100%;
+    display: block;
+  }
+
+  :host ::ng-deep .panorama-card {
+    height: 100% !important;
+    aspect-ratio: auto !important;
+  }
+
+  :host ::ng-deep .panorama-img {
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+}

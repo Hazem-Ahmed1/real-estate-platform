@@ -1,0 +1,58 @@
+<div class="unit-hero">
+
+  <!-- TITLE فقط -->
+  <div class="row mb-4 top-line">
+    <div class="col-12">
+      <h1 class="unit-title fw-bold">{{ title() }}</h1>
+    </div>
+  </div>
+
+  <!-- ROW واحدة (location + metadata) -->
+  <div class="metadata-row mb-5">
+
+    <!-- LOCATION -->
+    <div class="metadata-item">
+      <i class="fa-solid fa-location-dot"></i>
+      <!-- <span class="metadata-label">الموقع:</span> -->
+      <span class="metadata-label">{{ location() }}</span>
+    </div>
+
+    <!-- باقي البيانات -->
+    @for (data of metadata(); track data.label) {
+    <div class="metadata-item">
+
+      @switch (data.label) {
+      @case ('عدد الغرف') {
+      <i class="fa-solid fa-bed"></i>
+      }
+      @case ('عدد الحمامات') {
+      <i class="fa-solid fa-bath"></i>
+      }
+      @case ('المساحة') {
+      <i class="fa-solid fa-ruler-combined"></i>
+      }
+      @case ('الشارع') {
+      <i class="fa-solid fa-road"></i>
+      }
+      @case ('عدد الصالات') {
+      <i class="fa-solid fa-couch"></i>
+      }
+      @default {
+      <i class="fa-solid fa-circle-info"></i>
+      }
+      }
+      @if(data.label){
+      <span class="metadata-label">
+        {{ data.label }}:
+      </span>
+      }
+      <span class="metadata-value">
+        {{ data.value }}
+      </span>
+
+    </div>
+    }
+
+  </div>
+
+</div>

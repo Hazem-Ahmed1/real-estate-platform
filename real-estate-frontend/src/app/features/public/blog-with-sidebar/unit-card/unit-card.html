@@ -1,0 +1,24 @@
+<div class="unit-card" (click)="onClick()">
+
+  <!-- صورة الوحدة (Right) -->
+  <div class="unit-card__img-wrapper">
+    <img [src]="unit.imageURL" [alt]="unit.title" class="unit-card__img" />
+  </div>
+
+  <!-- محتوى الكارد (Left) -->
+  <div class="unit-card__content pt-3">
+    <h4 class="unit-card__title">{{ unit.title }}</h4>
+
+    <div class="unit-card__info">
+      <!-- الموقع -->
+      <p class="unit-card__location">
+        {{ unit.location }}
+      </p>
+
+      <!-- السعر -->
+      <p class="unit-card__price">
+        {{ unit.price }}
+      </p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,60 @@
+.nearby-places-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.nearby-place-item {
+    width: 25%;
+    text-align: center;
+    padding: 0.75rem 0.65rem;
+    border-left: 1px solid #eceef4;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Added animation for enhancement */
+    border-radius: 8px; /* Slight radius to make the shadow look good */
+}
+
+.nearby-place-item:last-child {
+    border-left: 0;
+}
+
+/* Enhancements based on requested light animation */
+.nearby-place-item:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 8px 24px rgba(20, 38, 79, 0.08);
+    border-left-color: transparent; /* Clean up border when lifted */
+}
+
+.nearby-place-item i {
+    color: var(--primary-color);
+    font-size: 1.15rem;
+    margin-bottom: 0.3rem;
+}
+
+.nearby-place-item h6 {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.nearby-place-item p {
+    font-size: 0.8rem;
+    color: var(--text-semi-dark);
+}
+
+@media (max-width: 991px) {
+    .nearby-places-grid {
+        gap: 0.8rem;
+    }
+
+    .nearby-place-item {
+        width: calc(50% - 0.4rem);
+        border: 1px solid #eceef4;
+        border-radius: 14px;
+    }
+}
+
+@media (max-width: 575px) {
+    .nearby-place-item {
+        width: 100%;
+    }
+}

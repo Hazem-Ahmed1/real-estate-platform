@@ -1,0 +1,21 @@
+<div class="unit-sidebar">
+
+  <div class="">
+    @if (units.length > 0) {
+      @for (unit of units; track unit.title; let last = $last) {
+        <div class="unit-sidebar__item" [class.last]="last">
+          <app-unit-card
+            [unit]="unit"
+            (cardClick)="onUnitClick($event)"
+          />
+        </div>
+      }
+    } @else {
+      <div class="unit-sidebar__empty">
+        <i class="fa-solid fa-building-circle-xmark"></i>
+        <p>لا توجد وحدات متاحة حالياً</p>
+      </div>
+    }
+  </div>
+
+</div>

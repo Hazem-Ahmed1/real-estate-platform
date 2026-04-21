@@ -102,6 +102,8 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
+  position: relative; /* Anchor for absolute error messages */
+  margin-bottom: 12px; /* Reserved space for error messages */
 }
 
 .form-label {
@@ -154,10 +156,20 @@
   font-size: 0.85rem;
 }
 
-.error-text {
-  color: #ff6b6b;
-  font-size: 0.5rem;
-  text-align: right;
+.error-message {
+  position: absolute;
+  bottom: -18px; /* Position within the reserved margin-bottom */
+  right: 0;
+  margin: 0;
+  font-size: 11px;
+  color: #ffdada; /* Reverted to previous stable intense red */
+  font-weight: 500;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ── Submit Button → bright yellow ── */
@@ -226,8 +238,16 @@
   }
 }
 
-/* ── Enforce 100% Height for Cross-Column Stretching ONLY on Desktop ── */
 @media (min-width: 992px) {
+  .unit-details-row {
+    align-items: stretch !important; /* Image and Form will now have identical height */
+  }
+
+  .fixed-contact-form {
+    position: sticky;
+    top: 20px;
+  }
+
   :host ::ng-deep app-panorama-image {
     height: 100%;
     display: block;

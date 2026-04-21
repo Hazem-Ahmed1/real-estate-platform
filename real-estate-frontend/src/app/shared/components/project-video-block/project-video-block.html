@@ -30,6 +30,7 @@
       #videoElement
       class="project-video"
       playsinline
+      disablePictureInPicture
       preload="metadata"
       [poster]="poster()"
       [class.project-video--active]="started()"
@@ -69,39 +70,40 @@
 
       <button
         type="button"
-        class="video-control-btn"
-        [attr.aria-label]="muted() ? 'إلغاء كتم الصوت' : 'كتم الصوت'"
-        (click)="toggleMute()">
-        <i class="fa-solid" [class.fa-volume-high]="!muted()" [class.fa-volume-xmark]="muted()"></i>
+        class="video-control-btn video-more-toggle"
+        aria-label="المزيد من عناصر التحكم"
+        (click)="toggleMoreControls($event)">
+        <i class="fa-solid fa-ellipsis-vertical"></i>
       </button>
 
-      <input
-        type="range"
-        class="video-volume"
-        min="0"
-        max="100"
-        step="1"
-        aria-label="مستوى الصوت"
-        [value]="volumeLevel()"
-        [style.--volume]="volumeLevel() + '%'"
-        (input)="onVolumeInput($event)" />
+      <div class="video-controls-group" [class.video-controls-group--open]="moreControlsOpen()">
+        <div class="video-volume-container">
+          <button
+            type="button"
+            class="video-control-btn video-volume-toggle"
+            [attr.aria-label]="muted() ? 'إلغاء كتم الصوت' : 'مستوى الصوت'"
+            (click)="toggleVolumeMenu($event)">
+            <i class="fa-solid" [class.fa-volume-high]="!muted()" [class.fa-volume-xmark]="muted()"></i>
+          </button>
+        </div>
 
-      <button
-        type="button"
-        class="video-control-btn video-settings-toggle"
-        [attr.aria-label]="'إعدادات التشغيل (السرعة الحالية ' + playbackRate() + 'x)'"
-        [attr.aria-expanded]="settingsOpen()"
-        (click)="toggleSettingsMenu($event)">
-        <i class="fa-solid fa-gear"></i>
-      </button>
+        <button
+          type="button"
+          class="video-control-btn video-settings-toggle"
+          [attr.aria-label]="'إعدادات التشغيل (السرعة الحالية ' + playbackRate() + 'x)'"
+          [attr.aria-expanded]="settingsOpen()"
+          (click)="toggleSettingsMenu($event)">
+          <i class="fa-solid fa-gear"></i>
+        </button>
 
-      <button
-        type="button"
-        class="video-control-btn"
-        aria-label="ملء الشاشة"
-        (click)="toggleFullscreen()">
-        <i class="fa-solid fa-expand"></i>
-      </button>
+        <button
+          type="button"
+          class="video-control-btn"
+          aria-label="ملء الشاشة"
+          (click)="toggleFullscreen()">
+          <i class="fa-solid fa-expand"></i>
+        </button>
+      </div>
     </div>
 
     @if (settingsOpen()) {
@@ -117,6 +119,21 @@
             {{ speed }}x
           </button>
         }
+      </div>
+    }
+
+    @if (volumeMenuOpen()) {
+      <div class="video-volume-menu" role="menu" aria-label="مستوى الصوت" (click)="$event.stopPropagation()">
+        <input
+          type="range"
+          class="video-volume"
+          min="0"
+          max="100"
+          step="1"
+          aria-label="مستوى الصوت"
+          [value]="volumeLevel()"
+          [style.--volume]="volumeLevel() + '%'"
+          (input)="onVolumeInput($event)" />
       </div>
     }
   </div>

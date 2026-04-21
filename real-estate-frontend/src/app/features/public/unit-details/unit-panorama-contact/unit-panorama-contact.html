@@ -1,6 +1,6 @@
 <app-section-title [subtitle]="'صورة'" [title]="'صورة 360 درجة للوحدة'" />
 
-<div class="row mb-5 g-4 align-items-stretch">
+<div class="row mb-5 g-4 unit-details-row">
   <!-- Panorama Section -->
   <div class="col-12 col-lg-8">
     <app-panorama-image [imageUrl]="panoramaImage()" altText="صورة بانورامية 360 للوحدة"
@@ -25,14 +25,14 @@
         </div>
 
         <!-- Form -->
-        <form #contactForm="ngForm" class="contact-form">
+        <form #contactForm="ngForm" (ngSubmit)="submitForm(contactForm)" class="contact-form">
           <!-- Name -->
           <div class="form-group">
             <label class="form-label">الاسم الكامل :</label>
             <input type="text" class="form-input" name="fullName" ngModel required #name="ngModel"
               placeholder="الاسم الكامل" />
             @if (name.invalid && name.touched) {
-            <small class="error-text"> الاسم مطلوب </small>
+            <p class="error-message">يرجى إدخال الاسم الكامل.</p>
             }
           </div>
 
@@ -42,10 +42,10 @@
             <input type="text" class="form-input" name="phone" ngModel required pattern="^01[0-9]{9}$" #phone="ngModel"
               placeholder="رقم الجوال" />
             @if (phone.errors?.['required'] && phone.touched) {
-            <small class="error-text">رقم الموبايل مطلوب</small>
+            <p class="error-message">يرجى إدخال رقم الموبايل.</p>
             }
             @if (phone.errors?.['pattern'] && phone.touched) {
-            <small class="error-text">رقم الموبايل غير صحيح</small>
+            <p class="error-message">يرجى إدخال رقم موبايل صحيح.</p>
             }
           </div>
 
@@ -56,7 +56,7 @@
           </div>
 
           <!-- Submit Button -->
-          <button type="submit" class="send-btn" (click)="submitForm(contactForm)">
+          <button type="submit" class="send-btn" [disabled]="!contactForm.valid && contactForm.submitted">
             ارسل طلبك الآن ←
           </button>
         </form>

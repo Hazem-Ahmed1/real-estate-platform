@@ -14,11 +14,14 @@ export class UnitPanoramaContact {
   panoramaImage = input.required<string>();
 
   submitForm(form: any) {
-    if (form.valid) {
-      console.log('Form Data:', form.value);
-
-      // reset بعد الإرسال
-      form.reset();
+    if (form.invalid) {
+      form.control.markAllAsTouched();
+      return;
     }
+
+    console.log('Form Data:', form.value);
+
+    // reset بعد الإرسال
+    form.reset();
   }
 }

@@ -28,6 +28,8 @@ export class ProjectVideoBlock implements OnDestroy {
   volumeLevel = signal(100);
   currentSeconds = signal(0);
   totalSeconds = signal(0);
+  moreControlsOpen = signal(false);
+  volumeMenuOpen = signal(false);
 
   readonly speedOptions = [0.75, 1, 1.25, 1.5, 2];
 
@@ -89,7 +91,15 @@ export class ProjectVideoBlock implements OnDestroy {
     }
 
     this.muted.set(video.muted);
+    // Removed settingsOpen reset from here to allow it to stay open if needed,
+    // but the user wants volume to be like speed settings (click to open).
+  }
+
+  toggleVolumeMenu(event: Event): void {
+    event.stopPropagation();
+    this.volumeMenuOpen.update(v => !v);
     this.settingsOpen.set(false);
+    this.moreControlsOpen.set(false);
   }
 
   onVolumeInput(event: Event): void {
@@ -109,12 +119,20 @@ export class ProjectVideoBlock implements OnDestroy {
     video.volume = nextVolume / 100;
     video.muted = nextVolume === 0;
     this.muted.set(video.muted);
-    this.settingsOpen.set(false);
   }
 
   toggleSettingsMenu(event: Event): void {
     event.stopPropagation();
     this.settingsOpen.update((value) => !value);
+    this.moreControlsOpen.set(false);
+    this.volumeMenuOpen.set(false);
+  }
+
+  toggleMoreControls(event: Event): void {
+    event.stopPropagation();
+    this.moreControlsOpen.update((value) => !value);
+    this.settingsOpen.set(false);
+    this.volumeMenuOpen.set(false);
   }
 
   setPlaybackRate(rate: number): void {
@@ -235,15 +253,24 @@ export class ProjectVideoBlock implements OnDestroy {
       return;
     }
 
-    if (target.closest('.video-settings-menu') || target.closest('.video-settings-toggle')) {
+    if (target.closest('.video-settings-menu') ||
+        target.closest('.video-settings-toggle') ||
+        target.closest('.video-controls-group') ||
+        target.closest('.video-more-toggle') ||
+        target.closest('.video-volume-menu') ||
+        target.closest('.video-volume-toggle')) {
       return;
     }
 
     this.settingsOpen.set(false);
+    this.moreControlsOpen.set(false);
+    this.volumeMenuOpen.set(false);
   }
 
   onEscapePress(): void {
     this.settingsOpen.set(false);
+    this.moreControlsOpen.set(false);
+    this.volumeMenuOpen.set(false);
   }
 
   private async startVideo(): Promise<void> {

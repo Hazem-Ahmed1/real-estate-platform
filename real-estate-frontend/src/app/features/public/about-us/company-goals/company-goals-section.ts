@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { CompanyGoalsCard } from './company-goals-card/company-goals-card';
+import { WhyUsCard } from '../../../../shared/components/why-us-card/why-us-card';
 
 interface Card {
   title: string;
@@ -9,16 +10,16 @@ interface Card {
 }
 @Component({
   selector: 'app-company-goals-section',
-  imports: [CompanyGoalsCard],
+  imports: [WhyUsCard],
   templateUrl: './company-goals-section.html',
   styleUrl: './company-goals-section.css',
 })
 export class CompanyGoalsSection {
-  activeIndex = signal<number>(0);
+  // activeIndex = signal<number>(0);
 
-  setActive(index: number) {
-    this.activeIndex.set(index);
-  }
+  // setActive(index: number) {
+  //   this.activeIndex.set(index);
+  // }
 
   cards = signal<Card[]>([
     {

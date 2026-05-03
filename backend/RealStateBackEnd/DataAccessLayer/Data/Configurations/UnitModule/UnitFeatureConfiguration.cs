@@ -1,0 +1,31 @@
+using DataAccessLayer.Entities;
+using DataAccessLayer.Entities.ProjectModule;
+using DataAccessLayer.Entities.UnitModule;
+using DataAccessLayer.Entities.BlogModule;
+using DataAccessLayer.Entities.AIModule;
+using DataAccessLayer.Entities.LookupModule;
+using DataAccessLayer.Entities.CommunicationModule;
+
+
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace DataAccessLayer.Data.Configurations;
+
+public class UnitFeatureConfiguration : IEntityTypeConfiguration<UnitFeature>
+{
+    public void Configure(EntityTypeBuilder<UnitFeature> builder)
+    {
+        builder.ToTable("Unit_Features");
+        builder.HasKey(uf => new { uf.UnitId, uf.FeatureId });
+
+        builder.HasOne(uf => uf.Unit)
+            .WithMany(u => u.UnitFeatures)
+            .HasForeignKey(uf => uf.UnitId);
+
+        builder.HasOne(uf => uf.Feature)
+            .WithMany(f => f.UnitFeatures)
+            .HasForeignKey(uf => uf.FeatureId);
+    }
+}
+

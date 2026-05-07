@@ -34,14 +34,20 @@ public class GlobalExpectionHandlingMiddleware
     private async Task HandleNotFoundApiAsync(HttpContext context)
     {
         context.Response.ContentType = "application/json";
-        var response = new ErrorDetails(StatusCodes.Status404NotFound, $"The endpoint with url {context.Request.Path} not found");
-        await context.Response.WriteAsync(response.ToString());
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+
+        var response = new ErrorDetails(
+            StatusCodes.Status404NotFound,
+            $"The endpoint with url {context.Request.Path} not found"
+        );
+
+        await context.Response.WriteAsJsonAsync(response);
     }
 
     private async Task HandleGlobalExceptionAsync(HttpContext context, Exception ex)
     {
         context.Response.ContentType = "application/json";
-        
+
         IEnumerable<string>? errors = null;
 
         // 1. Determine Status Code and Errors
@@ -49,6 +55,8 @@ public class GlobalExpectionHandlingMiddleware
         {
             NotFoundExpection => StatusCodes.Status404NotFound,
             UnauthorizedException => StatusCodes.Status401Unauthorized,
+            BadRequestException => StatusCodes.Status400BadRequest,
+            ConflictException => StatusCodes.Status409Conflict,
             VaildationException validationException => GetValidationErrors(validationException, out errors),
             _ => StatusCodes.Status500InternalServerError
         };
@@ -57,7 +65,7 @@ public class GlobalExpectionHandlingMiddleware
         var response = new ErrorDetails(code, ex.Message, errors);
 
         context.Response.StatusCode = code;
-        await context.Response.WriteAsync(response.ToString());
+        await context.Response.WriteAsJsonAsync(response);
     }
 
     private int GetValidationErrors(VaildationException ex, out IEnumerable<string> errors)

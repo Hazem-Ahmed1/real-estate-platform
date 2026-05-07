@@ -12,6 +12,7 @@ namespace DataAccessLayer.Entities.UnitModule;
 public class Unit : AuditableEntity
 {
     public int UnitId { get; set; }
+    public string? Name { get; set; } = null!;
     public int BuildingId { get; set; }
     public Building Building { get; set; } = null!;
 
@@ -24,6 +25,8 @@ public class Unit : AuditableEntity
 
     public UnitType Type { get; set; }
     public UnitStatus Status { get; set; }
+    public int StreetCount { get; set; }
+    public bool HasBeenTransacted { get; set; }
 
     public string? Street { get; set; }
     public double? Latitude { get; set; }

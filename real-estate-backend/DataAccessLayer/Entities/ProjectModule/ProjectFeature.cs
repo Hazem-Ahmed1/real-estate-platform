@@ -8,7 +8,7 @@ using DataAccessLayer.Entities.CommunicationModule;
 using DataAccessLayer.Enums;
 namespace DataAccessLayer.Entities.ProjectModule;
 
-public class ProjectFeature
+public class ProjectFeature:BaseEntity
 {
     public int ProjectId { get; set; }
     public Project Project { get; set; } = null!;

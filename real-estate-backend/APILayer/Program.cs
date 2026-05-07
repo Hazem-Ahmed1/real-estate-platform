@@ -111,6 +111,12 @@ public class Program
         builder.Services.AddScoped<IMediaService, MediaService>();
         builder.Services.AddScoped<IBlogService, BlogService>();
 
+        builder.Services.AddScoped<IUnitService, UnitService>();
+        builder.Services.AddScoped<IBuildingService, BuildingService>();
+        builder.Services.AddScoped<ILookupService, LookupService>();
+        builder.Services.AddScoped<IDashboardService, DashboardService>();
+
+
         // Cloudinary Settings
         builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 

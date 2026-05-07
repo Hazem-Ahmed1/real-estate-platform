@@ -19,5 +19,7 @@ public class Building : AuditableEntity
     public string? Name { get; set; }
     public int? Floors { get; set; }
 
+    public bool IsDeleted { get; set; } = false;
+
     public ICollection<Unit> Units { get; set; } = new List<Unit>();
 }

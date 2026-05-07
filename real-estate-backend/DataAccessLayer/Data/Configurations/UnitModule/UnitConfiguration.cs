@@ -18,9 +18,12 @@ public class UnitConfiguration : IEntityTypeConfiguration<Unit>
     {
         builder.ToTable("Units");
         builder.HasKey(u => u.UnitId);
+        builder.HasIndex(u => u.Name).IsUnique();
 
         builder.Property(u => u.Type).HasConversion<string>().HasMaxLength(50);
         builder.Property(u => u.Status).HasConversion<string>().HasMaxLength(50);
+        builder.Property(u => u.StreetCount).IsRequired();
+        builder.Property(u => u.HasBeenTransacted).HasDefaultValue(false);
         builder.Property(u => u.Street).HasMaxLength(255);
         builder.Property(u => u.Price).HasPrecision(18, 2);
 

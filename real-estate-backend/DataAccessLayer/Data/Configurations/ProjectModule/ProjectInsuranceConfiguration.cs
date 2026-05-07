@@ -21,11 +21,13 @@ public class ProjectInsuranceConfiguration : IEntityTypeConfiguration<ProjectIns
 
         builder.HasOne(pi => pi.Project)
             .WithMany(p => p.ProjectInsurance)
-            .HasForeignKey(pi => pi.ProjectId);
+            .HasForeignKey(pi => pi.ProjectId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(pi => pi.Insurance)
             .WithMany(i => i.ProjectInsurance)
-            .HasForeignKey(pi => pi.InsuranceId);
+            .HasForeignKey(pi => pi.InsuranceId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
 

@@ -8,7 +8,7 @@ using DataAccessLayer.Entities.CommunicationModule;
 using DataAccessLayer.Enums;
 namespace DataAccessLayer.Entities.ProjectModule;
 
-public class ProjectInsurance
+public class ProjectInsurance: BaseEntity
 {
     public int ProjectId { get; set; }
     public Project Project { get; set; } = null!;

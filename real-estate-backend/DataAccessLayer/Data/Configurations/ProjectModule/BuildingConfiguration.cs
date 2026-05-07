@@ -20,12 +20,15 @@ public class BuildingConfiguration : IEntityTypeConfiguration<Building>
         builder.HasKey(b => b.BuildingId);
         
         builder.Property(b => b.Name).HasMaxLength(100);
-        
+        builder.HasIndex(b => b.Name).IsUnique();
+
+        builder.HasQueryFilter(b => !b.IsDeleted);
+
         // One-to-Many: Building -> Units
         builder.HasMany(b => b.Units)
             .WithOne(u => u.Building)
             .HasForeignKey(u => u.BuildingId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(b => b.ProjectId);
     }

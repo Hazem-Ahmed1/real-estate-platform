@@ -19,7 +19,7 @@ public class FeatureConfiguration : IEntityTypeConfiguration<Feature>
         builder.ToTable("Features");
         builder.HasKey(f => f.FeatureId);
         builder.Property(f => f.Name).IsRequired().HasMaxLength(255);
-        builder.HasIndex(f => f.Name);
+        builder.HasIndex(f => f.Name).IsUnique();
     }
 }
 

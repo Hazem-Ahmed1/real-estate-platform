@@ -1,14 +1,13 @@
 using DataAccessLayer.Entities;
+using DataAccessLayer.Entities.AIModule;
+using DataAccessLayer.Entities.BlogModule;
+using DataAccessLayer.Entities.CommunicationModule;
+using DataAccessLayer.Entities.LookupModule;
 using DataAccessLayer.Entities.ProjectModule;
 using DataAccessLayer.Entities.UnitModule;
-using DataAccessLayer.Entities.BlogModule;
-using DataAccessLayer.Entities.AIModule;
-using DataAccessLayer.Entities.LookupModule;
-using DataAccessLayer.Entities.CommunicationModule;
-
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Reflection.Emit;
 
 namespace DataAccessLayer.Data.Configurations;
 
@@ -27,13 +26,15 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
         builder.Property(p => p.Area).HasMaxLength(100);
         builder.Property(p => p.Address).HasMaxLength(255);
 
+        builder.HasQueryFilter(p => !p.IsDeleted);// Global filter to exclude soft-deleted projects
+
         builder.Property(p => p.CreatedAt).HasDefaultValueSql("GETDATE()");
 
         // One-to-Many: Project -> Buildings
         builder.HasMany(p => p.Buildings)
             .WithOne(b => b.Project)
             .HasForeignKey(b => b.ProjectId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         // One-to-Many: Project -> Media
         builder.HasMany(p => p.Media)

@@ -21,11 +21,13 @@ public class UnitFeatureConfiguration : IEntityTypeConfiguration<UnitFeature>
 
         builder.HasOne(uf => uf.Unit)
             .WithMany(u => u.UnitFeatures)
-            .HasForeignKey(uf => uf.UnitId);
+            .HasForeignKey(uf => uf.UnitId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(uf => uf.Feature)
             .WithMany(f => f.UnitFeatures)
-            .HasForeignKey(uf => uf.FeatureId);
+            .HasForeignKey(uf => uf.FeatureId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
 

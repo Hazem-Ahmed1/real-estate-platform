@@ -219,4 +219,6 @@ public class DataSeeder(
         await context.ProjectFeatures.AddRangeAsync(projectFeatures);
         await context.SaveChangesAsync();
     }
+        //await SeedProjectsAsync();
 }
+

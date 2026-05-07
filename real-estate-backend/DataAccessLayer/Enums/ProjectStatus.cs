@@ -2,7 +2,9 @@ namespace DataAccessLayer.Enums;
 
 public enum ProjectStatus
 {
-    ForSale,
-    ForRent,
-    SoldOut
+    AllForSale,
+    AllForRent,
+    AllForSoldOut,
+    AllForRented,
+    Mixed
 }

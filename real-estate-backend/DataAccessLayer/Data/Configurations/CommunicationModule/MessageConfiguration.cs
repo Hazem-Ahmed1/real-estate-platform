@@ -1,6 +1,5 @@
 using DataAccessLayer.Entities;
 using DataAccessLayer.Entities.ProjectModule;
-using DataAccessLayer.Entities.UnitModule;
 using DataAccessLayer.Entities.BlogModule;
 using DataAccessLayer.Entities.AIModule;
 using DataAccessLayer.Entities.LookupModule;
@@ -27,9 +26,6 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
         builder.Property(m => m.CreatedAt).HasDefaultValueSql("GETDATE()");
         builder.HasIndex(m => m.Email);
 
-        builder.HasOne(m => m.Unit)
-            .WithMany()
-            .HasForeignKey(m => m.UnitId)
-            .OnDelete(DeleteBehavior.SetNull);
+        // No entity relationships for messages.
     }
 }

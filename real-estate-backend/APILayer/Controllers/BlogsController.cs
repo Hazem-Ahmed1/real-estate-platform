@@ -1,60 +1,25 @@
-using APILayer.Dtos.Blogs;
 using BusinessLogicLayer.Contracts;
 using BusinessLogicLayer.Dtos.BlogModule;
-using Microsoft.AspNetCore.Authorization;
+using BusinessLogicLayer.Specifications.Blogs;
+using DataAccessLayer.Common;
 using Microsoft.AspNetCore.Mvc;
 
 namespace APILayer.Controllers;
 
-public class BlogsController(IBlogService blogService, IMediaService mediaService) : ApiController
+public class BlogsController(IBlogService blogService) : ApiController
 {
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<BlogListDto>>> GetBlogs()
+    public async Task<ActionResult<PaginatedResult<BlogListDto>>> GetBlogs([FromQuery] BlogSpecParams @params)
     {
-        var blogs = await blogService.GetBlogsAsync();
-        return Ok(blogs);
+        var result = await blogService.GetBlogsAsync(@params);
+        return Ok(result);
     }
 
-    [HttpPost]
-    [Authorize(Roles = "Admin")]
-    [Consumes("multipart/form-data")]
-    public async Task<ActionResult<BlogDetailsDto>> CreateBlog([FromForm] BlogCreateFormDto form)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<BlogDetailsDto>> GetBlog(int id)
     {
-        if (string.IsNullOrWhiteSpace(form.Title))
-        {
-            return BadRequest("Title is required.");
-        }
-
-        var images = new List<BlogImageCreateDto>();
-
-        if (form.Thumbnail is not null)
-        {
-            var uploaded = await mediaService.UploadImageAsync(form.Thumbnail);
-            images.Add(new BlogImageCreateDto(uploaded.Url, true));
-        }
-
-        if (form.Images is not null && form.Images.Count > 0)
-        {
-            foreach (var file in form.Images)
-            {
-                if (file is null || file.Length == 0)
-                {
-                    continue;
-                }
-
-                var uploaded = await mediaService.UploadImageAsync(file);
-                images.Add(new BlogImageCreateDto(uploaded.Url, false));
-            }
-        }
-
-        var dto = new BlogCreateDto(
-            form.Title,
-            form.Description,
-            form.PublishDate,
-            images.Count == 0 ? null : images
-        );
-
-        var created = await blogService.CreateBlogAsync(dto);
-        return Ok(created);
+        var blog = await blogService.GetBlogByIdAsync(id);
+        return Ok(blog);
     }
+
 }

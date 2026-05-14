@@ -5,11 +5,6 @@ public sealed record BlogDetailsDto(
     string Title,
     DateTime PublishDate,
     string? Description,
-    IReadOnlyList<BlogImageDto> Images
-);
-
-public sealed record BlogImageDto(
-    int ImageId,
-    string ImageUrl,
-    bool IsThumbnail
+    BlogImageItemDto? Thumbnail,
+    IReadOnlyList<BlogImageItemDto> Images
 );

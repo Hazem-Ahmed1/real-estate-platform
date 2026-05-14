@@ -110,6 +110,7 @@ public class Program
         builder.Services.AddScoped<IProjectService, ProjectService>();
         builder.Services.AddScoped<IMediaService, MediaService>();
         builder.Services.AddScoped<IBlogService, BlogService>();
+        builder.Services.AddScoped<IMessageService, MessageService>();
 
         // Cloudinary Settings
         builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));

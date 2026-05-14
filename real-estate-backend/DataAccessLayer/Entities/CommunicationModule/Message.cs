@@ -1,6 +1,5 @@
 using DataAccessLayer.Entities;
 using DataAccessLayer.Entities.ProjectModule;
-using DataAccessLayer.Entities.UnitModule;
 using DataAccessLayer.Entities.BlogModule;
 using DataAccessLayer.Entities.AIModule;
 using DataAccessLayer.Entities.LookupModule;
@@ -14,9 +13,6 @@ public class Message : AuditableEntity
     public int MessageId { get; set; }
 
     public MessageType Type { get; set; }
-
-    public int? UnitId { get; set; }
-    public Unit? Unit { get; set; }
 
     public string FullName { get; set; } = null!;
 

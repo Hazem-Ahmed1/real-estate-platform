@@ -5,5 +5,11 @@ public sealed record BlogListDto(
     string Title,
     DateTime PublishDate,
     string? Description,
-    string? ThumbnailUrl
+    BlogImageItemDto? Thumbnail,
+    IReadOnlyList<BlogImageItemDto> Images
+);
+
+public sealed record BlogImageItemDto(
+    int ImageId,
+    string ImageUrl
 );

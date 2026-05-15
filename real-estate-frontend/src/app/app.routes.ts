@@ -11,9 +11,8 @@ import { UnitDetails } from './features/public/unit-details/unit-details';
 import { UnitPage } from './features/public/unit-page/unit-page';
 import { Login } from './features/public/auth/login/login';
 import { Register } from './features/public/auth/register/register';
-import { AdminDashboard } from './features/admin/dashboard/dashboard';
 import { PublicLayout } from './core/layout/public-layout/public-layout';
-import { AdminLayout } from './core/layout/admin-layout/admin-layout';
+import { adminAuthGuard } from './core/guards/admin-auth.guard';
 import { Blog } from './features/public/blog/blog';
 import { BlogWithSidebar } from './features/public/blog-with-sidebar/blog-with-sidebar';
 import { AboutUs } from './features/public/about-us/about-us';
@@ -69,7 +68,7 @@ export const routes: Routes = [
         component: Blog,
       },
       {
-        path: 'blog-with-sidebar',
+        path: 'blog/:id',
         component: BlogWithSidebar,
       },
       {
@@ -80,17 +79,8 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
-    component: AdminLayout,
-    children: [
-      {
-        path: '',
-        pathMatch: 'full',
-        redirectTo: 'dashboard',
-      },
-      {
-        path: 'dashboard',
-        component: AdminDashboard,
-      },
-    ],
+    canMatch: [adminAuthGuard],
+    loadChildren: () =>
+      import('./features/admin/admin.routes').then((m) => m.adminRoutes),
   },
 ];

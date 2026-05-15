@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IBlogPost } from '../../../../models/IBlogPost';
 
@@ -9,40 +9,58 @@ import { IBlogPost } from '../../../../models/IBlogPost';
   templateUrl: './blog-post.html',
   styleUrl: './blog-post.css',
 })
-export class BlogPost implements OnInit {
+export class BlogPost implements OnChanges {
   @Input() post!: IBlogPost | null;
 
-  images: string[] = [];
-  currentImageIndex = 0;
+  readonly images = signal<string[]>([]);
+  readonly currentImageIndex = signal(0);
 
-  ngOnInit() {
-  if (this.post) {
+  readonly currentImage = computed(() => {
+    const list = this.images();
+    const index = this.currentImageIndex();
+    return list[index] || this.post?.image || '';
+  });
+
+  readonly hasMultipleImages = computed(() => this.images().length > 1);
+
+  ngOnChanges() {
+    this.syncImages();
+  }
+
+  private syncImages(): void {
+    if (!this.post) {
+      this.images.set([]);
+      this.currentImageIndex.set(0);
+      return;
+    }
+
     const additionalImages = this.post.images?.filter(
-      img => img !== this.post!.image  // exclude duplicate if post.image is already in images[]
+      (img) => img !== this.post!.image
     ) ?? [];
 
-    this.images = [this.post.image, ...additionalImages];
-  }
-}
-
-  get currentImage(): string {
-    return this.images[this.currentImageIndex] || this.post?.image || '';
-  }
-
-  get hasMultipleImages(): boolean {
-    return this.images.length > 1;
+    this.images.set([this.post.image, ...additionalImages]);
+    this.currentImageIndex.set(0);
   }
 
   nextImage() {
-    this.currentImageIndex = (this.currentImageIndex + 1) % this.images.length;
+    const list = this.images();
+    if (!list.length) {
+      return;
+    }
+    this.currentImageIndex.set((this.currentImageIndex() + 1) % list.length);
   }
 
   prevImage() {
-    this.currentImageIndex =
-      (this.currentImageIndex - 1 + this.images.length) % this.images.length;
+    const list = this.images();
+    if (!list.length) {
+      return;
+    }
+    this.currentImageIndex.set(
+      (this.currentImageIndex() - 1 + list.length) % list.length
+    );
   }
 
   goToImage(index: number) {
-    this.currentImageIndex = index;
+    this.currentImageIndex.set(index);
   }
 }

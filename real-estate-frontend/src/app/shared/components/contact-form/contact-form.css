@@ -52,6 +52,13 @@ label {
   margin-bottom: 5px;
 }
 
+.field-error {
+  margin-top: 6px;
+  margin-bottom: 0;
+  font-size: 12px;
+  color: #ffd0d0;
+}
+
 .form-control {
   border-radius: 10px;
   border: none;
@@ -66,6 +73,17 @@ label {
   border-radius: 20px;
   padding: 6px 20px;
   font-size: 14px;
+}
+
+.send-btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.form-status {
+  margin-top: 12px;
+  color: var(--text-light);
+  font-size: 13px;
 }
 
 .send-btn:hover {

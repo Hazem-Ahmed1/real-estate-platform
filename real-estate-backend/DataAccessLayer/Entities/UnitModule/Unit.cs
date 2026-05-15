@@ -1,11 +1,3 @@
-using DataAccessLayer.Entities;
-using DataAccessLayer.Entities.ProjectModule;
-using DataAccessLayer.Entities.UnitModule;
-using DataAccessLayer.Entities.BlogModule;
-using DataAccessLayer.Entities.AIModule;
-using DataAccessLayer.Entities.LookupModule;
-using DataAccessLayer.Entities.CommunicationModule;
-using DataAccessLayer.Enums;
 
 namespace DataAccessLayer.Entities.UnitModule;
 
@@ -26,7 +18,8 @@ public class Unit : AuditableEntity
     public UnitType Type { get; set; }
     public UnitStatus Status { get; set; }
     public int StreetCount { get; set; }
-    public bool HasBeenTransacted { get; set; }
+
+    public bool IsStatusChanged { get; set; }
 
     public string? Street { get; set; }
     public double? Latitude { get; set; }

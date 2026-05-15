@@ -1,44 +1,75 @@
-using BusinessLogicLayer.Contracts;
-using BusinessLogicLayer.Dtos.ProjectModule;
-using BusinessLogicLayer.Exceptions;
-using BusinessLogicLayer.Specifications.Projects;
-using DataAccessLayer.Enums;
-using Microsoft.AspNetCore.Mvc;
-
 namespace APILayer.Controllers;
 
-[ApiController] 
-[Route("api/[controller]")]
+[ApiController]
+[Route("api/projects")]
 public class ProjectsController(IProjectService projectService) : ApiController
 {
+    #region Public Endpoints
+
     [HttpGet]
     public async Task<ActionResult> GetProjects([FromQuery] ProjectSpecParams @params)
     {
+        // Public restricted filtering: cannot see sold/rented units
         if (@params.UnitStatus is UnitStatus.Sold or UnitStatus.Rented)
             throw new BadRequestException("Filtering projects by Sold/Rented units is restricted to admin endpoints.");
 
+        PaginatedResult<ProjectListDto>? result = await projectService.GetProjectsAsync(@params);
+        foreach (var item in result.Data) item.IsStatusChanged = null;
+        return Ok(result);
+
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<ProjectDetailsDto>> GetProject(int id)
+    {
+        var project = await projectService.GetProjectByIdAsync(id);
+        if (project == null) throw new NotFoundExpection("Project", id);
+        
+        // Public can only see Sale and Rent projects
+        if (!User.IsInRole("Admin") && project.Status != ProjectStatus.Sale && project.Status != ProjectStatus.Rent)
+            throw new NotFoundExpection("Project", id);
+
+        project.IsStatusChanged = null; // Hide for public
+
+        return Ok(project);
+
+    }
+
+    #endregion
+
+    #region Admin Endpoints
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("admin")]
+    public async Task<ActionResult> GetAdminProjects([FromQuery] ProjectSpecParams @params)
+    {
         var result = await projectService.GetProjectsAsync(@params);
         return Ok(result);
     }
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<GetProjectDto>> GetProject(int id)
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
+    public async Task<ActionResult> CreateProject([FromForm] ProjectDto projectDto)
     {
-        var project = await projectService.GetProjectByIdAsync(id);
-        if (project == null) throw new NotFoundExpection("Project", id);
-
-        return Ok(project);
+        var created = await projectService.CreateProjectAsync(projectDto);
+        return CreatedAtAction(nameof(GetProject), new { id = created.ProjectId }, created);
     }
 
-    [HttpGet("cities")]
-    public async Task<ActionResult<List<string>>> GetCities()
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id}")]
+    public async Task<ActionResult> UpdateProject(int id, [FromForm] ProjectDto projectDto)
     {
-        return Ok(await projectService.GetAvailableCitiesAsync());
+        var result = await projectService.UpdateProjectAsync(id, projectDto);
+        return Ok(result);
     }
 
-    [HttpGet("sort-options")]
-    public async Task<ActionResult<List<string>>> GetSortOptions()
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteProject(int id)
     {
-        return Ok(await projectService.GetSortOptionsAsync());
+        await projectService.DeleteProjectAsync(id);
+        return NoContent();
     }
+
+    #endregion
 }

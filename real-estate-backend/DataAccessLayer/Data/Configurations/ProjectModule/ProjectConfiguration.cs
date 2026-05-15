@@ -1,10 +1,3 @@
-using DataAccessLayer.Entities;
-using DataAccessLayer.Entities.AIModule;
-using DataAccessLayer.Entities.BlogModule;
-using DataAccessLayer.Entities.CommunicationModule;
-using DataAccessLayer.Entities.LookupModule;
-using DataAccessLayer.Entities.ProjectModule;
-using DataAccessLayer.Entities.UnitModule;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Reflection.Emit;
@@ -26,7 +19,6 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
         builder.Property(p => p.Area).HasMaxLength(100);
         builder.Property(p => p.Address).HasMaxLength(255);
 
-        builder.HasQueryFilter(p => !p.IsDeleted);// Global filter to exclude soft-deleted projects
 
         builder.Property(p => p.CreatedAt).HasDefaultValueSql("GETDATE()");
 

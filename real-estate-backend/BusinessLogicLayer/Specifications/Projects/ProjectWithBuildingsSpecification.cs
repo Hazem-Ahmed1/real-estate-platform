@@ -1,6 +1,3 @@
-using DataAccessLayer.Entities.ProjectModule;
-using DataAccessLayer.Enums;
-using System.Linq;
 
 namespace BusinessLogicLayer.Specifications.Projects;
 
@@ -8,12 +5,14 @@ public class ProjectWithBuildingsSpecification : BaseSpecifications<Project>
 {
     public ProjectWithBuildingsSpecification(ProjectSpecParams @params, bool isCount = false)
         : base(p => 
+            (!@params.PublicOnly || (p.Status == ProjectStatus.Sale || p.Status == ProjectStatus.Rent)) &&
+
+
             (!@params.Status.HasValue || p.Status == @params.Status) &&
             (!@params.UnitStatus.HasValue || p.Buildings.Any(b => b.Units.Any(u => u.Status == @params.UnitStatus))) &&
             (string.IsNullOrEmpty(@params.City) || p.City != null && p.City.Contains(@params.City)) &&
             (string.IsNullOrEmpty(@params.Search) || 
-                p.Name.Contains(@params.Search) || 
-                (p.Description != null && p.Description.Contains(@params.Search)))
+                p.Name.Contains(@params.Search))
         )
     {
         if (!isCount)

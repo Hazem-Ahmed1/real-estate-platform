@@ -2,4 +2,5 @@
   <Project Path="APILayer/APILayer.csproj" />
   <Project Path="BusinessLogicLayer/BusinessLogicLayer.csproj" />
   <Project Path="DataAccessLayer/DataAccessLayer.csproj" />
+  <Project Path="BackendTests/BackendTests.csproj" />
 </Solution>

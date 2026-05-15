@@ -1,4 +1,3 @@
-using DataAccessLayer.Entities.LookupModule;
 namespace DataAccessLayer.Entities.UnitModule;
 
 public class UnitFeature:BaseEntity

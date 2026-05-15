@@ -6,6 +6,4 @@ public enum UnitType
     Villa,
     Duplex,
     Office,
-    Shop,
-    Land
 }

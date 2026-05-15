@@ -434,6 +434,12 @@ namespace DataAccessLayer.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("ForRentCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ForSaleCount")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -447,6 +453,12 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
+
+                    b.Property<int>("RentedCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SoldCount")
+                        .HasColumnType("int");
 
                     b.Property<string>("Status")
                         .IsRequired()

@@ -1,10 +1,3 @@
-using DataAccessLayer.Entities;
-using DataAccessLayer.Entities.ProjectModule;
-using DataAccessLayer.Entities.UnitModule;
-using DataAccessLayer.Entities.BlogModule;
-using DataAccessLayer.Entities.AIModule;
-using DataAccessLayer.Entities.LookupModule;
-using DataAccessLayer.Entities.CommunicationModule;
 
 
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +15,6 @@ public class BuildingConfiguration : IEntityTypeConfiguration<Building>
         builder.Property(b => b.Name).HasMaxLength(100);
         builder.HasIndex(b => b.Name).IsUnique();
 
-        builder.HasQueryFilter(b => !b.IsDeleted);
 
         // One-to-Many: Building -> Units
         builder.HasMany(b => b.Units)

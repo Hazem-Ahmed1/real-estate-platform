@@ -50,6 +50,11 @@ public class GenericRepository<TEntity>(RealEstateDbContext context) : IGenericR
         return await ApplySpecification(specification).CountAsync();
     }
 
+    public async Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate)
+    {
+        return await _dbSet.CountAsync(predicate);
+    }
+
     public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
     {
         return await _dbSet.AnyAsync(predicate);

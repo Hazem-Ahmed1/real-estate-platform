@@ -1,5 +1,3 @@
-using DataAccessLayer.Entities;
-using System.Linq.Expressions;
 
 namespace DataAccessLayer.Contracts;
 
@@ -15,6 +13,7 @@ public interface IGenericRepository<TEntity> where TEntity : BaseEntity
     Task<IEnumerable<TEntity>> GetAllAsync(ISpecification<TEntity> specification);
     Task<TEntity?> GetByIdAsync(ISpecification<TEntity> specification);
     Task<int> CountAsync(ISpecification<TEntity> specification);
+    Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate);
     Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate);
     #endregion
 }

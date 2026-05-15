@@ -1,10 +1,3 @@
-using DataAccessLayer.Entities;
-using DataAccessLayer.Entities.ProjectModule;
-using DataAccessLayer.Entities.UnitModule;
-using DataAccessLayer.Entities.BlogModule;
-using DataAccessLayer.Entities.AIModule;
-using DataAccessLayer.Entities.LookupModule;
-using DataAccessLayer.Entities.CommunicationModule;
 
 
 using Microsoft.EntityFrameworkCore;
@@ -23,8 +16,8 @@ public class UnitConfiguration : IEntityTypeConfiguration<Unit>
         builder.Property(u => u.Type).HasConversion<string>().HasMaxLength(50);
         builder.Property(u => u.Status).HasConversion<string>().HasMaxLength(50);
         builder.Property(u => u.StreetCount).IsRequired();
-        builder.Property(u => u.HasBeenTransacted).HasDefaultValue(false);
         builder.Property(u => u.Street).HasMaxLength(255);
+
         builder.Property(u => u.Price).HasPrecision(18, 2);
 
         // One-to-Many: Unit -> Media

@@ -5,5 +5,8 @@ public enum FacilityType
     Mosque,
     School,
     Hospital,
-    Restaurant
+    Restaurant,
+    Park,
+    Bank,
+    Pharmacy,
 }

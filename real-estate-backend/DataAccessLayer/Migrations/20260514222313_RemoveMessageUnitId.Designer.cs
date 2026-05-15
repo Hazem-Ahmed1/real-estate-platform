@@ -4,6 +4,7 @@ using DataAccessLayer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(RealEstateDbContext))]
-    partial class RealEstateDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260514222313_RemoveMessageUnitId")]
+    partial class RemoveMessageUnitId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -279,9 +282,6 @@ namespace DataAccessLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FeatureId"));
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -289,8 +289,7 @@ namespace DataAccessLayer.Migrations
 
                     b.HasKey("FeatureId");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
+                    b.HasIndex("Name");
 
                     b.ToTable("Features", (string)null);
                 });
@@ -303,9 +302,6 @@ namespace DataAccessLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InsuranceId"));
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -313,8 +309,7 @@ namespace DataAccessLayer.Migrations
 
                     b.HasKey("InsuranceId");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
+                    b.HasIndex("Name");
 
                     b.ToTable("Insurance", (string)null);
                 });
@@ -377,9 +372,6 @@ namespace DataAccessLayer.Migrations
                     b.Property<int?>("Floors")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -391,10 +383,6 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("BuildingId");
-
-                    b.HasIndex("Name")
-                        .IsUnique()
-                        .HasFilter("[Name] IS NOT NULL");
 
                     b.HasIndex("ProjectId");
 
@@ -429,15 +417,6 @@ namespace DataAccessLayer.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ForRentCount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ForSaleCount")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<double?>("Latitude")
                         .HasColumnType("float");
 
@@ -448,12 +427,6 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
-
-                    b.Property<int>("RentedCount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SoldCount")
-                        .HasColumnType("int");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -568,19 +541,11 @@ namespace DataAccessLayer.Migrations
                     b.Property<int?>("Floor")
                         .HasColumnType("int");
 
-                    b.Property<bool>("HasBeenTransacted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
                     b.Property<double?>("Latitude")
                         .HasColumnType("float");
 
                     b.Property<double?>("Longitude")
                         .HasColumnType("float");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<decimal?>("Price")
                         .HasPrecision(18, 2)
@@ -601,9 +566,6 @@ namespace DataAccessLayer.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<int>("StreetCount")
-                        .HasColumnType("int");
-
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -615,10 +577,6 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("UnitId");
 
                     b.HasIndex("BuildingId");
-
-                    b.HasIndex("Name")
-                        .IsUnique()
-                        .HasFilter("[Name] IS NOT NULL");
 
                     b.HasIndex("Price");
 
@@ -856,7 +814,7 @@ namespace DataAccessLayer.Migrations
                     b.HasOne("DataAccessLayer.Entities.ProjectModule.Project", "Project")
                         .WithMany("Buildings")
                         .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Project");
@@ -867,7 +825,7 @@ namespace DataAccessLayer.Migrations
                     b.HasOne("DataAccessLayer.Entities.LookupModule.Feature", "Feature")
                         .WithMany("ProjectFeatures")
                         .HasForeignKey("FeatureId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DataAccessLayer.Entities.ProjectModule.Project", "Project")
@@ -886,7 +844,7 @@ namespace DataAccessLayer.Migrations
                     b.HasOne("DataAccessLayer.Entities.LookupModule.Insurance", "Insurance")
                         .WithMany("ProjectInsurance")
                         .HasForeignKey("InsuranceId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DataAccessLayer.Entities.ProjectModule.Project", "Project")
@@ -916,7 +874,7 @@ namespace DataAccessLayer.Migrations
                     b.HasOne("DataAccessLayer.Entities.ProjectModule.Building", "Building")
                         .WithMany("Units")
                         .HasForeignKey("BuildingId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Building");
@@ -927,7 +885,7 @@ namespace DataAccessLayer.Migrations
                     b.HasOne("DataAccessLayer.Entities.LookupModule.Feature", "Feature")
                         .WithMany("UnitFeatures")
                         .HasForeignKey("FeatureId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DataAccessLayer.Entities.UnitModule.Unit", "Unit")
@@ -946,7 +904,7 @@ namespace DataAccessLayer.Migrations
                     b.HasOne("DataAccessLayer.Entities.LookupModule.Insurance", "Insurance")
                         .WithMany("UnitInsurance")
                         .HasForeignKey("InsuranceId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DataAccessLayer.Entities.UnitModule.Unit", "Unit")

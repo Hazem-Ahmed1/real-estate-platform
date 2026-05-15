@@ -1,9 +1,9 @@
 <section class="py-4 py-md-5">
   <div class="container-xl">
     <div class="row g-3 g-md-4">
-      @for (post of blogPosts; track post.id) {
+      @for (post of blogPosts(); track post.id) {
         <div class="col-12 col-sm-6 col-lg-4">
-          <div class="blog-card d-flex flex-column h-100 rounded-5  overflow-hidden" (click)="blogDetaisl()">
+          <div class="blog-card d-flex flex-column h-100 rounded-5  overflow-hidden" (click)="blogDetaisl(post.id)">
             <!-- Image -->
             <div class="position-relative  blog-card__img-wrap">
               <img
@@ -15,7 +15,7 @@
                 <span
                   class="position-absolute bottom-0 start-0 m-3 bg-white bg-opacity-90 rounded-4 px-2 py-3 fw-bold small blog-card__date"
                 >
-                  {{ post.date }}
+                  {{ post.date | date: 'MM/yy' }}
                 </span>
               }
             </div>
@@ -41,7 +41,9 @@
           </div>
         </div>
 
-      } @empty {
+      }
+
+      @if (hasLoaded() && blogPosts().length === 0) {
         <div class="col-12 text-center py-5 text-secondary">لا توجد مقالات متاحة حالياً</div>
       }
     </div>

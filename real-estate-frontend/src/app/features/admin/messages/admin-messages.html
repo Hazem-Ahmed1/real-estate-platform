@@ -1,0 +1,71 @@
+<section class="admin-messages" dir="rtl">
+  <header class="page-header">
+    <div>
+      <h2>الرسائل الواردة</h2>
+      <p>إدارة الرسائل القادمة من صفحة التواصل.</p>
+    </div>
+    <button class="btn ghost-btn" type="button" (click)="loadMessages()" [disabled]="isLoading()">
+      <i class="fa-solid fa-rotate" aria-hidden="true"></i>
+      تحديث
+    </button>
+  </header>
+
+  @if (errorMessage()) {
+    <p class="error-banner" aria-live="polite">{{ errorMessage() }}</p>
+  }
+
+  <div class="messages-grid">
+    <article class="card list-card">
+      <div class="list-head">
+        <h3>صندوق الوارد</h3>
+        <span>{{ isLoading() ? 'جاري التحميل...' : (messages().length + ' رسالة') }}</span>
+      </div>
+
+      <div class="list-body">
+        @if (!isLoading() && messages().length === 0) {
+          <p class="empty-state">لا توجد رسائل حالياً</p>
+        }
+
+        @for (message of messages(); track message.messageId) {
+          <div class="message-row" [class.active]="selectedMessage()?.messageId === message.messageId">
+            <button class="message-info" type="button" (click)="selectMessage(message)">
+              <div>
+                <h4>{{ message.fullName }}</h4>
+                <p>{{ message.subject }}</p>
+              </div>
+              <span class="message-date">{{ message.createdAt | date: 'mediumDate' }}</span>
+            </button>
+            <button class="btn tiny-btn danger" type="button" (click)="deleteMessage(message)" [disabled]="isDeleting()">
+              حذف
+            </button>
+          </div>
+        }
+      </div>
+    </article>
+
+    <article class="card details-card">
+      @if (selectedMessage()) {
+        <div class="details-head">
+          <div>
+            <h3>{{ selectedMessage()?.fullName }}</h3>
+            <p>{{ selectedMessage()?.subject }}</p>
+          </div>
+          <button class="btn ghost-btn" type="button" (click)="clearSelection()">إغلاق</button>
+        </div>
+
+        <div class="details-meta">
+          <p><strong>البريد:</strong> {{ selectedMessage()?.email }}</p>
+          <p><strong>الهاتف:</strong> {{ selectedMessage()?.phone }}</p>
+          <p><strong>النوع:</strong> {{ selectedMessage()?.type }}</p>
+          <p><strong>التاريخ:</strong> {{ selectedMessage()?.createdAt | date: 'medium' }}</p>
+        </div>
+
+        <div class="details-body">
+          <p>{{ selectedMessage()?.messageBody }}</p>
+        </div>
+      } @else {
+        <p class="empty-state">اختر رسالة لعرض التفاصيل</p>
+      }
+    </article>
+  </div>
+</section>

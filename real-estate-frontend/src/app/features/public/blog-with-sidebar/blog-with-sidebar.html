@@ -1,16 +1,21 @@
 <app-breadcrumb
-    [items]="[{ label: 'الرئيسية', url: '/' }, { label: 'المدونة' , url: '/blog'}, { label: '6 ملايين ريال مبيعات شركة منصات العقارية من مزاد « عبير الشمال ' , url: '/blog-with-sidebar'}]" />
+        [items]="[
+            { label: 'الرئيسية', url: '/' },
+            { label: 'المدونة', url: '/blog' },
+            { label: post()?.title ?? 'تفاصيل المدونة', url: '/blog/' + (post()?.id ?? '') }
+        ]"
+    />
 
 <div class="container mb-5">
     <div class="blog-page" dir="rtl">
             <div class="row ">
 
                 <div class="col-12 col-xxl-9">
-                    <app-blog-post [post]="post" />
+                    <app-blog-post [post]="post()" />
                 </div>
 
                 <div class="col-12 col-xxl-3">
-                    <app-unit-sidebar [units]="units" (unitClick)="onUnitClick($event)" />
+                    <app-unit-sidebar [units]="units()" (unitClick)="onUnitClick($event)" />
                 </div>
 
         </div>

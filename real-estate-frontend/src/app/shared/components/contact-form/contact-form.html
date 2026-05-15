@@ -11,6 +11,7 @@
           type="text"
           placeholder="الاسم الكامل"
           class="form-control"
+          [value]="form().firstName"
           (input)="updateField('firstName', $any($event.target).value)"
         />
       </div>
@@ -21,8 +22,28 @@
           type="email"
           placeholder="البريد الالكتروني"
           class="form-control"
+          [value]="form().email"
           (input)="updateField('email', $any($event.target).value)"
         />
+        @if (errors().email) {
+          <p class="field-error">{{ errors().email }}</p>
+        }
+      </div>
+
+      <div class="col-md-12">
+        <label>رقم الهاتف</label>
+        <input
+          type="tel"
+          placeholder="رقم الهاتف"
+          class="form-control"
+          dir="rtl"
+          style="text-align: right;"
+          [value]="form().phone"
+          (input)="updateField('phone', $any($event.target).value)"
+        />
+        @if (errors().phone) {
+          <p class="field-error">{{ errors().phone }}</p>
+        }
       </div>
 
       <div class="col-12">
@@ -31,8 +52,12 @@
           type="text"
           placeholder="أدخل موضوع الرسالة"
           class="form-control"
+          [value]="form().subject"
           (input)="updateField('subject', $any($event.target).value)"
         />
+        @if (errors().subject) {
+          <p class="field-error">{{ errors().subject }}</p>
+        }
       </div>
 
       <div class="col-12">
@@ -41,12 +66,21 @@
           rows="4"
           class="form-control"
           placeholder="اكتب هنا"
+          [value]="form().message"
           (input)="updateField('message', $any($event.target).value)"
         ></textarea>
+        @if (errors().message) {
+          <p class="field-error">{{ errors().message }}</p>
+        }
       </div>
 
       <div class="col-12 text-end">
-        <button class="btn send-btn">ارسال <i class="fa-solid fa-arrow-left"></i></button>
+        <button class="btn send-btn" type="button" (click)="submit()" [disabled]="isSubmitting()">
+          {{ isSubmitting() ? 'جاري الإرسال...' : 'ارسال' }} <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        @if (statusMessage()) {
+          <p class="form-status">{{ statusMessage() }}</p>
+        }
       </div>
     </div>
   </div>

@@ -1,0 +1,159 @@
+<section class="admin-blogs" dir="rtl">
+  <header class="page-header">
+    <div>
+      <h2>إدارة المدونات</h2>
+      <p>إنشاء وتعديل وحذف المحتوى بسهولة.</p>
+    </div>
+    <button class="btn ghost-btn" type="button" (click)="loadBlogs()" [disabled]="isLoading()">
+      <i class="fa-solid fa-rotate" aria-hidden="true"></i>
+      تحديث
+    </button>
+  </header>
+
+  @if (errorMessage()) {
+    <p class="error-banner" aria-live="polite">{{ errorMessage() }}</p>
+  }
+
+  <div class="blogs-grid">
+    <article class="card form-card">
+      <h3>{{ selectedBlog() ? 'تعديل مدونة' : 'إضافة مدونة جديدة' }}</h3>
+
+      <form [formGroup]="blogForm" (ngSubmit)="submitForm()">
+        <label class="field">
+          <span>العنوان</span>
+          <input type="text" formControlName="title" placeholder="عنوان المدونة" />
+        </label>
+
+        <div class="field">
+          <span>الوصف</span>
+          <div class="editor-toolbar" role="toolbar" aria-label="تنسيقات النص">
+            <button type="button" class="btn tiny-btn" (click)="applyFormat('bold')">
+              <i class="fa-solid fa-bold" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn tiny-btn" (click)="applyFormat('italic')">
+              <i class="fa-solid fa-italic" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn tiny-btn" (click)="applyFormat('removeFormat')">
+              عادي
+            </button>
+            <button type="button" class="btn tiny-btn" (click)="insertLink()">
+              <i class="fa-solid fa-link" aria-hidden="true"></i>
+            </button>
+            <label class="color-picker">
+              <span>لون</span>
+              <input type="color" (input)="applyColor($event)" />
+            </label>
+          </div>
+          <div
+            #descriptionEditor
+            class="editor-surface"
+            contenteditable="true"
+            role="textbox"
+            aria-multiline="true"
+            tabindex="0"
+            spellcheck="true"
+            (click)="focusEditor()"
+            (input)="onDescriptionInput()"
+          ></div>
+          <p class="helper-text">اختر نصاً لتنسيقه أو إضافة رابط.</p>
+        </div>
+
+        <label class="field">
+          <span>تاريخ النشر</span>
+          <input type="date" formControlName="publishDate" />
+        </label>
+
+        <div class="field">
+          <span>الصورة الرئيسية</span>
+          <label class="file-input">
+            <input type="file" accept="image/*" (change)="onThumbnailChange($event)" />
+            <span class="file-button">رفع صورة</span>
+            <span class="file-name">{{ thumbnailName() }}</span>
+          </label>
+        </div>
+
+        <div class="field">
+          <span>صور إضافية</span>
+          <label class="file-input">
+            <input type="file" accept="image/*" multiple (change)="onImagesChange($event)" />
+            <span class="file-button">رفع صور</span>
+            <span class="file-name">{{ imagesSummary() }}</span>
+          </label>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary-btn" type="submit" [disabled]="isSaving()">
+            {{ selectedBlog() ? 'حفظ التعديلات' : 'نشر المدونة' }}
+          </button>
+          <button
+            class="btn ghost-btn"
+            type="button"
+            (click)="clearSelection()"
+            [disabled]="isSaving()"
+          >
+            إلغاء
+          </button>
+        </div>
+      </form>
+    </article>
+
+    <article class="card list-card">
+      <div class="list-head">
+        <h3>المدونات</h3>
+        <span>{{ isLoading() ? 'جاري التحميل...' : (blogs().length + ' عنصر') }}</span>
+      </div>
+
+      <div class="list-body">
+        @if (!isLoading() && blogs().length === 0) {
+          <p class="empty-state">لا توجد مدونات بعد.</p>
+        }
+
+        @for (blog of blogs(); track blog.blogId) {
+          <div class="blog-row" [class.active]="selectedBlog()?.blogId === blog.blogId">
+            <div class="blog-info" (click)="selectBlog(blog)">
+              <div>
+                <h4>{{ blog.title }}</h4>
+                <p>{{ blog.publishDate | date: 'mediumDate' }}</p>
+              </div>
+              @if (blog.thumbnail?.imageUrl) {
+                <div class="thumb">
+                  <img [src]="blog.thumbnail?.imageUrl" [alt]="blog.title" />
+                </div>
+              }
+            </div>
+
+            <div class="row-actions">
+              <button class="btn tiny-btn" type="button" (click)="selectBlog(blog)">عرض</button>
+              <button class="btn tiny-btn danger" type="button" (click)="deleteBlog(blog)">
+                حذف
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </article>
+  </div>
+
+  @if (selectedBlog()) {
+    <article class="card preview-card">
+      <div class="preview-head">
+        <h3>معاينة المدونة</h3>
+        <button class="btn ghost-btn" type="button" (click)="clearSelection()">إغلاق</button>
+      </div>
+      <h4>{{ selectedBlog()?.title }}</h4>
+      <div class="preview-description" [innerHTML]="previewHtml()"></div>
+      <div class="preview-media">
+        @if (selectedBlog()?.thumbnail?.imageUrl) {
+          <img [src]="selectedBlog()?.thumbnail?.imageUrl" alt="thumbnail" />
+        }
+        @if (selectedBlog()?.images?.length) {
+          <div class="preview-gallery">
+            @for (img of selectedBlog()?.images ?? []; track img.imageId) {
+              <img [src]="img.imageUrl" alt="blog image" />
+            }
+          </div>
+        }
+      </div>
+    </article>
+  }
+</section>

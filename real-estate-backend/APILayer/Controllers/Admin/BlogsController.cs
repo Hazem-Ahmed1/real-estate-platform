@@ -1,25 +1,16 @@
 using APILayer.Dtos.Blogs;
 using BusinessLogicLayer.Contracts;
 using BusinessLogicLayer.Dtos.BlogModule;
-using BusinessLogicLayer.Specifications.Blogs;
-using DataAccessLayer.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace APILayer.Controllers.Admin;
 
 [ApiController]
-[Route("api/admin/blog")]
+[Route("api/blogs")]
 [Authorize(Roles = "Admin")]
 public class BlogsController(IBlogService blogService, IMediaService mediaService) : ControllerBase
 {
-    [HttpGet]
-    public async Task<ActionResult<PaginatedResult<BlogListDto>>> GetBlogs([FromQuery] BlogSpecParams @params)
-    {
-        var result = await blogService.GetBlogsAsync(@params);
-        return Ok(result);
-    }
-
     [HttpPost]
     [Consumes("multipart/form-data")]
     public async Task<ActionResult<BlogDetailsDto>> CreateBlog([FromForm] BlogCreateFormDto form)

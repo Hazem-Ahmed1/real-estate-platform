@@ -1,10 +1,15 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, OnInit, Output, inject, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { catchError, switchMap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BreadcrumbComponent } from "../../../shared/components/breadcrumbs/breadcrumbs";
 import { ContactSection } from "../../../shared/components/contact-section/contact-section";
 import { IBlogPost } from '../../../models/IBlogPost';
 import { UnitCardModel } from '../../../models/IUnit';
 import { BlogPost } from "./blog-post/blog-post";
 import { UnitSidebar } from "./unit-sidebar/unit-sidebar";
+import { BlogService } from '../../../services/api/blog.service';
+import { PublicBlogDto } from '../../../models/PublicBlogDto';
 
 @Component({
   selector: 'app-blog-with-sidebar',
@@ -12,88 +17,91 @@ import { UnitSidebar } from "./unit-sidebar/unit-sidebar";
   templateUrl: './blog-with-sidebar.html',
   styleUrl: './blog-with-sidebar.css',
 })
-export class BlogWithSidebar {
-  // post: IBlogPost | null = null;
-  post: IBlogPost = {
-    id: 1,
-    title: 'شركة منصات العقارية حصلت جائزة التسويق العقاري الأول لعام 2022',
-    date: '24 يوليو 2024',
-    image: '/images/imgForFullProject.jpg',
-    images: ['/images/p1.jpg', '/images/p2.jpg', '/images/p3.jpg'],
-    excerpt: 'نجحت شركة منصات العقارية في تحقيق إنجاز كبير في مجال التسويق العقاري...',
-    sections: [
-      {
-        content: [
-          'تُوجت شركة منصات العقارية مسيرتها في مجال التسويق العقاري بتكريم من معالي وزير الشؤون البلدية والقروية والإسكان الأستاذ ماجد بن عبد الله الحقيل بجائزة المسوق العقاري الأول لعام 2022م وكان ذلك في الحدث العقاري الأضخم للمستثمرين والمشترين معرض ريستاتكس العقاري المقام في مركز الرياض للمعارض والمؤتمرات.',
-          'ويأتي هذا التكريم سعياً من منصات العقارية لتصبح الرائدة في مجال التسويق العقاري الحديث من خلال المعرفة التامة.'
-        ]
-      },
-      {
-        title: 'تصفح آخر عروض العقارات',
-        content: [
-          'وكما حرصت شركة منصات العقارية منذ انطلاقها بقيادة المؤسس والرئيس التنفيذي الأستاذ خالد المبيض بتقديم أفضل الخدمات العقارية في مجال التسويق العقاري وأيضاً التقييم العقاري المُعتمد وإدارة الأملاك من خلال استخدام التقنيات الحديثة المتطورة والخبرة الكافية بأهمية تطبيق الإستراتيجيات الخاصة بالتسويق العقاري الحديث وأهميته وذلك لنجاح أعمال الشركة والتخطيط لنجاحات أكبر تساهم في تطوير النهضة العقارية في المملكة العربية السعودية.',
-          'والجدير بالذكر أن شركة منصات العقارية حصدت العديد من الجوائز كجائزة المسوق العقاري الأول لعام 2021م وجائزة أفضل برنامج تطبيق تسويق عقاري لعام 2018م والعديد من الجوائز في مناسبات عدة.'
-        ]
-      }
-    ]
-  };
-  // units: UnitCardModel[] = [];
-  units: UnitCardModel[] = [
-    {
-      title: 'فيلا للإيجار حي الملك فيصل',
-      location: 'الملك فيصل, الرياض, منطقة الرياض',
-      price: '120000 ر.س',
-      type: 'فيلا',
-      imageURL: '/images/unit.jpg'
-    },
-    {
-      title: 'فيلا للإيجار حي الملك فيصل',
-      location: 'الملك فيصل, الرياض, منطقة الرياض',
-      price: '120000 ر.س',
-      type: 'فيلا',
-      imageURL: '/images/imgForFullProject.jpg'
-    }, {
-      title: 'فيلا للإيجار حي الملك فيصل',
-      location: 'الملك فيصل, الرياض, منطقة الرياض',
-      price: '120000 ر.س',
-      type: 'فيلا',
-      imageURL: '/images/imgForFullProject.jpg'
-    }, {
-      title: 'فيلا للإيجار حي الملك فيصل',
-      location: 'الملك فيصل, الرياض, منطقة الرياض',
-      price: '120000 ر.س',
-      type: 'فيلا',
-      imageURL: '/images/imgForFullProject.jpg'
-    }, {
-      title: 'فيلا للإيجار حي الملك فيصل',
-      location: 'الملك فيصل, الرياض, منطقة الرياض',
-      price: '120000 ر.س',
-      type: 'فيلا',
-      imageURL: '/images/imgForFullProject.jpg'
-    }, {
-      title: 'فيلا للإيجار حي الملك فيصل',
-      location: 'الملك فيصل, الرياض, منطقة الرياض',
-      price: '120000 ر.س',
-      type: 'فيلا',
-      imageURL: '/images/imgForFullProject.jpg'
-    },{
-      title: 'فيلا للإيجار حي الملك فيصل',
-      location: 'الملك فيصل, الرياض, منطقة الرياض',
-      price: '120000 ر.س',
-      type: 'فيلا',
-      imageURL: '/images/imgForFullProject.jpg'
-    }, {
-      title: 'فيلا للإيجار حي الملك فيصل',
-      location: 'الملك فيصل, الرياض, منطقة الرياض',
-      price: '120000 ر.س',
-      type: 'فيلا',
-      imageURL: '/images/imgForFullProject.jpg'
-    },
-  ];
+export class BlogWithSidebar implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly blogsService = inject(BlogService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly selectedBlogId = signal(0);
+
+  readonly post = signal<IBlogPost | null>(null);
+  readonly units = signal<UnitCardModel[]>([]);
 
   @Output() unitClick = new EventEmitter<UnitCardModel>();
 
   onUnitClick(unit: UnitCardModel) {
     this.unitClick.emit(unit);
   }
+
+  ngOnInit(): void {
+    this.route.paramMap
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        switchMap((params) => {
+          const id = Number(params.get('id'));
+          const blogId = Number.isFinite(id) ? id : 0;
+          if (!blogId) {
+            return this.blogsService.getBlogs({ page: 1, pageSize: 1 });
+          }
+          return this.blogsService.getBlog(blogId).pipe(
+            catchError(() => this.blogsService.getBlogs({ page: 1, pageSize: 1 }))
+          );
+        })
+      )
+      .subscribe((response) => {
+        console.info('Blog details response', response);
+        if ('items' in response) {
+          const first = response.items?.[0];
+          this.post.set(first ? this.mapBlogToPost(first) : null);
+        } else {
+          this.post.set(this.mapBlogToPost(response));
+        }
+        this.selectedBlogId.set(this.post()?.id ?? 0);
+      });
+
+    this.units.set([]);
+  }
+
+  private mapBlogToPost(blog: PublicBlogDto): IBlogPost {
+    return {
+      id: blog.blogId,
+      title: blog.title,
+      date: blog.publishDate ?? '',
+      image: blog.thumbnail?.imageUrl ?? blog.images?.[0]?.imageUrl ?? '/images/imgForFullProject.jpg',
+      images: (blog.images ?? []).map((img) => img.imageUrl),
+      excerpt: this.stripHtml(blog.description ?? ''),
+      sections: [
+        {
+          content: this.splitParagraphs(blog.description ?? ''),
+        },
+      ],
+    };
+  }
+
+
+  private splitParagraphs(html: string): string[] {
+    if (!html) {
+      return [];
+    }
+
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const paragraphs = Array.from(doc.querySelectorAll('p')).map(
+      (p) => p.innerHTML.trim()
+    );
+    if (paragraphs.length > 0) {
+      return paragraphs.filter(Boolean);
+    }
+
+    const text = doc.body.innerHTML.trim();
+    return text ? [text] : [];
+  }
+
+  private stripHtml(html: string): string {
+    if (!html) {
+      return '';
+    }
+
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return (doc.body.textContent ?? '').trim();
+  }
+
 }

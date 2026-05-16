@@ -124,6 +124,16 @@ public class Program
         // AutoMapper
         builder.Services.AddAutoMapper(cfg => { }, typeof(BusinessLogicLayer.AssemblyReference));
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAny", policy =>
+            {
+                policy.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            });
+        });
+
 
         var app = builder.Build();
 
@@ -149,6 +159,8 @@ public class Program
         }
 
         app.UseHttpsRedirection();
+
+        app.UseCors("AllowAny");
 
         app.UseAuthentication();
         app.UseAuthorization();

@@ -7,12 +7,12 @@
 
         <form [formGroup]="loginForm" (ngSubmit)="submit()" novalidate>
           <div class="field-group mb-3">
-            <label class="field-label" for="loginEmail">البريد الإلكتروني</label>
+            <label class="field-label" for="loginEmail">البريد الإلكتروني أو اسم المستخدم</label>
             <div class="field-wrap">
               <input
                 id="loginEmail"
                 class="form-control"
-                type="email"
+                type="text"
                 formControlName="email"
                 placeholder="yourname@mail.com"
                 [class.is-invalid]="isControlInvalid('email')"
@@ -54,6 +54,9 @@
             <span>{{ isSubmitting() ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول' }}</span>
             <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
           </button>
+          @if (authError()) {
+            <p class="error-message mt-3" aria-live="polite">{{ authError() }}</p>
+          }
         </form>
         <div class="divider my-4" aria-hidden="true"><span>أو</span></div>
 

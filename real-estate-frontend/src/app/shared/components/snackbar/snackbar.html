@@ -1,0 +1,8 @@
+@if (message()) {
+  <div class="snackbar" [ngClass]="message()?.type" role="status" aria-live="polite">
+    <span>{{ message()?.text }}</span>
+    <button type="button" class="snackbar-close" (click)="dismiss()" aria-label="إغلاق">
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </button>
+  </div>
+}

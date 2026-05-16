@@ -1,46 +1,16 @@
-namespace APILayer.Controllers;
+using BusinessLogicLayer.Contracts;
+using BusinessLogicLayer.Dtos.LookupModule;
+using BusinessLogicLayer.Common;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace APILayer.Controllers.Admin;
 
 [ApiController]
-[Route("api/lookups")]
-public class LookupsController(ILookupService lookupService) : ApiController
+[Route("api/admin/lookups")]
+[Authorize(Roles = "Admin")]
+public class LookupsController(ILookupService lookupService) : ControllerBase
 {
-    #region Public Lookups
-
-    [HttpGet("features/public")]
-    public async Task<ActionResult> GetPublicFeatures()
-    {
-        var result = await lookupService.GetFeaturesAsync(LookupStatus.Active);
-        return Ok(result);
-    }
-
-    [HttpGet("insurance/public")]
-    public async Task<ActionResult> GetPublicInsurances()
-    {
-        var result = await lookupService.GetInsurancesAsync(LookupStatus.Active);
-        return Ok(result);
-    }
-
-    [HttpGet("sort-options")]
-    public async Task<ActionResult> GetSortOptions()
-    {
-        // This could be made more dynamic by passing an entity name, 
-        // but for now we provide the project-level sort options globally.
-        var result = new List<string> { "priceAsc", "priceDesc", "newest", "areaAsc", "areaDesc" };
-        return Ok(result);
-    }
-
-    [HttpGet("cities")]
-    public async Task<ActionResult> GetCities([FromServices] IProjectService projectService)
-    {
-        var result = await projectService.GetAvailableCitiesAsync();
-        return Ok(result);
-    }
-
-    #endregion
-
-    #region Admin Endpoints
-
-    [Authorize(Roles = "Admin")]
     [HttpGet("features")]
     public async Task<ActionResult> GetFeatures([FromQuery] LookupStatus status = LookupStatus.Active)
     {
@@ -48,7 +18,6 @@ public class LookupsController(ILookupService lookupService) : ApiController
         return Ok(result);
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpGet("features/{id}")]
     public async Task<ActionResult> GetFeature(int id)
     {
@@ -56,7 +25,6 @@ public class LookupsController(ILookupService lookupService) : ApiController
         return Ok(result);
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpPost("features")]
     public async Task<ActionResult> CreateFeature(LookupUpsertDto dto)
     {
@@ -64,7 +32,6 @@ public class LookupsController(ILookupService lookupService) : ApiController
         return Ok(result);
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpPut("features/{id}")]
     public async Task<ActionResult> UpdateFeature(int id, UpdateFeatureDto dto)
     {
@@ -72,7 +39,6 @@ public class LookupsController(ILookupService lookupService) : ApiController
         return Ok(result);
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpDelete("features/{id}")]
     public async Task<ActionResult> DeleteFeature(int id)
     {
@@ -80,7 +46,6 @@ public class LookupsController(ILookupService lookupService) : ApiController
         return NoContent();
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpGet("insurance")]
     public async Task<ActionResult> GetInsurances([FromQuery] LookupStatus status = LookupStatus.Active)
     {
@@ -88,7 +53,6 @@ public class LookupsController(ILookupService lookupService) : ApiController
         return Ok(result);
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpGet("insurance/{id}")]
     public async Task<ActionResult> GetInsurance(int id)
     {
@@ -96,7 +60,6 @@ public class LookupsController(ILookupService lookupService) : ApiController
         return Ok(result);
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpPost("insurance")]
     public async Task<ActionResult> CreateInsurance(LookupUpsertDto dto)
     {
@@ -104,7 +67,6 @@ public class LookupsController(ILookupService lookupService) : ApiController
         return Ok(result);
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpPut("insurance/{id}")]
     public async Task<ActionResult> UpdateInsurance(int id, UpdateInsuranceDto dto)
     {
@@ -112,13 +74,10 @@ public class LookupsController(ILookupService lookupService) : ApiController
         return Ok(result);
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpDelete("insurance/{id}")]
     public async Task<ActionResult> DeleteInsurance(int id)
     {
         await lookupService.DeleteInsuranceAsync(id);
         return NoContent();
     }
-
-    #endregion
 }

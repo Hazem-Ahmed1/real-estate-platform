@@ -22,8 +22,10 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
         return unit == null ? null : mapper.Map<GetUnitDto>(unit);
     }
 
-    public async Task<GetUnitDto> CreateUnitAsync(CreateUnitDto unitDto)
+    public async Task<GetUnitDto> CreateUnitAsync(UnitCreateDto unitDto)
     {
+        ValidateMediaFiles(unitDto.ThumbnailImage, unitDto.Images, unitDto.Designs, unitDto.Panorama360, unitDto.VideoFile);
+
         var building = await unitOfWork.Repository<Building>()
             .GetByIdAsync(unitDto.BuildingId);
 
@@ -55,8 +57,11 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
         }
 
 
-        if (building.MaxArea.HasValue && unitDto.Area > building.MaxArea.Value)
-            throw new BadRequestException($"Unit area ({unitDto.Area}) exceeds the building's designated maximum area for floor {unitDto.Floor} ({building.MaxArea.Value}).");
+        if (unitDto.Area <= 0)
+            throw new BadRequestException("Unit area must be greater than 0.");
+
+        if (unitDto.Area > building.MaxArea)
+            throw new BadRequestException($"Unit area ({unitDto.Area}) exceeds the building's designated maximum area ({building.MaxArea}).");
 
 
         var exists = await unitOfWork.Repository<Unit>()
@@ -67,8 +72,6 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
 
         var unit = mapper.Map<Unit>(unitDto);
         unit.IsStatusChanged = false; // Cannot be set during create
-
-
 
         if (unitDto.FeatureIds.Any())
         {
@@ -102,52 +105,71 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
             }
         }
 
-        await unitOfWork.Repository<Unit>().AddAsync(unit);
-        await unitOfWork.CompleteAsync();
-
-        // Process Media
-        if (unitDto.ThumbnailImage != null)
+        if (unitDto.NearbyFacilities.Any())
         {
-            var url = await mediaService.UploadImageAsync(unitDto.ThumbnailImage);
-            var media = new UnitMedia { UnitId = unit.UnitId, MediaUrl = url.Url, PublicId = url.PublicId, Type = MediaType.Image, IsThumbnail = true };
-            await unitOfWork.Repository<UnitMedia>().AddAsync(media);
-        }
-
-        if (unitDto.Images != null && unitDto.Images.Any())
-        {
-            foreach (var img in unitDto.Images)
+            foreach (var facilityDto in unitDto.NearbyFacilities)
             {
-                var url = await mediaService.UploadImageAsync(img);
-                var media = new UnitMedia { UnitId = unit.UnitId, MediaUrl = url.Url, PublicId = url.PublicId, Type = MediaType.Image, IsThumbnail = false };
-                await unitOfWork.Repository<UnitMedia>().AddAsync(media);
+                var facility = mapper.Map<NearbyFacility>(facilityDto);
+                unit.NearbyFacilities.Add(facility);
             }
         }
 
-        if (unitDto.Designs != null && unitDto.Designs.Any())
+        var newlyUploadedImageIds = new List<string>();
+        var newlyUploadedVideoIds = new List<string>();
+
+        try
         {
-            foreach (var img in unitDto.Designs)
+            if (unitDto.ThumbnailImage != null)
             {
-                var url = await mediaService.UploadImageAsync(img);
-                var media = new UnitMedia { UnitId = unit.UnitId, MediaUrl = url.Url, PublicId = url.PublicId, Type = MediaType.Design, IsThumbnail = false };
-                await unitOfWork.Repository<UnitMedia>().AddAsync(media);
+                var res = await mediaService.UploadImageAsync(unitDto.ThumbnailImage);
+                newlyUploadedImageIds.Add(res.PublicId);
+                unit.Media.Add(new UnitMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Image, IsThumbnail = true });
             }
-        }
 
-        if (unitDto.Video != null)
+            if (unitDto.Images != null && unitDto.Images.Any())
+            {
+                foreach (var img in unitDto.Images)
+                {
+                    var res = await mediaService.UploadImageAsync(img);
+                    newlyUploadedImageIds.Add(res.PublicId);
+                    unit.Media.Add(new UnitMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Image, IsThumbnail = false });
+                }
+            }
+
+            if (unitDto.Designs != null && unitDto.Designs.Any())
+            {
+                foreach (var img in unitDto.Designs)
+                {
+                    var res = await mediaService.UploadImageAsync(img);
+                    newlyUploadedImageIds.Add(res.PublicId);
+                    unit.Media.Add(new UnitMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Design, IsThumbnail = false });
+                }
+            }
+
+            if (unitDto.Panorama360 != null)
+            {
+                var res = await mediaService.UploadImageAsync(unitDto.Panorama360);
+                newlyUploadedImageIds.Add(res.PublicId);
+                unit.Media.Add(new UnitMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Panorama360, IsThumbnail = false });
+            }
+
+            if (unitDto.VideoFile != null)
+            {
+                var res = await mediaService.UploadVideoAsync(unitDto.VideoFile);
+                newlyUploadedVideoIds.Add(res.PublicId);
+                unit.Media.Add(new UnitMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Video, IsThumbnail = false });
+            }
+
+
+            await unitOfWork.Repository<Unit>().AddAsync(unit);
+            await unitOfWork.CompleteAsync();
+        }
+        catch (Exception)
         {
-            var url = await mediaService.UploadImageAsync(unitDto.Video);
-            var media = new UnitMedia { UnitId = unit.UnitId, MediaUrl = url.Url, PublicId = url.PublicId, Type = MediaType.Video, IsThumbnail = false };
-            await unitOfWork.Repository<UnitMedia>().AddAsync(media);
+            foreach (var pid in newlyUploadedImageIds) await mediaService.DeleteImageAsync(pid);
+            foreach (var pid in newlyUploadedVideoIds) await mediaService.DeleteVideoAsync(pid);
+            throw;
         }
-
-        if (unitDto.Panorama360 != null)
-        {
-            var url = await mediaService.UploadImageAsync(unitDto.Panorama360);
-            var media = new UnitMedia { UnitId = unit.UnitId, MediaUrl = url.Url, PublicId = url.PublicId, Type = MediaType.Panorama360, IsThumbnail = false };
-            await unitOfWork.Repository<UnitMedia>().AddAsync(media);
-        }
-
-        await unitOfWork.CompleteAsync();
 
         await RecalculateProjectStatusAsync(building.ProjectId);
 
@@ -158,8 +180,10 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
         return created;
     }
 
-    public async Task<GetUnitDto> UpdateUnitAsync(int id, UpdateUnitDto unitDto)
+    public async Task<GetUnitDto> UpdateUnitAsync(int id, UnitUpdateDto unitDto)
     {
+        ValidateMediaFiles(unitDto.ThumbnailImage, unitDto.Images, unitDto.Designs, unitDto.Panorama360, unitDto.VideoFile);
+
         var spec = new UnitWithDetailsSpecification(id);
         var existing = await unitOfWork.Repository<Unit>().GetByIdAsync(spec);
 
@@ -197,7 +221,10 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
                 throw new BadRequestException("This project already has a Villa.");
         }
 
-        if (targetBuilding.MaxArea.HasValue && unitDto.Area > targetBuilding.MaxArea.Value)
+        if (unitDto.Area <= 0)
+            throw new BadRequestException("Unit area data is invalid.");
+
+        if (unitDto.Area > targetBuilding.MaxArea)
             throw new BadRequestException("Unit area exceeds the maximum allowed area for a floor in this building.");
 
         if (existing.Status is UnitStatus.Sold or UnitStatus.Rented && unitDto.BuildingId != oldBuildingId)
@@ -211,6 +238,30 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
             throw new ConflictException("Unit with the same name already exists in this building.");
 
         var oldStatus = existing.Status;
+        var newStatus = unitDto.Status;
+
+        if (oldStatus != newStatus)
+        {
+            // 1. Terminal Check: Sold cannot go back to Sale
+            if (oldStatus == UnitStatus.Sold && newStatus == UnitStatus.Sale)
+            {
+                throw new BadRequestException("لا يمكن تحويل الوحدة من حالة 'مباعة' (Sold) إلى 'للبيع' (Sale) مرة أخرى.");
+            }
+
+            // 2. Path Separation: No crossing between Sale and Rent paths
+            if ((oldStatus == UnitStatus.Sale || oldStatus == UnitStatus.Sold) && 
+                (newStatus == UnitStatus.Rent || newStatus == UnitStatus.Rented))
+            {
+                throw new BadRequestException($"لا يمكن تحويل الوحدة من مسار البيع ({oldStatus}) إلى مسار الإيجار ({newStatus}).");
+            }
+
+            if ((oldStatus == UnitStatus.Rent || oldStatus == UnitStatus.Rented) && 
+                (newStatus == UnitStatus.Sale || newStatus == UnitStatus.Sold))
+            {
+                throw new BadRequestException($"لا يمكن تحويل الوحدة من مسار الإيجار ({oldStatus}) إلى مسار البيع ({newStatus}).");
+            }
+        }
+
         mapper.Map(unitDto, existing);
         if (oldStatus != existing.Status)
             existing.IsStatusChanged = true;
@@ -256,88 +307,119 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
             }
         }
 
+        existing.NearbyFacilities.Clear();
+        if (unitDto.NearbyFacilities.Any())
+        {
+            foreach (var facilityDto in unitDto.NearbyFacilities)
+            {
+                var facility = mapper.Map<NearbyFacility>(facilityDto);
+                existing.NearbyFacilities.Add(facility);
+            }
+        }
+
         unitOfWork.Repository<Unit>().Update(existing);
+
+        var publicMediaToDelete = new List<(string PublicId, MediaType Type)>();
 
         // Process Media deletions during update
         if (unitDto.DeletedMediaIds != null && unitDto.DeletedMediaIds.Any())
         {
             var mediaToDelete = existing.Media.Where(m => unitDto.DeletedMediaIds.Contains(m.MediaId)).ToList();
+            var mediaRepo = unitOfWork.Repository<UnitMedia>();
             foreach (var m in mediaToDelete)
             {
                 if (!string.IsNullOrEmpty(m.PublicId))
-                    await mediaService.DeleteImageAsync(m.PublicId);
-                unitOfWork.Repository<UnitMedia>().Remove(m);
+                    publicMediaToDelete.Add((m.PublicId, m.Type));
+                mediaRepo.Remove(m);
+                existing.Media.Remove(m);
             }
         }
 
-        // Replace Thumbnail
-        if (unitDto.ThumbnailImage != null)
+        // Process new Media
+        var newlyUploadedImageIds = new List<string>();
+        var newlyUploadedVideoIds = new List<string>();
+
+        try
         {
-            var oldThumb = existing.Media.FirstOrDefault(m => m.IsThumbnail);
-            if (oldThumb != null)
+            if (unitDto.ThumbnailImage != null)
             {
-                if (!string.IsNullOrEmpty(oldThumb.PublicId)) await mediaService.DeleteImageAsync(oldThumb.PublicId);
-                unitOfWork.Repository<UnitMedia>().Remove(oldThumb);
+                var oldThumb = existing.Media.FirstOrDefault(media => media.IsThumbnail);
+                if (oldThumb != null)
+                {
+                    if (!string.IsNullOrEmpty(oldThumb.PublicId)) publicMediaToDelete.Add((oldThumb.PublicId, oldThumb.Type));
+                    unitOfWork.Repository<UnitMedia>().Remove(oldThumb);
+                    existing.Media.Remove(oldThumb);
+                }
+                var res = await mediaService.UploadImageAsync(unitDto.ThumbnailImage);
+                newlyUploadedImageIds.Add(res.PublicId);
+                existing.Media.Add(new UnitMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Image, IsThumbnail = true });
             }
 
-            var url = await mediaService.UploadImageAsync(unitDto.ThumbnailImage);
-            var media = new UnitMedia { UnitId = id, MediaUrl = url.Url, PublicId = url.PublicId, Type = MediaType.Image, IsThumbnail = true };
-            await unitOfWork.Repository<UnitMedia>().AddAsync(media);
-        }
+            if (unitDto.Images != null && unitDto.Images.Any())
+            {
+                foreach (var img in unitDto.Images)
+                {
+                    var res = await mediaService.UploadImageAsync(img);
+                    newlyUploadedImageIds.Add(res.PublicId);
+                    existing.Media.Add(new UnitMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Image, IsThumbnail = false });
+                }
+            }
 
-        // Append new images
-        if (unitDto.Images != null && unitDto.Images.Any())
+            if (unitDto.Designs != null && unitDto.Designs.Any())
+            {
+                foreach (var img in unitDto.Designs)
+                {
+                    var res = await mediaService.UploadImageAsync(img);
+                    newlyUploadedImageIds.Add(res.PublicId);
+                    existing.Media.Add(new UnitMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Design, IsThumbnail = false });
+                }
+            }
+
+            if (unitDto.VideoFile != null)
+            {
+                var oldVideo = existing.Media.FirstOrDefault(media => media.Type == MediaType.Video);
+                if (oldVideo != null)
+                {
+                    if (!string.IsNullOrEmpty(oldVideo.PublicId)) publicMediaToDelete.Add((oldVideo.PublicId, oldVideo.Type));
+                    unitOfWork.Repository<UnitMedia>().Remove(oldVideo);
+                    existing.Media.Remove(oldVideo);
+                }
+                var res = await mediaService.UploadVideoAsync(unitDto.VideoFile);
+                newlyUploadedVideoIds.Add(res.PublicId);
+                existing.Media.Add(new UnitMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Video, IsThumbnail = false });
+            }
+
+            if (unitDto.Panorama360 != null)
+            {
+                var oldPano = existing.Media.FirstOrDefault(media => media.Type == MediaType.Panorama360);
+                if (oldPano != null)
+                {
+                    if (!string.IsNullOrEmpty(oldPano.PublicId)) publicMediaToDelete.Add((oldPano.PublicId, oldPano.Type));
+                    unitOfWork.Repository<UnitMedia>().Remove(oldPano);
+                    existing.Media.Remove(oldPano);
+                }
+                var res = await mediaService.UploadImageAsync(unitDto.Panorama360);
+                newlyUploadedImageIds.Add(res.PublicId);
+                existing.Media.Add(new UnitMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Panorama360, IsThumbnail = false });
+            }
+
+
+            await unitOfWork.CompleteAsync();
+        }
+        catch (Exception)
         {
-            foreach (var img in unitDto.Images)
-            {
-                var url = await mediaService.UploadImageAsync(img);
-                var media = new UnitMedia { UnitId = id, MediaUrl = url.Url, PublicId = url.PublicId, Type = MediaType.Image, IsThumbnail = false };
-                await unitOfWork.Repository<UnitMedia>().AddAsync(media);
-            }
+            foreach (var pid in newlyUploadedImageIds) await mediaService.DeleteImageAsync(pid);
+            foreach (var pid in newlyUploadedVideoIds) await mediaService.DeleteVideoAsync(pid);
+            throw;
         }
 
-        // Append new designs
-        if (unitDto.Designs != null && unitDto.Designs.Any())
+        foreach (var m in publicMediaToDelete)
         {
-            foreach (var img in unitDto.Designs)
-            {
-                var url = await mediaService.UploadImageAsync(img);
-                var media = new UnitMedia { UnitId = id, MediaUrl = url.Url, PublicId = url.PublicId, Type = MediaType.Design, IsThumbnail = false };
-                await unitOfWork.Repository<UnitMedia>().AddAsync(media);
-            }
+            if (m.Type == MediaType.Video)
+                await mediaService.DeleteVideoAsync(m.PublicId);
+            else
+                await mediaService.DeleteImageAsync(m.PublicId);
         }
-
-        // Replace Video
-        if (unitDto.Video != null)
-        {
-            var oldVideo = existing.Media.FirstOrDefault(m => m.Type == MediaType.Video);
-            if (oldVideo != null)
-            {
-                if (!string.IsNullOrEmpty(oldVideo.PublicId)) await mediaService.DeleteImageAsync(oldVideo.PublicId);
-                unitOfWork.Repository<UnitMedia>().Remove(oldVideo);
-            }
-
-            var url = await mediaService.UploadImageAsync(unitDto.Video);
-            var media = new UnitMedia { UnitId = id, MediaUrl = url.Url, PublicId = url.PublicId, Type = MediaType.Video, IsThumbnail = false };
-            await unitOfWork.Repository<UnitMedia>().AddAsync(media);
-        }
-
-        // Replace Panorama
-        if (unitDto.Panorama360 != null)
-        {
-            var oldPano = existing.Media.FirstOrDefault(m => m.Type == MediaType.Panorama360);
-            if (oldPano != null)
-            {
-                if (!string.IsNullOrEmpty(oldPano.PublicId)) await mediaService.DeleteImageAsync(oldPano.PublicId);
-                unitOfWork.Repository<UnitMedia>().Remove(oldPano);
-            }
-
-            var url = await mediaService.UploadImageAsync(unitDto.Panorama360);
-            var media = new UnitMedia { UnitId = id, MediaUrl = url.Url, PublicId = url.PublicId, Type = MediaType.Panorama360, IsThumbnail = false };
-            await unitOfWork.Repository<UnitMedia>().AddAsync(media);
-        }
-
-        await unitOfWork.CompleteAsync();
 
         var newProjectId = await GetProjectIdByBuildingIdAsync(existing.BuildingId);
         if (oldProjectId.HasValue)
@@ -369,17 +451,32 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
         var buildingId = unit.BuildingId;
         var projectId = await GetProjectIdByBuildingIdAsync(buildingId);
 
-        // Cleanup Cloudinary
-        foreach (var m in unit.Media)
+        var publicMediaToDelete = new List<(string PublicId, MediaType Type)>();
+
+        // Cleanup Cloudinary and DB
+        if (unit.Media.Count > 0)
         {
-            if (!string.IsNullOrEmpty(m.PublicId))
+            var mediaRepo = unitOfWork.Repository<UnitMedia>();
+            foreach (var m in unit.Media.ToList())
             {
-                await mediaService.DeleteImageAsync(m.PublicId);
+                if (!string.IsNullOrEmpty(m.PublicId))
+                {
+                    publicMediaToDelete.Add((m.PublicId, m.Type));
+                }
+                mediaRepo.Remove(m);
             }
         }
 
         unitOfWork.Repository<Unit>().Remove(unit);
         await unitOfWork.CompleteAsync();
+
+        foreach (var m in publicMediaToDelete)
+        {
+            if (m.Type == MediaType.Video)
+                await mediaService.DeleteVideoAsync(m.PublicId);
+            else
+                await mediaService.DeleteImageAsync(m.PublicId);
+        }
 
         // Keep in-memory object graph consistent
         var buildingRef = await unitOfWork.Repository<Building>().GetByIdAsync(buildingId);
@@ -449,9 +546,15 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
         }
 
         
-        // Area Calculations
+        // Recalculate Building FloorCounts and Project Area/Status
+        foreach (var b in activeBuildings)
+        {
+            b.FloorCount = b.Units.Any() ? b.Units.Max(u => u.Floor) : 0;
+            unitOfWork.Repository<Building>().Update(b);
+        }
+
         // TotalBuildingArea = Σ (BuildingArea_i) + Σ (Max unit area in Building_i)
-        project.TotalBuildingArea = activeBuildings.Sum(b => (b.BuildingArea ?? 0) + (b.Units.Any() ? b.Units.Max(u => u.Area ?? 0) : 0));
+        project.TotalBuildingArea = activeBuildings.Sum(b => b.BuildingArea + (b.Units.Any() ? b.Units.Max(u => u.Area) : 0));
 
         unitOfWork.Repository<Project>().Update(project);
         await unitOfWork.CompleteAsync();
@@ -463,4 +566,28 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
         return BusinessLogicLayer.Helpers.ProjectLogicHelpers.DeriveProjectStatus(units, currentStatus);
     }
 
+    private void ValidateMediaFiles(Microsoft.AspNetCore.Http.IFormFile? thumbnail, List<Microsoft.AspNetCore.Http.IFormFile>? images, List<Microsoft.AspNetCore.Http.IFormFile>? designs, Microsoft.AspNetCore.Http.IFormFile? panorama, Microsoft.AspNetCore.Http.IFormFile? video)
+    {
+        var validImageTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/webp" };
+        var validVideoTypes = new[] { "video/mp4", "video/avi", "video/mpeg", "video/quicktime" };
+
+        if (thumbnail != null && !validImageTypes.Contains(thumbnail.ContentType.ToLower()))
+            throw new BadRequestException("Thumbnail must be a valid image format (JPEG, PNG, GIF, WEBP).");
+
+        if (images != null)
+            foreach (var img in images)
+                if (!validImageTypes.Contains(img.ContentType.ToLower()))
+                    throw new BadRequestException("One or more images have an invalid format. Only images are allowed.");
+
+        if (designs != null)
+            foreach (var img in designs)
+                if (!validImageTypes.Contains(img.ContentType.ToLower()))
+                    throw new BadRequestException("One or more designs have an invalid format. Only images are allowed.");
+
+        if (panorama != null && !validImageTypes.Contains(panorama.ContentType.ToLower()))
+            throw new BadRequestException("Panorama must be a valid image format.");
+
+        if (video != null && !validVideoTypes.Contains(video.ContentType.ToLower()))
+            throw new BadRequestException("Video must be a valid video format (MP4, AVI, MPEG, MOV).");
+    }
 }

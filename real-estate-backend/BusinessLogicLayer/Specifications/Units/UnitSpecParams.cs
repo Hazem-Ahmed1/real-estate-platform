@@ -12,15 +12,13 @@ public class UnitSpecParams
         set => _pageSize = (value > MaxPageSize) ? MaxPageSize : value;
     }
 
-    public string? City { get; set; }
     public UnitType? Type { get; set; }
     public UnitStatus? Status { get; set; }
     public int? Rooms { get; set; }
     public decimal? MinPrice { get; set; }
     public decimal? MaxPrice { get; set; }
-    public string? Sort { get; set; }
     public string? Search { get; set; }
     public int? BuildingId { get; set; }
+    public int? ProjectId { get; set; }
     public bool PublicOnly { get; set; }
-    public bool DisablePaging { get; set; }
 }

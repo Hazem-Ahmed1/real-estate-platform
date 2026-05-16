@@ -11,6 +11,7 @@ public interface IGenericRepository<TEntity> where TEntity : BaseEntity
 
     #region Specifications
     Task<IEnumerable<TEntity>> GetAllAsync(ISpecification<TEntity> specification);
+    Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> predicate);
     Task<TEntity?> GetByIdAsync(ISpecification<TEntity> specification);
     Task<int> CountAsync(ISpecification<TEntity> specification);
     Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate);

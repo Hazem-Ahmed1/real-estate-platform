@@ -7,6 +7,8 @@ namespace BusinessLogicLayer.Mapping
         {
             CreateMap<Feature, FeatureDto>();
             CreateMap<Insurance, InsuranceDto>();
+            
+            CreateMap<NearbyFacility, NearbyFacilityDto>().ReverseMap();
         }
     }
 }

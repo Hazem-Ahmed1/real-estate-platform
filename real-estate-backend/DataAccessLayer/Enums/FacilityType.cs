@@ -9,4 +9,6 @@ public enum FacilityType
     Park,
     Bank,
     Pharmacy,
+    SuperMarket,
+    Club
 }

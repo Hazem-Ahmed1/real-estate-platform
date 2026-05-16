@@ -9,14 +9,14 @@ public class ProjectListDto
 
     public string City { get; set; } = string.Empty;
     public string Area { get; set; } = string.Empty;
-    public int BuildingsCount { get; set; }
-    public int UnitsCount { get; set; }
+    public int BuildingsNumber { get; set; }
+    public int UnitsNumber { get; set; }
     public int AvailableUnitsCount { get; set; }
     public int TransactedUnitsCount { get; set; }
     public int TotalRooms { get; set; }
     public int TotalHalls { get; set; }
     public decimal MinPrice { get; set; }
     public decimal MaxPrice { get; set; }
-    public double? TotalArea { get; set; }
+    public double? TotalBuildingArea { get; set; }
     public string ThumbnailUrl { get; set; } = string.Empty;
 }

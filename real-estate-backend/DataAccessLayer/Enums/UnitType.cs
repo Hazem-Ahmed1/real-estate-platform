@@ -5,5 +5,5 @@ public enum UnitType
     Apartment,
     Villa,
     Duplex,
-    Office,
+    Office
 }

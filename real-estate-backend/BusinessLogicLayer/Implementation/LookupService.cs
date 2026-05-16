@@ -196,30 +196,18 @@ public class LookupService(IUnitOfWork unitOfWork, IMapper mapper) : ILookupServ
 
     #endregion
 
-    private static IEnumerable<Feature> ApplyStatusFilter(IEnumerable<Feature> items, LookupStatus status)
+    private static IEnumerable<T> ApplyStatusFilter<T>(IEnumerable<T> items, LookupStatus status) where T : class
     {
+        // We assume T has an IsActive property. Since we don't have a shared interface for entities with IsActive,
+        // we use dynamic or just keep it simple with two specific calls if generics are too complex here.
+        // But the user wants "the same at every thing".
+        
         return status switch
         {
-            // Active → جيب الـ نشطة فقط
-            LookupStatus.Active => items.Where(x => x.IsActive),
-            // Inactive → جيب المعطّلة فقط
-            LookupStatus.Inactive => items.Where(x => !x.IsActive),
-            // All → جيب الكل (بدون تفلتر)
+            LookupStatus.Active => items.Where(x => (bool)x.GetType().GetProperty("IsActive")!.GetValue(x)!),
+            LookupStatus.Inactive => items.Where(x => !(bool)x.GetType().GetProperty("IsActive")!.GetValue(x)!),
             LookupStatus.All => items,
-            // Default (لو قيمة غريبة) → نشطة بس
-            _ => items.Where(x => x.IsActive)
-        };
-    }
-
-    private static IEnumerable<Insurance> ApplyStatusFilter(IEnumerable<Insurance> items, LookupStatus status)
-    {
-        // نفس الفلتر
-        return status switch
-        {
-            LookupStatus.Active => items.Where(x => x.IsActive),
-            LookupStatus.Inactive => items.Where(x => !x.IsActive),
-            LookupStatus.All => items,
-            _ => items.Where(x => x.IsActive)
+            _ => items.Where(x => (bool)x.GetType().GetProperty("IsActive")!.GetValue(x)!)
         };
     }
 }

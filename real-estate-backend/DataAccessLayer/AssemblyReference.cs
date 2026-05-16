@@ -7,6 +7,7 @@ global using DataAccessLayer.Enums;
 global using DataAccessLayer.Contracts;
 global using DataAccessLayer.Common;
 global using System.Linq.Expressions;
+global using System.ComponentModel.DataAnnotations;
 
 namespace DataAccessLayer;
 

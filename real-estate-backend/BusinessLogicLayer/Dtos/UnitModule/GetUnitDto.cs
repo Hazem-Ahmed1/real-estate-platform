@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+using DataAccessLayer.Enums;
 
 namespace BusinessLogicLayer.Dtos.UnitModule;
 
@@ -33,28 +33,15 @@ public class GetUnitDto
     
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
+    
+    public string? ThumbnailUrl { get; set; }
+    public string? VideoUrl { get; set; }
+    public string? PanoramaUrl { get; set; }
 
+    public List<string> Images { get; set; } = new();
+    public List<string> Designs { get; set; } = new();
 
-    public List<UnitMediaDto> Media { get; set; } = new();
     public List<NearbyFacilityDto> NearbyFacilities { get; set; } = new();
     public List<FeatureDto> Features { get; set; } = new();
     public List<InsuranceDto> Insurance { get; set; } = new();
-}
-
-public class NearbyFacilityDto
-{
-    [Required(ErrorMessage = "Facility name is required.")]
-    [StringLength(255, MinimumLength = 1, ErrorMessage = "Facility name must be between 1 and 255 characters.")]
-    public string Name { get; set; } = null!;
-    
-    [Required(ErrorMessage = "Facility type is required.")]
-    [StringLength(100, MinimumLength = 1, ErrorMessage = "Facility type must be between 1 and 100 characters.")]
-    public string Type { get; set; } = null!;
-    
-    [Required(ErrorMessage = "Distance is required.")]
-    [StringLength(50, MinimumLength = 1, ErrorMessage = "Distance must be between 1 and 50 characters.")]
-    public string Distance { get; set; } = null!;
-    
-    public double? Latitude { get; set; }
-    public double? Longitude { get; set; }
 }

@@ -11,7 +11,7 @@ public class UnitsController(IUnitService unitService) : ApiController
     {
         @params.PublicOnly = true;
         PaginatedResult<UnitListDto>? result = await unitService.GetUnitsAsync(@params);
-        foreach (var item in result.Data) item.IsStatusChanged = null;
+        foreach (var item in result.Items) item.IsStatusChanged = null;
         return Ok(result);
 
     }
@@ -35,42 +35,5 @@ public class UnitsController(IUnitService unitService) : ApiController
     }
 
     #endregion
-
-    #region Admin Endpoints
-
-    [Authorize(Roles = "Admin")]
-    [HttpGet("admin")]
-    public async Task<ActionResult> GetAdminUnits([FromQuery] UnitSpecParams @params)
-    {
-        var result = await unitService.GetUnitsAsync(@params);
-        return Ok(result);
-
-
-    }
-
-    [Authorize(Roles = "Admin")]
-    [HttpPost]
-    public async Task<ActionResult> CreateUnit([FromForm] CreateUnitDto unitDto)
-    {
-        var created = await unitService.CreateUnitAsync(unitDto);
-        return CreatedAtAction(nameof(GetUnit), new { id = created.UnitId }, created);
-    }
-
-    [Authorize(Roles = "Admin")]
-    [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateUnit(int id, [FromForm] UpdateUnitDto unitDto)
-    {
-        var result = await unitService.UpdateUnitAsync(id, unitDto);
-        return Ok(result);
-    }
-
-    [Authorize(Roles = "Admin")]
-    [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteUnit(int id)
-    {
-        await unitService.DeleteUnitAsync(id);
-        return NoContent();
-    }
-
-    #endregion
 }
+

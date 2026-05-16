@@ -5,7 +5,7 @@ namespace BusinessLogicLayer.Dtos.BuildingModule;
 public class BuildingUpsertDto
 {
     [Required(ErrorMessage = "Building name is required.")]
-    [StringLength(200, MinimumLength = 1, ErrorMessage = "Building name must be between 1 and 200 characters.")]
+    [StringLength(200, MinimumLength = 2, ErrorMessage = "Building name must be between 2 and 200 characters.")]
     public string Name { get; set; } = string.Empty;
 
 
@@ -14,13 +14,14 @@ public class BuildingUpsertDto
     [Range(1, int.MaxValue, ErrorMessage = "ProjectId must be a positive number (greater than 0).")]
     public int ProjectId { get; set; }
 
+    [Required]
     [Range(0, double.MaxValue)]
-    public double? MaxArea { get; set; }
+    public double MaxArea { get; set; }
 
+    [Required]
     [Range(0, double.MaxValue)]
-    public double? BuildingArea { get; set; }
+    public double BuildingArea { get; set; }
 
-    [Range(1, 1000)]
     public int? FloorCount { get; set; }
 }
 

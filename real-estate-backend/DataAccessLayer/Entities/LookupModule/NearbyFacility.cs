@@ -5,10 +5,12 @@ public class NearbyFacility : AuditableEntity
 {
     public int FacilityId { get; set; }
 
-    public int UnitId { get; set; }
-    public Unit Unit { get; set; } = null!;
+    public int? UnitId { get; set; }
+    public Unit? Unit { get; set; }
 
     public FacilityType Type { get; set; }
+    
+    public double Area { get; set; }
 
     public string Name { get; set; } = null!;
 

@@ -46,13 +46,12 @@ public class DashboardService(IUnitOfWork unitOfWork) : IDashboardService
             .ToList();
 
         var totalInventoryValue = unitsList
-            .Where(u => u.Status == UnitStatus.Sale && u.Price.HasValue)
-            .Sum(u => u.Price!.Value);
+            .Where(u => u.Status == UnitStatus.Sale)
+            .Sum(u => u.Price);
 
 
         var avgPricePerUnit = unitsList
-            .Where(u => u.Price.HasValue)
-            .Select(u => u.Price!.Value)
+            .Select(u => u.Price)
             .DefaultIfEmpty(0)
             .Average();
 
@@ -69,16 +68,6 @@ public class DashboardService(IUnitOfWork unitOfWork) : IDashboardService
             })
             .OrderByDescending(x => x.salesProgress)
             .Take(5)
-            .ToList();
-
-        var cityInsights = activeProjects
-            .GroupBy(p => p.City ?? "Other")
-            .Select(g => new { 
-                city = g.Key, 
-                projects = g.Count(),
-                totalUnits = g.Sum(p => p.TransactedUnitsCount + p.AvailableUnitsCount)
-            })
-            .OrderByDescending(x => x.projects)
             .ToList();
 
         return new
@@ -112,7 +101,6 @@ public class DashboardService(IUnitOfWork unitOfWork) : IDashboardService
             insights = new
             {
                 typeDistribution,
-                cityInsights,
                 topPerformingProjects,
                 financials = new
                 {

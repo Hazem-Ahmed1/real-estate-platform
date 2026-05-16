@@ -8,10 +8,7 @@ public class BuildingsByProjectSpecification : BaseSpecifications<Building>
             (!publicOnly || (x.Project.Status == ProjectStatus.Sale || x.Project.Status == ProjectStatus.Rent))
         )
     {
-        if (publicOnly)
-        {
-            AddInclude(x => x.Project);
-        }
+        AddInclude(x => x.Project);
     }
 
 }

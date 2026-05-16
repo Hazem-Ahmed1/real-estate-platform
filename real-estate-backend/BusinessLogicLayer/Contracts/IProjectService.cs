@@ -7,10 +7,7 @@ public interface IProjectService
     Task<ProjectDetailsDto?> GetProjectByIdAsync(int id, bool publicOnly = false);
     
     // Admin Endpoints
-    Task<ProjectDetailsDto> CreateProjectAsync(ProjectDto projectDto);
-    Task<ProjectDetailsDto> UpdateProjectAsync(int id, ProjectDto projectDto);
+    Task<ProjectDetailsDto> CreateProjectAsync(ProjectCreateDto projectDto);
+    Task<ProjectDetailsDto> UpdateProjectAsync(int id, ProjectUpdateDto projectDto);
     Task<ProjectDetailsDto> DeleteProjectAsync(int id);
-    
-    // Lookups for Filters
-    Task<List<string>> GetAvailableCitiesAsync();
 }

@@ -14,7 +14,7 @@ public class ProjectsController(IProjectService projectService) : ApiController
             throw new BadRequestException("Filtering projects by Sold/Rented units is restricted to admin endpoints.");
 
         PaginatedResult<ProjectListDto>? result = await projectService.GetProjectsAsync(@params);
-        foreach (var item in result.Data) item.IsStatusChanged = null;
+        foreach (var item in result.Items) item.IsStatusChanged = null;
         return Ok(result);
 
     }
@@ -36,40 +36,5 @@ public class ProjectsController(IProjectService projectService) : ApiController
     }
 
     #endregion
-
-    #region Admin Endpoints
-
-    [Authorize(Roles = "Admin")]
-    [HttpGet("admin")]
-    public async Task<ActionResult> GetAdminProjects([FromQuery] ProjectSpecParams @params)
-    {
-        var result = await projectService.GetProjectsAsync(@params);
-        return Ok(result);
-    }
-
-    [Authorize(Roles = "Admin")]
-    [HttpPost]
-    public async Task<ActionResult> CreateProject([FromForm] ProjectDto projectDto)
-    {
-        var created = await projectService.CreateProjectAsync(projectDto);
-        return CreatedAtAction(nameof(GetProject), new { id = created.ProjectId }, created);
-    }
-
-    [Authorize(Roles = "Admin")]
-    [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateProject(int id, [FromForm] ProjectDto projectDto)
-    {
-        var result = await projectService.UpdateProjectAsync(id, projectDto);
-        return Ok(result);
-    }
-
-    [Authorize(Roles = "Admin")]
-    [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteProject(int id)
-    {
-        await projectService.DeleteProjectAsync(id);
-        return NoContent();
-    }
-
-    #endregion
 }
+

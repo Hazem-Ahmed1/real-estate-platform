@@ -8,11 +8,19 @@ public class Building : AuditableEntity
     public int ProjectId { get; set; }
     public Project Project { get; set; } = null!;
 
-    public string? Name { get; set; }
+    [Required]
+    [StringLength(200)]
+    public string Name { get; set; } = string.Empty;
 
     public int? FloorCount { get; set; }
-    public double? MaxArea { get; set; }
-    public double? BuildingArea { get; set; }
+
+    [Required]
+    [RangeAttribute(0, double.MaxValue)]
+    public double MaxArea { get; set; }
+
+    [Required]
+    [RangeAttribute(0, double.MaxValue)]
+    public double BuildingArea { get; set; }
 
 
 

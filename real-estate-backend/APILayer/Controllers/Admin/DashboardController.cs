@@ -1,10 +1,13 @@
+using BusinessLogicLayer.Contracts;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
-namespace APILayer.Controllers;
+namespace APILayer.Controllers.Admin;
 
 [ApiController]
 [Authorize(Roles = "Admin")]
-[Route("api/dashboard")]
-public class DashboardController(IDashboardService dashboardService) : ApiController
+[Route("api/admin/dashboard")]
+public class DashboardController(IDashboardService dashboardService) : ControllerBase
 {
     [HttpGet("stats")]
     public async Task<ActionResult> GetStats()

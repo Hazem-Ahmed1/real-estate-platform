@@ -40,6 +40,11 @@ public class GenericRepository<TEntity>(RealEstateDbContext context) : IGenericR
         return await ApplySpecification(specification).ToListAsync();
     }
 
+    public async Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> predicate)
+    {
+        return await _dbSet.Where(predicate).ToListAsync();
+    }
+
     public async Task<TEntity?> GetByIdAsync(ISpecification<TEntity> specification)
     {
         return await ApplySpecification(specification).FirstOrDefaultAsync();

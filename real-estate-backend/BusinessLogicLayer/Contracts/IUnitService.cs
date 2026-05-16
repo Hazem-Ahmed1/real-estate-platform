@@ -9,8 +9,8 @@ public interface IUnitService
     Task<GetUnitDto?> GetUnitByIdAsync(int id);
 
     // Admin Endpoints
-    Task<GetUnitDto> CreateUnitAsync(CreateUnitDto unitDto);
-    Task<GetUnitDto> UpdateUnitAsync(int id, UpdateUnitDto unitDto);
+    Task<GetUnitDto> CreateUnitAsync(UnitCreateDto unitDto);
+    Task<GetUnitDto> UpdateUnitAsync(int id, UnitUpdateDto unitDto);
     Task<GetUnitDto> DeleteUnitAsync(int id);
 
     // Building Units

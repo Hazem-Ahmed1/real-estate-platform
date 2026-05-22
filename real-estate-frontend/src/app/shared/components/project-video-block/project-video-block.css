@@ -108,8 +108,8 @@
   display: block;
   object-fit: cover;
   background: #020613;
-  opacity: 0;
-  pointer-events: none;
+  opacity: 1;
+  pointer-events: auto;
   transition: opacity 0.4s ease;
 }
 

@@ -2,6 +2,7 @@ using DataAccessLayer.Contracts;
 using DataAccessLayer.Data;
 using DataAccessLayer.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace DataAccessLayer.Implementation.Repositories;
 
@@ -39,6 +40,11 @@ public class GenericRepository<TEntity>(RealEstateDbContext context) : IGenericR
         return await ApplySpecification(specification).ToListAsync();
     }
 
+    public async Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> predicate)
+    {
+        return await _dbSet.Where(predicate).ToListAsync();
+    }
+
     public async Task<TEntity?> GetByIdAsync(ISpecification<TEntity> specification)
     {
         return await ApplySpecification(specification).FirstOrDefaultAsync();
@@ -48,6 +54,17 @@ public class GenericRepository<TEntity>(RealEstateDbContext context) : IGenericR
     {
         return await ApplySpecification(specification).CountAsync();
     }
+
+    public async Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate)
+    {
+        return await _dbSet.CountAsync(predicate);
+    }
+
+    public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
+    {
+        return await _dbSet.AnyAsync(predicate);
+    }
+
 
     private IQueryable<TEntity> ApplySpecification(ISpecification<TEntity> specification)
     {

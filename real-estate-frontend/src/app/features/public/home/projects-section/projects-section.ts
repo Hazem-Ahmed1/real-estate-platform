@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
-import { ProjectCard } from '../../../../shared/components/project-card/project-card';
+import { Component, OnDestroy, OnInit, inject, signal, computed } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { IProject } from '../../../../models/IProject';
-import { HomeSectionHeaderWithFilters } from "../../../../shared/components/home-section-header-with-filters/home-section-header-with-filters";
-import { ProjectsList } from "../../../../shared/components/projects-list/projects-list";
+import { ProjectService } from '../../../../services/api/project.service';
+import { HomeSectionHeaderWithFilters } from '../../../../shared/components/home-section-header-with-filters/home-section-header-with-filters';
+import { ProjectsList } from '../../../../shared/components/projects-list/projects-list';
 
 @Component({
   selector: 'app-projects-section',
@@ -10,55 +11,65 @@ import { ProjectsList } from "../../../../shared/components/projects-list/projec
   templateUrl: './projects-section.html',
   styleUrl: './projects-section.css',
 })
-export class ProjectsSection {
+export class ProjectsSection implements OnInit, OnDestroy {
+  private readonly projectService = inject(ProjectService);
+  private sub?: Subscription;
+  private readonly allowedStatuses = ['Sale', 'Rent'];
 
-  filter(val:string){
-    if(val == 'rent'){
-      console.log("rent");
+  // Signal — live data from GET /api/projects?pageSize=6
+  readonly allProjects = signal<IProject[]>([]);
+  readonly hasLoaded = signal(false);
+
+  // Active status filter ('all' | 'sell' | 'rent')
+  readonly activeFilter = signal('all');
+
+  // Filtered projects signal (computed dynamically from allProjects and activeFilter)
+  readonly projects = computed(() => {
+    const list = this.allProjects().filter(p => this.allowedStatuses.includes(p.status));
+    const filterVal = this.activeFilter();
+    if (filterVal === 'all') {
+      return list;
     }
-    else if(val == "sell"){
-      console.log("sell");
+    const status = filterVal === 'sell' ? this.allowedStatuses[0] : this.allowedStatuses[1];
+    return list.filter(p => p.status === status);
+  });
+
+  readonly emptyStateMessage = computed(() => {
+    const filterVal = this.activeFilter();
+    if (filterVal === 'sell') {
+      return 'لا توجد مشاريع معروضة للبيع حالياً';
     }
-    else{
-      console.log("all");
+    if (filterVal === 'rent') {
+      return 'لا توجد مشاريع معروضة للإيجار حالياً';
     }
+    return 'لا توجد مشاريع متاحة حالياً';
+  });
+
+  ngOnInit(): void {
+    this.loadProjects();
   }
-  projects: IProject[] = [
-    {
-      title: 'مشروع الفيلاج 1',
-      location: 'جدة - حي النخيل',
-      type: 'للبيع',
-      imageUrl: 'images/p1.jpg',
-    },
-    {
-      title: 'مشروع الفيلاج 2',
-      location: 'جدة - حي النخيل',
-      type: 'للبيع',
-      imageUrl: 'images/p2.jpg',
-    },
-    {
-      title: 'مشروع الفيلاج 3',
-      location: 'جدة - حي النخيل',
-      type: 'للإيجار',
-      imageUrl: 'images/p3.jpg',
-    },
-    {
-      title: 'مشروع الفيلاج 1',
-      location: 'جدة - حي النخيل',
-      type: 'للبيع',
-      imageUrl: 'images/p1.jpg',
-    },
-    {
-      title: 'مشروع الفيلاج 2',
-      location: 'جدة - حي النخيل',
-      type: 'للبيع',
-      imageUrl: 'images/p2.jpg',
-    },
-    {
-      title: 'مشروع الفيلاج 3',
-      location: 'جدة - حي النخيل',
-      type: 'للإيجار',
-      imageUrl: 'images/p3.jpg',
-    }
-  ];
+
+  filter(val: string): void {
+    this.activeFilter.set(val);
+  }
+
+  private loadProjects(): void {
+    this.sub?.unsubscribe();
+    this.sub = this.projectService
+      .getProjects({ pageSize: 6 })
+      .subscribe({
+        next: (page) => {
+          this.allProjects.set(page.items ?? []);
+          this.hasLoaded.set(true);
+        },
+        error: () => {
+          this.allProjects.set([]);
+          this.hasLoaded.set(true);
+        },
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
+  }
 }

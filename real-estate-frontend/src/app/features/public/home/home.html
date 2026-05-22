@@ -1,7 +1,79 @@
 <app-hero></app-hero>
-<app-projects-section></app-projects-section>
-<app-units-section></app-units-section>
-<app-sold-projects-section></app-sold-projects-section>
-<app-status-section></app-status-section>
+
+@if (!searchState.hasSearched()) {
+  <app-projects-section></app-projects-section>
+  <app-units-section></app-units-section>
+  <app-sold-projects-section></app-sold-projects-section>
+  <app-status-section></app-status-section>
+} @else {
+  <!-- Dynamic Search Results Section -->
+  <section class="search-results-section py-5 bg-light animate-fade-in" dir="rtl">
+    <div class="container">
+
+      <!-- Results Header -->
+      <div class="d-flex justify-content-between align-items-center mb-5 border-bottom pb-3">
+        <div class="text-end">
+          <span style="color: var(--text-green); font-size: 16px; font-weight: 500; display: block;">نتائج البحث</span>
+          <h2 class="mt-2" style="color: var(--primary-color); font-weight: 700; font-size: 28px;">العقارات المطابقة لبحثك</h2>
+        </div>
+        <button class="btn btn-outline-danger d-flex align-items-center gap-2 px-4 py-2" (click)="clearSearch()" style="border-radius: 20px;">
+          <i class="fa-solid fa-arrow-right"></i>
+          <span>الرجوع للرئيسية</span>
+        </button>
+      </div>
+
+      <!-- Loader -->
+      @if (searchState.isLoading()) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">جاري التحميل...</span>
+          </div>
+          <p class="text-muted mt-3">جاري البحث في قاعدة البيانات...</p>
+        </div>
+      } @else {
+
+        <!-- Render results based on searchType -->
+        @if (searchState.searchType() === 'project') {
+          @if (searchState.projectsResults().length === 0) {
+            <div class="text-center py-5 bg-white rounded shadow-sm border">
+              <i class="fa-solid fa-folder-open text-muted mb-3" style="font-size: 48px;"></i>
+              <h4 class="text-secondary font-weight-bold">لا توجد مشاريع مطابقة لبحثك</h4>
+              <p class="text-muted mt-2">يرجى تعديل خيارات الفلترة والمحاولة مرة أخرى.</p>
+            </div>
+          } @else {
+            <app-projects-list [projects]="searchState.projectsResults()" />
+            @if (searchState.totalPages() > 1) {
+              <app-pagination
+                [currentPage]="searchState.currentPage()"
+                [totalPages]="searchState.totalPages()"
+                (pageChange)="onPageChange($event)"
+              />
+            }
+          }
+        } @else {
+          @if (searchState.unitsResults().length === 0) {
+            <div class="text-center py-5 bg-white rounded shadow-sm border">
+              <i class="fa-solid fa-building-circle-xmark text-muted mb-3" style="font-size: 48px;"></i>
+              <h4 class="text-secondary font-weight-bold">لا توجد وحدات مطابقة لبحثك</h4>
+              <p class="text-muted mt-2">يرجى تعديل خيارات الفلترة والمحاولة مرة أخرى.</p>
+            </div>
+          } @else {
+            <app-units-list [units]="searchState.unitsResults()" />
+            @if (searchState.totalPages() > 1) {
+              <app-pagination
+                [currentPage]="searchState.currentPage()"
+                [totalPages]="searchState.totalPages()"
+                (pageChange)="onPageChange($event)"
+              />
+            }
+          }
+        }
+
+      }
+
+    </div>
+  </section>
+}
+
 <app-why-us-section></app-why-us-section>
 <app-contact-section></app-contact-section>

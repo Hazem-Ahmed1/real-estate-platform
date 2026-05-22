@@ -5,16 +5,16 @@
       </div>
       <div class="text-start">
         <div class="all-link">
-          <a [routerLink]="url()">شاهد كل القائمة <i class="fa-solid fa-arrow-left"></i></a>
+          <a [routerLink]="url()" [queryParams]="showAllQueryParams()">شاهد كل القائمة <i class="fa-solid fa-arrow-left"></i></a>
         </div>
         <div class="filters d-flex gap-2">
-          <button class="btn filter-btn active" (click)="FilterBy('all')">الــكل</button>
-          <button class="btn filter-btn" (click)="FilterBy('sell')">
-            للبيع
+          <button class="btn filter-btn" [class.active]="selectedFilter() === 'all'" (click)="FilterBy('all')">الــكل</button>
+          <button class="btn filter-btn" [class.active]="selectedFilter() === 'sell'" (click)="FilterBy('sell')">
+            {{ sellLabel() }}
             <i class="fa-solid fa-wand-magic-sparkles"></i>
           </button>
-          <button class="btn filter-btn" (click)="FilterBy('rent')">
-            للإيجار
+          <button class="btn filter-btn" [class.active]="selectedFilter() === 'rent'" (click)="FilterBy('rent')">
+            {{ rentLabel() }}
             <i class="fa-solid fa-key"></i>
           </button>
         </div>

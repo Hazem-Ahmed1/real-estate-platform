@@ -1,10 +1,3 @@
-using DataAccessLayer.Entities;
-using DataAccessLayer.Entities.ProjectModule;
-using DataAccessLayer.Entities.UnitModule;
-using DataAccessLayer.Entities.BlogModule;
-using DataAccessLayer.Entities.AIModule;
-using DataAccessLayer.Entities.LookupModule;
-using DataAccessLayer.Entities.CommunicationModule;
 
 
 using Microsoft.EntityFrameworkCore;
@@ -21,11 +14,13 @@ public class ProjectInsuranceConfiguration : IEntityTypeConfiguration<ProjectIns
 
         builder.HasOne(pi => pi.Project)
             .WithMany(p => p.ProjectInsurance)
-            .HasForeignKey(pi => pi.ProjectId);
+            .HasForeignKey(pi => pi.ProjectId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(pi => pi.Insurance)
             .WithMany(i => i.ProjectInsurance)
-            .HasForeignKey(pi => pi.InsuranceId);
+            .HasForeignKey(pi => pi.InsuranceId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
 

@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
-import { HomeSectionHeaderWithFilters } from '../../../../shared/components/home-section-header-with-filters/home-section-header-with-filters';
-import { SoldProjectCard } from '../../../../shared/components/sold-project-card/sold-project-card';
+import { Component, OnDestroy, OnInit, inject, signal, computed } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { ProjectService } from '../../../../services/api/project.service';
 import { ISoldProject } from '../../../../models/ISoldProject';
+import { HomeSectionHeaderWithFilters } from '../../../../shared/components/home-section-header-with-filters/home-section-header-with-filters';
 import { SoldProjectsList } from "../../../../shared/components/sold-projects-list/sold-projects-list";
 
 @Component({
@@ -10,59 +11,77 @@ import { SoldProjectsList } from "../../../../shared/components/sold-projects-li
   templateUrl: './sold-projects-section.html',
   styleUrl: './sold-projects-section.css',
 })
-export class SoldProjectsSection {
-  projects: ISoldProject[] = [
-    {
-      title: 'مشروع الفيلاج 1',
-      location: 'جدة - حي النخبة',
-      price: '1,200,000 ريال',
-      imageURL: 'images/p1.jpg',
-      beds: 4,
-      baths: 3,
-      lounges: 2,
-      area: '148m²',
-      units: 7,
-      rooms: 4,
-      streetsText: 'شارعين',
-      type: 'تم البيع',
-    },
-    {
-      title: 'مشروع الفيلاج 2',
-      location: 'الرياض - حي الياسمين',
-      price: '950,000 ريال',
-      imageURL: 'images/p2.jpg',
-      beds: 3,
-      baths: 2,
-      lounges: 1,
-      area: '120m²',
-      units: 5,
-      rooms: 3,
-      streetsText: 'شارع واحد',
-      type: 'تم الإيجار',
-    },
-    {
-      title: 'مشروع الفيلاج 3',
-      location: 'الدمام - حي الشاطئ',
-      price: '1,500,000 ريال',
-      imageURL: 'images/p3.jpg',
-      beds: 5,
-      baths: 4,
-      lounges: 2,
-      area: '200m²',
-      units: 10,
-      rooms: 5,
-      streetsText: 'ثلاث شوارع',
-      type: 'تم الإيجار',
-    },
+export class SoldProjectsSection implements OnInit, OnDestroy {
+  private readonly projectService = inject(ProjectService);
+  private sub?: Subscription;
 
-  ];
-  filter(val: string) {
-    if (val == 'rent') {
-      console.log('rent');
-    } else if (val == 'sell') {
-      console.log('sell');
-    } else {
-      console.log('all');
+  // Active status filter ('all' | 'sell' | 'rent')
+  readonly activeFilter = signal('all');
+
+  // Loaded sold projects from API
+  readonly allSoldProjects = signal<ISoldProject[]>([]);
+  readonly hasLoaded = signal(false);
+
+  // Computed filtered projects based on activeFilter signal
+  readonly projects = computed(() => {
+    const list = this.allSoldProjects();
+    const filterVal = this.activeFilter();
+    if (filterVal === 'all') {
+      return list;
     }
+    const targetType = filterVal === 'sell' ? 'تم البيع' : 'تم الإيجار';
+    return list.filter(p => p.type === targetType);
+  });
+
+  readonly emptyStateMessage = computed(() => {
+    const filterVal = this.activeFilter();
+    if (filterVal === 'sell') {
+      return 'لا توجد مشاريع مباعة حالياً';
+    }
+    if (filterVal === 'rent') {
+      return 'لا توجد مشاريع مؤجرة حالياً';
+    }
+    return 'لا توجد مشاريع مباعة أو مؤجرة حالياً';
+  });
+
+  ngOnInit(): void {
+    this.loadSoldProjects();
+  }
+
+  filter(val: string): void {
+    this.activeFilter.set(val);
+  }
+
+  private loadSoldProjects(): void {
+    this.sub?.unsubscribe();
+    this.sub = this.projectService.getProjects({ pageSize: 6 }).subscribe({
+      next: (page) => {
+        // filter projects with status 'Sold' or 'Rented'
+        const soldItems = page.items.filter(p => p.status === 'Sold' || p.status === 'Rented');
+        const mapped: ISoldProject[] = soldItems.map(p => ({
+          id: p.projectId,
+          title: p.name,
+          location: [p.city, p.region].filter(Boolean).join(' - '),
+          price: 'اتصل بنا',
+          imageURL: p.thumbnailUrl || 'images/p1.jpg',
+          area: p.landArea ? `${p.landArea} * ${p.landArea}` : undefined,
+          units: p.unitsNumber,
+          buildings: p.buildingsNumber,
+          rooms: p.totalRooms,
+          lounges: p.totalHalls,
+          type: p.status === 'Sold' ? 'تم البيع' : 'تم الإيجار'
+        }));
+        this.allSoldProjects.set(mapped);
+        this.hasLoaded.set(true);
+      },
+      error: () => {
+        this.allSoldProjects.set([]);
+        this.hasLoaded.set(true);
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
   }
 }

@@ -1,10 +1,3 @@
-using DataAccessLayer.Entities;
-using DataAccessLayer.Entities.ProjectModule;
-using DataAccessLayer.Entities.UnitModule;
-using DataAccessLayer.Entities.BlogModule;
-using DataAccessLayer.Entities.AIModule;
-using DataAccessLayer.Entities.LookupModule;
-using DataAccessLayer.Entities.CommunicationModule;
 
 
 using Microsoft.EntityFrameworkCore;
@@ -21,11 +14,13 @@ public class ProjectFeatureConfiguration : IEntityTypeConfiguration<ProjectFeatu
 
         builder.HasOne(pf => pf.Project)
             .WithMany(p => p.ProjectFeatures)
-            .HasForeignKey(pf => pf.ProjectId);
+            .HasForeignKey(pf => pf.ProjectId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(pf => pf.Feature)
             .WithMany(f => f.ProjectFeatures)
-            .HasForeignKey(pf => pf.FeatureId);
+            .HasForeignKey(pf => pf.FeatureId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
 

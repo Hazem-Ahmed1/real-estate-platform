@@ -70,8 +70,8 @@
 }
 
 .stat-card h3 {
-  font-size: 30px;
-  font-weight: bold;
+  font-size: 42px;
+  font-weight: 900;
 }
 
 .stat-card h3 span {
@@ -85,13 +85,13 @@
 
 @media (max-width: 1200px) {
   .stat-card h3 {
-    font-size: 20px;
+    font-size: 28px;
   }
 }
 
 
 @media (max-width: 786px) {
   .stat-card h3 {
-    font-size: 30px;
+    font-size: 42px;
   }
 }

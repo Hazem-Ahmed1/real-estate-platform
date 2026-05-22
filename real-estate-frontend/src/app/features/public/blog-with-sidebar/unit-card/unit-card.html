@@ -2,17 +2,17 @@
 
   <!-- صورة الوحدة (Right) -->
   <div class="unit-card__img-wrapper">
-    <img [src]="unit.imageURL" [alt]="unit.title" class="unit-card__img" />
+    <img [src]="unit.thumbnailUrl" [alt]="unit.name" class="unit-card__img" />
   </div>
 
   <!-- محتوى الكارد (Left) -->
   <div class="unit-card__content pt-3">
-    <h4 class="unit-card__title">{{ unit.title }}</h4>
+    <h4 class="unit-card__title">{{ unit.name }}</h4>
 
     <div class="unit-card__info">
       <!-- الموقع -->
       <p class="unit-card__location">
-        {{ unit.location }}
+        {{ unit.city }}@if (unit.region) { - {{ unit.region }} }
       </p>
 
       <!-- السعر -->

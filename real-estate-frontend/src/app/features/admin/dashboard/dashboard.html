@@ -1,125 +1,198 @@
-<section class="kpi-grid" aria-label="المؤشرات الرئيسية">
-  @for (kpi of kpis(); track kpi.label) {
+<section class="admin-dashboard" dir="rtl">
+  <header class="page-header">
+    <div>
+      <h2>لوحة التحكم</h2>
+      <p>نظرة عامة على أداء المنصة.</p>
+    </div>
+    <button class="btn ghost-btn" type="button" (click)="loadData()" [disabled]="isLoading()">
+      <i class="fa-solid fa-rotate" aria-hidden="true"></i>
+      تحديث
+    </button>
+  </header>
+
+@if (isLoading()) {
+  <div class="loading-state">
+    <div class="spinner"></div>
+    <p>جاري تحميل إحصائيات لوحة التحكم...</p>
+  </div>
+} @else if (errorMessage()) {
+  <div class="error-state">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <p>{{ errorMessage() }}</p>
+    <button class="retry-btn" (click)="loadData()">حاول مرة أخرى</button>
+  </div>
+} @else if (stats() && chartData()) {
+  <section class="kpi-grid" aria-label="المؤشرات الرئيسية" style="margin-bottom: 16px;">
+    <!-- Row 1 -->
     <article class="kpi-card">
       <div class="kpi-head">
-        <div [class]="kpi.badgeClass">
-          <i [class]="kpi.iconClass" aria-hidden="true"></i>
-        </div>
-        <span class="kpi-label">{{ kpi.label }}</span>
+        <div class="kpi-badge kpi-badge-primary"><i class="fa-solid fa-building"></i></div>
+        <span class="kpi-label">المشاريع</span>
       </div>
-      <h3 class="kpi-value">{{ kpi.value }}</h3>
-      <div class="kpi-trend">
-        <span [class]="trendTextClass(kpi.direction)">
-          <i [class]="trendIconClass(kpi.direction)" aria-hidden="true"></i>
-          {{ kpi.trend }}
-        </span>
-        <span class="kpi-trend-note">مقارنة بالفترة السابقة</span>
+      <h3 class="kpi-value">{{ stats().cards.totalProjects }}</h3>
+      <div class="kpi-trend"><span class="trend-flat"><i class="fa-solid fa-minus"></i></span><span class="kpi-trend-note">إجمالي المشاريع</span></div>
+    </article>
+
+    <article class="kpi-card">
+      <div class="kpi-head">
+        <div class="kpi-badge kpi-badge-blue"><i class="fa-solid fa-city"></i></div>
+        <span class="kpi-label">المباني</span>
+      </div>
+      <h3 class="kpi-value">{{ stats().cards.totalBuildings }}</h3>
+      <div class="kpi-trend"><span class="trend-flat"><i class="fa-solid fa-minus"></i></span><span class="kpi-trend-note">إجمالي المباني</span></div>
+    </article>
+
+    <article class="kpi-card">
+      <div class="kpi-head">
+        <div class="kpi-badge kpi-badge-violet"><i class="fa-solid fa-house-user"></i></div>
+        <span class="kpi-label">الوحدات العقارية</span>
+      </div>
+      <h3 class="kpi-value">{{ stats().cards.totalUnits }}</h3>
+      <div class="kpi-trend"><span class="trend-up"><i class="fa-solid fa-arrow-trend-up"></i></span><span class="kpi-trend-note">متاحة ومباعة</span></div>
+    </article>
+
+    <article class="kpi-card">
+      <div class="kpi-head">
+        <div class="kpi-badge kpi-badge-amber"><i class="fa-solid fa-envelope"></i></div>
+        <span class="kpi-label">الرسائل الواردة</span>
+      </div>
+      <h3 class="kpi-value">{{ stats().cards.totalMessages }}</h3>
+      <div class="kpi-trend"><span class="trend-flat"><i class="fa-solid fa-minus"></i></span><span class="kpi-trend-note">طلبات واستفسارات</span></div>
+    </article>
+
+    <!-- Row 2 -->
+    <article class="kpi-card">
+      <div class="kpi-head">
+        <div class="kpi-badge" style="background: var(--admin-rose-100); color: var(--admin-rose-600);"><i class="fa-solid fa-money-bill-wave"></i></div>
+        <span class="kpi-label">إجمالي المبيعات</span>
+      </div>
+      <h3 class="kpi-value">{{ stats().cards.financials.totalSalesRevenue | number:'1.0-0' }}</h3>
+      <div class="kpi-trend"><span class="trend-up"><i class="fa-solid fa-arrow-trend-up"></i></span><span class="kpi-trend-note">ريال سعودي</span></div>
+    </article>
+
+    <article class="kpi-card">
+      <div class="kpi-head">
+        <div class="kpi-badge" style="background: var(--admin-slate-100); color: var(--admin-slate-600);"><i class="fa-solid fa-newspaper"></i></div>
+        <span class="kpi-label">المدونات</span>
+      </div>
+      <h3 class="kpi-value">{{ stats().cards.totalBlogs }}</h3>
+      <div class="kpi-trend"><span class="trend-flat"><i class="fa-solid fa-minus"></i></span><span class="kpi-trend-note">مقال منشور</span></div>
+    </article>
+  </section>
+
+
+  <section class="chart-grid" aria-label="الرسوم والتحليل" style="margin-bottom: 16px;">
+    <article class="card traffic-card">
+      <div class="card-head">
+        <h3>{{ chartData().datasets[0]?.label || 'العقارات المضافة حديثاً' }}</h3>
+        <div class="chart-filters">
+          <span class="mini-btn mini-btn-active">هذا العام</span>
+        </div>
+      </div>
+
+      <div class="chart-area" role="img" aria-label="رسم بياني لعدد العقارات المضافة">
+        <div class="chart-bars">
+          @for (value of chartData().datasets[0]?.data; track $index) {
+            <div class="chart-bar-container" [title]="chartData().labels[$index] + ': ' + value">
+              <div [class]="'chart-bar ' + getBarColorClass(value, getMaxChartValue())" [style.height.%]="getBarHeight(value, getMaxChartValue())"></div>
+              <span class="chart-bar-label">{{ chartData().labels[$index] }}</span>
+            </div>
+          }
+        </div>
+        <div class="chart-gridlines" aria-hidden="true">
+          <span>{{ getMaxChartValue() }}</span>
+          <span>{{ getMaxChartValue() * 0.75 | number:'1.0-0' }}</span>
+          <span>{{ getMaxChartValue() * 0.5 | number:'1.0-0' }}</span>
+          <span>{{ getMaxChartValue() * 0.25 | number:'1.0-0' }}</span>
+          <span>0</span>
+        </div>
       </div>
     </article>
-  }
-</section>
 
-<section class="chart-grid" aria-label="الرسوم والتحليل">
-  <article class="card traffic-card">
-    <div class="card-head">
-      <h3>اتجاه حركة الزيارات</h3>
-      <div class="chart-filters">
-        <button type="button" class="mini-btn mini-btn-active">يومي</button>
-        <button type="button" class="mini-btn">أسبوعي</button>
-        <button type="button" class="mini-btn">شهري</button>
+    <article class="card sources-card">
+      <h3>حالات الوحدات العقارية</h3>
+
+      <div class="donut-wrap" role="img" aria-label="توزيع حالات الوحدات" style="margin: 20px auto 10px; height: 140px; width: 140px;">
+        <div class="donut-chart" [style.background]="getDonutGradient()"></div>
+        <div class="donut-center">
+          <p class="donut-value" style="font-size: 1.2rem;">{{ stats().cards.totalUnits }}</p>
+          <p class="donut-label" style="font-size: 11px;">إجمالي الوحدات</p>
+        </div>
       </div>
-    </div>
 
-    <div class="chart-area" role="img" aria-label="رسم بياني لحركة الزيارات">
-      <div class="chart-bars">
-        @for (bar of chartBars(); track $index) {
-          <div [class]="'chart-bar ' + bar.colorClass" [style.height.%]="bar.height"></div>
+      <div class="sources-list" style="margin-top: 10px; gap: 8px;">
+        @for (status of stats().pieCharts?.unitStatuses; track status.name; let i = $index) {
+          <div class="source-item">
+            <div class="source-label-wrap">
+              <span [class]="'dot ' + getPieColorClass(i)"></span>
+              <span class="source-label">{{ status.name === 'Sale' ? 'للبيع' : status.name === 'Rent' ? 'للإيجار' : status.name === 'Sold' ? 'مباع' : 'مؤجر' }}</span>
+            </div>
+            <span class="source-percent">{{ status.count }} وحدة</span>
+          </div>
         }
       </div>
-      <div class="chart-gridlines" aria-hidden="true">
-        <span>100k</span>
-        <span>75k</span>
-        <span>50k</span>
-        <span>25k</span>
-        <span></span>
-      </div>
-    </div>
-  </article>
+    </article>
+  </section>
 
-  <article class="card sources-card">
-    <h3>مصادر الزيارات</h3>
-
-    <div class="donut-wrap" role="img" aria-label="نسبة مصادر الزيارات">
-      <div class="donut-chart"></div>
-      <div class="donut-center">
-        <p class="donut-value">842K</p>
-        <p class="donut-label">الإجمالي</p>
-      </div>
-    </div>
-
-    <div class="sources-list">
-      @for (source of sources(); track source.label) {
-        <div class="source-item">
-          <div class="source-label-wrap">
-            <span [class]="'dot ' + source.colorClass"></span>
-            <span class="source-label">{{ source.label }}</span>
-          </div>
-          <span class="source-percent">{{ source.percent }}</span>
-        </div>
-      }
-    </div>
-  </article>
-</section>
-
-<section class="details-grid" aria-label="تفاصيل الصفحات والمناطق">
-  <article class="card pages-card">
-    <h3>أكثر الصفحات زيارة</h3>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>الصفحة</th>
-            <th>المشاهدات</th>
-            <th>الارتداد</th>
-            <th>الاتجاه</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (page of topPages(); track page.page) {
+  <section class="details-grid" aria-label="تفاصيل الصفحات والمناطق">
+    <article class="card pages-card">
+      <h3>أفضل المشاريع تحقيقاً للإنجاز (KPI)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
             <tr>
-              <td>{{ page.page }}</td>
-              <td>{{ page.views }}</td>
-              <td>{{ page.bounce }}</td>
-              <td>
-                <i
-                  [class]="trendIconClass(page.direction) + ' ' + trendTextClass(page.direction)"
-                  aria-hidden="true"
-                ></i>
-              </td>
+              <th>المشروع</th>
+              <th>نسبة الإنجاز</th>
+              <th>تم البيع/التأجير</th>
+              <th>إجمالي الوحدات</th>
             </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </article>
+          </thead>
+          <tbody>
+            @for (project of stats().kpis?.topProjects; track project.projectId) {
+              <tr>
+                <td style="font-weight: 600;">{{ project.name }}</td>
+                <td>
+                  <span class="kpi-progress-text" style="font-size: 12px; font-weight: bold;">{{ project.progressPercentage }}%</span>
+                  <div class="region-track" style="margin-top: 4px; height: 6px;">
+                    <div class="region-bar region-bar-primary" [style.width.%]="project.progressPercentage"></div>
+                  </div>
+                </td>
+                <td style="text-align: center;">{{ project.transactedUnits }}</td>
+                <td style="text-align: center;">{{ project.totalUnits }}</td>
+              </tr>
+            }
+            @if(stats().kpis?.topProjects?.length === 0) {
+              <tr>
+                <td colspan="4" style="text-align: center; color: var(--admin-text-muted);">لا توجد مشاريع مضافة حتى الآن.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </article>
 
-  <article class="card regions-card">
-    <h3>أفضل المناطق</h3>
-    <div class="regions-list">
-      @for (region of regions(); track region.name) {
-        <div class="region-item">
-          <div class="region-head">
-            <div class="region-title-wrap">
-              <span class="region-flag">{{ region.flag }}</span>
-              <span class="region-title">{{ region.name }}</span>
+    <article class="card regions-card">
+      <h3>الرسائل الواردة الأخيرة</h3>
+      <div class="regions-list">
+        @for (msg of stats().recentActivities?.messages; track msg.messageId; let i = $index) {
+          <div class="region-item" style="border-bottom: 1px solid var(--admin-border-soft); padding-bottom: 10px; margin-bottom: 4px;">
+            <div class="region-head" style="margin-bottom: 2px;">
+              <div class="region-title-wrap">
+                <i class="fa-solid fa-circle-user" style="color: var(--admin-primary-400); font-size: 18px;"></i>
+                <span class="region-title" style="font-weight: 600; color: var(--admin-text-primary);">{{ msg.senderName }}</span>
+              </div>
+              <span class="region-value text-muted" style="font-size: 11px;">{{ msg.createdAt | date:'shortDate' }}</span>
             </div>
-            <span class="region-value">{{ region.value }}</span>
+            <div class="region-track mt-1" style="background: transparent; height: auto;">
+              <p style="margin: 0; padding-right: 26px; font-size: 13px; color: var(--admin-text-muted);">{{ msg.subject }}</p>
+            </div>
           </div>
-          <div class="region-track">
-            <div [class]="'region-bar ' + region.barClass" [style.width.%]="region.width"></div>
-          </div>
-        </div>
-      }
-    </div>
-  </article>
+        }
+        @if(stats().recentActivities?.messages?.length === 0) {
+          <p style="text-align: center; color: var(--admin-text-muted); font-size: 14px; margin-top: 20px;">لا توجد رسائل جديدة.</p>
+        }
+      </div>
+    </article>
+  </section>
+}
 </section>

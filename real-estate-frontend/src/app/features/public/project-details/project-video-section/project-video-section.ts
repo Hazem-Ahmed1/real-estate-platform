@@ -10,5 +10,4 @@ import { ProjectVideoBlock } from '../../../../shared/components/project-video-b
 })
 export class ProjectVideoSection {
   videoUrl = input.required<string>();
-  videoPoster = input.required<string>();
 }

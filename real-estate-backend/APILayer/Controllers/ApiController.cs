@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using DataAccessLayer.Common;
 
 namespace APILayer.Controllers;
 

@@ -36,6 +36,10 @@ export const routes: Routes = [
         component: SoldProjects,
       },
       {
+        path: 'units/:projectId',
+        component: Units,
+      },
+      {
         path: 'units',
         component: Units,
       },
@@ -56,8 +60,16 @@ export const routes: Routes = [
         component: Register,
       },
       {
+        path: 'project-details/:id',
+        component: ProjectDetails,
+      },
+      {
         path: 'project-details',
         component: ProjectDetails,
+      },
+      {
+        path: 'unit-details/:id',
+        component: UnitDetails,
       },
       {
         path: 'unit-details',

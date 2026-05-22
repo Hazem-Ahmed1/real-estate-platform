@@ -1,11 +1,13 @@
-using BusinessLogicLayer.Dtos.ProjectModule;
-using BusinessLogicLayer.Specifications.Projects;
-using DataAccessLayer.Common;
-
 namespace BusinessLogicLayer.Contracts;
 
 public interface IProjectService
 {
+    // Public Endpoints
     Task<PaginatedResult<ProjectListDto>> GetProjectsAsync(ProjectSpecParams @params);
     Task<ProjectDetailsDto?> GetProjectByIdAsync(int id);
+    
+    // Admin Endpoints
+    Task<ProjectDetailsDto> CreateProjectAsync(ProjectCreateDto projectDto);
+    Task<ProjectDetailsDto> UpdateProjectAsync(int id, ProjectUpdateDto projectDto);
+    Task<ProjectDetailsDto> DeleteProjectAsync(int id);
 }

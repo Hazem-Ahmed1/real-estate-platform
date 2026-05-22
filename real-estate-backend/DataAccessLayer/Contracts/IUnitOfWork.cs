@@ -1,4 +1,3 @@
-using DataAccessLayer.Entities;
 
 namespace DataAccessLayer.Contracts;
 

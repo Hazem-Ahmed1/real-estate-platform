@@ -1,6 +1,8 @@
-import { Component, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { UnitCardModel } from '../../../models/IUnit';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { UnitCardModel, IUnitDetails } from '../../../models/IUnit';
+import { UnitService } from '../../../services/api/unit.service';
 import { SectionTitle } from '../../../shared/components/section-title/section-title';
 import { ProjectGallery } from '../../../shared/components/project-gallery/project-gallery';
 import { ProjectMap } from '../../../shared/components/project-map/project-map';
@@ -28,143 +30,127 @@ import { UnitTabs } from './unit-tabs/unit-tabs';
   templateUrl: './unit-details.html',
   styleUrl: './unit-details.css',
 })
-export class UnitDetails {
+export class UnitDetails implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
+  private readonly unitService = inject(UnitService);
+  private readonly router = inject(Router);
+  private sub?: Subscription;
 
-  // Data source: UnitCardModel
-  unit: UnitCardModel = {
-    title: 'وحدة 1 / عمارة 1',
-    type: 'للبيع',
-    location: 'جدة - حي العزيزية',
-    price: '200000',
-    imageURL: '/images/imgForFullProject.jpg',
-    beds: 4,
-    baths: 7,
-    lounges: 1,
-    area: '1233*1248',
-    streetsText: 'شارعين',
-  };
+  readonly unit = signal<IUnitDetails | null>(null);
 
-  // Derived from UnitCardModel fields — label + value only, icons resolved in hero HTML via @switch
   get metadata() {
+    const u = this.unit();
+    if (!u) return [];
     return [
-      { label: 'عدد الغرف', value: this.unit.beds?.toString() ?? '-' },
-      { label: 'عدد الحمامات', value: this.unit.baths?.toString() ?? '-' },
-      { label: 'المساحة', value: this.unit.area ?? '-' },
-      // { label: 'الشارع', value: this.unit.streetsText ?? '-' },
-      { label: '', value: this.unit.streetsText ?? '-' },
-
-      // { label: 'عدد الصالات', value: this.unit.lounges?.toString() ?? '-' },
-      { label: 'الدور', value:'01' },
-    
+      { label: 'عدد الغرف',    value: (u.rooms ?? 0).toString() },
+      { label: 'المساحة',      value: `${u.area ?? 0} * ${u.area ?? 0}` },
+      { label: 'عدد الشوارع',  value: `${u.streetCount ?? 0}` },
+      { label: 'عدد الحمامات', value: (u.bathrooms ?? 0).toString() },
+      { label: 'الدور',        value: (u.floor ?? 0).toString().padStart(2, '0') },
     ];
   }
 
-  // Static data: media (not in UnitCardModel)
-  readonly panoramaImage = '/images/Unit_360_degree.png';
-  readonly videoUrl = '/videos/hero.mp4';
-  readonly videoPoster = '/images/imgForFullProject.jpg';
-  readonly gallery = [
-    '/images/PSide01.jpg',
-    '/images/PSide02.jpg',
-    '/images/PSide02.jpg',
-    '/images/PSide02.jpg',
-    '/images/PSide02.jpg',
-  ];
-
-  // Static data: design gallery (not in UnitCardModel)
-  readonly designGallery = [
-    // '/images/design_Image.png',
-    // '/images/PSide01.jpg',
-    // '/images/PSide02.jpg',
-    // '/images/PSide01.jpg',
-    // '/images/PSide02.jpg',
-
-    '/images/p1.jpg',
-    '/images/p2.jpg',
-    '/images/p3.jpg',
-    '/images/p1.jpg',
-    '/images/p2.jpg',
-  ];
-
-  // ── Icon maps (centralized) ────────────────────────────────────────────────
-  private readonly featureIconMap: Record<string, string> = {
-    'خزان مستقل أرضي': 'fa-droplet',
-    'خزان مستقل علوي': 'fa-water',
-    'غرفة سائق': 'fa-car',
-    'غرفة خادمة': 'fa-user',
-  };
-
-  private readonly warrantyIconMap: Record<string, string> = {
-    'الهيكل الإنشائي': 'fa-arrows-rotate',
-    'طبلون الكهرباء': 'fa-bolt',
-    'عزل الخزانات': 'fa-faucet-drip',
-    'عزل حراري': 'fa-temperature-half',
-    'عزل مائي': 'fa-droplet',
-    'أدوات صحية': 'fa-screwdriver-wrench',
-    'المصعد': 'fa-building',
-    'ضمان شامل': 'fa-shield-halved',
-  };
-
-  getFeatureIcon(label: string): string {
-    return this.featureIconMap[label] ?? 'fa-circle-dot';
+  get gallery() {
+    return this.unit()?.images ?? [];
   }
 
-  getWarrantyIcon(label: string): string {
-    return this.warrantyIconMap[label] ?? 'fa-shield-halved';
+  get designGallery() {
+    return this.unit()?.designs ?? [];
   }
-  // ──────────────────────────────────────────────────────────────────────────
 
-  // Static data: feature labels only — no iconClass in data
-  private readonly featureLabels = [
-    'خزان مستقل أرضي',
-    'خزان مستقل علوي',
-    'غرفة سائق',
-    'غرفة خادمة',
-    'خزان مستقل أرضي',
-    'خزان مستقل علوي',
-    'غرفة سائق',
-    // 'غرفة خادمة',
-  ];
-
-  // Resolved features: icon comes from map, not from data
   get resolvedFeatures() {
-    return this.featureLabels.map(label => ({
-      label,
-      iconClass: this.getFeatureIcon(label),
+    const u = this.unit();
+    if (!u?.features) return [];
+    return u.features.map(f => ({
+      label: f.name,
+      iconClass: 'fa-circle-check',
     }));
   }
 
-  // Static data: warranty labels + duration only — no iconClass in data
-  private readonly warrantyItems = [
-    { label: 'الهيكل الإنشائي', durationText: '+ 25 سنة' },
-    { label: 'طبلون الكهرباء', durationText: '+ 25 سنة' },
-    { label: 'عزل الخزانات', durationText: '+ 15 سنة' },
-    { label: 'عزل حراري', durationText: '15 سنة' },
-    { label: 'عزل مائي', durationText: '15 سنة' },
-    { label: 'أدوات صحية', durationText: '02 سنة' },
-    { label: 'المصعد', durationText: '02 سنة' },
-    // { label: 'ضمان شامل', durationText: '01 سنة' },
-  ];
-
-  // Resolved warranties: icon comes from map, not from data
   get resolvedWarranties() {
-    return this.warrantyItems.map(w => ({
-      label: w.label,
-      iconClass: this.getWarrantyIcon(w.label),
-      subLabel: w.durationText,
+    const u = this.unit();
+    if (!u?.insurance) return [];
+    return u.insurance.map(i => ({
+      label: i.name,
+      iconClass: 'fa-shield-halved',
+      subLabel: this.formatWarrantyDuration(i.duration),
     }));
   }
 
-  // Static data: nearby places (not in UnitCardModel)
-  readonly nearbyPlaces = [
-    { name: 'مسجد سيدنا أبي بن عمر', distanceText: 'تبعد 1 كيلو' },
-    { name: 'مستشفى الهلال', distanceText: 'تبعد 1 كيلو' },
-    { name: 'مدرسة العلم والعلوم', distanceText: 'تبعد 1 كيلو' },
-    // { name: 'مقهى النور', distanceText: 'تبعد 1 كيلو' },
-  ];
+  private formatWarrantyDuration(duration?: number): string {
+    const value = duration ?? 0;
+    return `+ ${value.toString().padStart(2, '0')} سنة`;
+  }
 
-  // Static data: map coordinates (not in UnitCardModel)
-  readonly mapLat = 21.543333;
-  readonly mapLng = 39.172779;
+  private getNearbyFacilityIcon(type: string): string {
+    const t = String(type).toLowerCase();
+    if (t.includes('mosque') || t.includes('مسجد')) return 'fa-mosque';
+    if (t.includes('school') || t.includes('مدرسة') || t.includes('جامعة')) return 'fa-graduation-cap';
+    if (t.includes('hospital') || t.includes('مستشفى') || t.includes('عيادة')) return 'fa-hospital';
+    if (t.includes('restaurant') || t.includes('مطعم') || t.includes('اكل')) return 'fa-utensils';
+    if (t.includes('park') || t.includes('حديقة') || t.includes('منتزه')) return 'fa-tree';
+    if (t.includes('bank') || t.includes('بنك') || t.includes('صراف')) return 'fa-building-columns';
+    if (t.includes('pharmacy') || t.includes('صيدلية')) return 'fa-prescription-bottle-medical';
+    if (t.includes('supermarket') || t.includes('سوبر ماركت') || t.includes('بقال')) return 'fa-cart-shopping';
+    if (t.includes('club') || t.includes('نادي') || t.includes('رياضة')) return 'fa-dumbbell';
+    return 'fa-location-dot';
+  }
+
+  get nearbyPlaces() {
+    const u = this.unit();
+    if (!u?.nearbyFacilities) return [];
+    const seen = new Set<string>();
+    const uniqueFacilities = u.nearbyFacilities.filter(n => {
+      const key = [
+        String(n.name ?? '').trim().toLowerCase(),
+        String(n.type ?? '').trim().toLowerCase(),
+        String(n.distance ?? '').trim().toLowerCase(),
+        n.latitude != null ? Number(n.latitude).toFixed(6) : '',
+        n.longitude != null ? Number(n.longitude).toFixed(6) : '',
+      ].join('|');
+
+      if (seen.has(key)) {
+        return false;
+      }
+
+      seen.add(key);
+      return true;
+    });
+
+    return uniqueFacilities.map(n => ({
+      name: n.name,
+      distanceText: `تبعد ${n.distance}`,
+      iconClass: this.getNearbyFacilityIcon(n.type),
+    }));
+  }
+
+  ngOnInit(): void {
+    this.sub = this.route.paramMap.subscribe(params => {
+      const rawId = params.get('id');
+      const id = rawId ? Number(rawId) : NaN;
+      if (!Number.isFinite(id)) {
+        this.router.navigate(['/']);
+        return;
+      }
+
+      this.unit.set(null);
+
+      this.unitService.getUnit(id).subscribe({
+        next: (unit) => {
+          if (!unit) {
+            this.router.navigate(['/']);
+            return;
+          }
+          this.unit.set(unit);
+        },
+        error: () => {
+          this.router.navigate(['/']);
+        }
+      });
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
+  }
 }

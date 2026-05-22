@@ -1,4 +1,4 @@
-<article class="unit-card" tabindex="0">
+<article class="unit-card" tabindex="0" [routerLink]="project()?.id ? ['/project-details', project()?.id] : null" style="cursor: pointer;">
   <!-- IMAGE -->
   <div class="unit-media">
     <img
@@ -27,30 +27,29 @@
     <h3 class="unit-title text-end">{{ project()?.title }}</h3>
 
     <!-- FEATURES -->
-    <div class="unit-features" aria-label="المواصفات">
-      @if (project()?.title !== undefined) {
+    <div class="unit-features" aria-label="المواصفات" style="grid-template-columns: repeat(3, 1fr) !important;">
+      @if (project()?.buildings !== undefined) {
         <span class="feature">
-          <i class="fa-solid fa-house-chimney"></i>
-          <span class="feature-value">{{ project()?.beds| number:'2.0-0' }}</span>
-          <span class="feature-label">غرف</span>
+          <i class="fa-solid fa-building" title="المباني"></i>
+          <span class="feature-value">{{ project()?.buildings | number:'2.0-0' }}</span>
+          <span class="feature-label">مباني</span>
         </span>
       }
 
-      @if (project()?.lounges !== undefined) {
+      @if (project()?.units !== undefined) {
         <span class="feature">
-          <i class="fa-solid fa-couch" aria-hidden="true"></i>
-          <span class="feature-value">{{ project()?.lounges | number:'2.0-0' }}</span>
-          <span class="feature-label">صالات</span>
+          <i class="fa-solid fa-house-user" title="الوحدات السكنية"></i>
+          <span class="feature-value">{{ project()?.units | number:'2.0-0' }}</span>
+          <span class="feature-label">وحدة سكنية</span>
         </span>
       }
 
       @if (project()?.area) {
         <span class="feature">
-          <i class="fa-solid fa-vihara"></i>
+          <i class="fa-solid fa-ruler-combined" title="المساحة"></i>
           <span class="feature-value">{{ project()?.area }}</span>
         </span>
       }
-
     </div>
   </div>
 </article>

@@ -1,0 +1,349 @@
+<section class="admin-units" dir="rtl">
+  <header class="page-header">
+    <div>
+      <h2>إدارة الوحدات</h2>
+      <p>إضافة وتعديل وحذف الوحدات مع المميزات والمرافق والوسائط.</p>
+    </div>
+    <button class="btn ghost-btn" type="button" (click)="loadUnits(currentPage())" [disabled]="isLoading()">
+      <i class="fa-solid fa-rotate" aria-hidden="true"></i>
+      تحديث
+    </button>
+  </header>
+
+  @if (errorMessage()) {
+    <p class="error-banner" aria-live="polite">{{ errorMessage() }}</p>
+  }
+
+  <div class="units-grid">
+    <article class="card form-card">
+      <h3>{{ selectedUnit() ? 'تعديل وحدة' : 'إضافة وحدة جديدة' }}</h3>
+
+      <form [formGroup]="unitForm" (ngSubmit)="submitForm()">
+        <div class="form-section">
+          <h3>معلومات أساسية</h3>
+
+          <div class="field">
+            <label for="name">اسم الوحدة <span class="required">*</span></label>
+            <input id="name" type="text" formControlName="name" placeholder="مثال: شقة 101" (blur)="checkUnitName()" />
+            <div class="input-error" *ngIf="unitForm.get('name')?.touched && unitForm.get('name')?.hasError('required')">هذا الحقل مطلوب.</div>
+            <div class="input-error" *ngIf="unitForm.get('name')?.touched && unitForm.get('name')?.hasError('duplicate')">اسم الوحدة موجود بالفعل.</div>
+          </div>
+
+          <div class="field">
+            <label for="status">الحالة <span class="required">*</span></label>
+            <div class="status-options-grid" role="radiogroup" aria-label="الحالة">
+              @for (status of statusOptions; track status) {
+                <label class="option-pill status-option-pill">
+                  <input type="radio" formControlName="status" [value]="status" />
+                  <span>{{ translateStatusLabel(status) }}</span>
+                </label>
+              }
+            </div>
+            <div class="input-error" *ngIf="unitForm.get('status')?.touched && unitForm.get('status')?.hasError('required')">هذا الحقل مطلوب.</div>
+            <small class="text-muted d-block mt-1">اختار الحالة أولًا، وبعدها هتظهر المباني المطابقة لها فقط.</small>
+          </div>
+
+          <div class="field">
+            <label for="buildingId">المبنى <span class="required">*</span></label>
+            <select id="buildingId" formControlName="buildingId" [disabled]="!unitForm.get('status')?.value">
+              <option [ngValue]="null">اختر مبنى</option>
+              @for (building of filteredBuildingsByStatus(); track building.buildingId) {
+                <option [value]="building.buildingId">
+                  {{ building.name }} — {{ building.projectName }} — {{ translateBuildingTypeLabel(building.type) }} — {{ building.buildingArea }} م²
+                </option>
+              }
+            </select>
+            <div class="input-error" *ngIf="unitForm.get('buildingId')?.touched && unitForm.get('buildingId')?.hasError('required')">هذا الحقل مطلوب.</div>
+            <small class="text-muted d-block mt-1">لا تظهر إلا المباني المتوافقة مع حالة الوحدة المختارة.</small>
+          </div>
+
+          <div class="field">
+            <label for="type">النوع <span class="required">*</span></label>
+            <select id="type" formControlName="type">
+              @for (type of typeOptions; track type) {
+                <option [value]="type">{{ type }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>المواصفات</h3>
+
+          <div class="three-col">
+            <div class="field">
+              <label for="rooms">عدد الغرف</label>
+              <input id="rooms" type="number" formControlName="rooms" min="1" />
+                <div class="input-error" *ngIf="unitForm.get('rooms')?.touched && unitForm.get('rooms')?.hasError('required')">هذا الحقل مطلوب.</div>
+            </div>
+            <div class="field">
+              <label for="salons">عدد الصالونات</label>
+              <input id="salons" type="number" formControlName="salons" min="1" />
+                <div class="input-error" *ngIf="unitForm.get('salons')?.touched && unitForm.get('salons')?.hasError('required')">هذا الحقل مطلوب.</div>
+            </div>
+            <div class="field">
+              <label for="bathrooms">عدد الحمامات</label>
+              <input id="bathrooms" type="number" formControlName="bathrooms" min="1" />
+                <div class="input-error" *ngIf="unitForm.get('bathrooms')?.touched && unitForm.get('bathrooms')?.hasError('required')">هذا الحقل مطلوب.</div>
+            </div>
+          </div>
+
+          <div class="three-col">
+            <div class="field">
+              <label for="area">المساحة (متر مربع) <span class="required">*</span></label>
+              <input id="area" type="number" formControlName="area" min="10" />
+                <div class="input-error" *ngIf="unitForm.get('area')?.touched && unitForm.get('area')?.hasError('required')">هذا الحقل مطلوب.</div>
+                <div class="input-error" *ngIf="unitForm.get('area')?.touched && unitForm.get('area')?.hasError('maxExceeded')">المساحة أكبر من الحد الأقصى المسموح به للمبنى.</div>
+            </div>
+            <div class="field">
+              <label for="floor">الدور</label>
+              <input id="floor" type="number" formControlName="floor" min="1" />
+                <div class="input-error" *ngIf="unitForm.get('floor')?.touched && unitForm.get('floor')?.hasError('required')">هذا الحقل مطلوب.</div>
+            </div>
+            <div class="field">
+              <label for="streetCount">عدد الشوارع (1-4)</label>
+              <input id="streetCount" type="number" formControlName="streetCount" min="1" max="4" />
+              <div class="input-error" *ngIf="unitForm.get('streetCount')?.touched && unitForm.get('streetCount')?.hasError('required')">هذا الحقل مطلوب.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <label>المميزات</label>
+          <div class="options-grid">
+            @for (feature of features(); track feature.featureId) {
+              <label class="option-pill">
+                <input
+                  type="checkbox"
+                  [checked]="selectedFeatureIds().has(feature.featureId)"
+                  (change)="toggleFeature(feature.featureId, $event)"
+                />
+                <span>{{ feature.name }}</span>
+              </label>
+            }
+          </div>
+        </div>
+
+        <div class="form-section">
+          <label>الضمانات</label>
+          <div class="options-grid">
+            @for (insurance of insurances(); track insurance.insuranceId) {
+              <label class="option-pill">
+                <input
+                  type="checkbox"
+                  [checked]="selectedInsuranceIds().has(insurance.insuranceId)"
+                  (change)="toggleInsurance(insurance.insuranceId, $event)"
+                />
+                <span>{{ insurance.name }}</span>
+              </label>
+            }
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>الموقع والسعر</h3>
+
+          <div class="field">
+            <label for="price">السعر <span class="required">*</span></label>
+            <input id="price" type="number" formControlName="price" min="50" placeholder="أدخل السعر" />
+            <div class="input-error" *ngIf="unitForm.get('price')?.touched && unitForm.get('price')?.hasError('required')">هذا الحقل مطلوب.</div>
+          </div>
+
+          <div class="field">
+            <label for="cityDisplay">المدينة</label>
+            <input id="cityDisplay" type="text" [value]="selectedCity()" readonly />
+          </div>
+
+          <div class="field" style="display:none">
+            <input id="street" type="text" formControlName="street" />
+          </div>
+
+          <!-- Address is provided only via the map picker. Field intentionally hidden from the form UI. -->
+
+          <div class="two-col">
+            <div class="field">
+              <label for="latitude">خط العرض <span class="required">*</span></label>
+              <input id="latitude" type="number" formControlName="latitude" step="0.0001" />
+              <div class="input-error" *ngIf="unitForm.get('latitude')?.touched && unitForm.get('latitude')?.hasError('required')">هذا الحقل مطلوب.</div>
+            </div>
+            <div class="field">
+              <label for="longitude">خط الطول <span class="required">*</span></label>
+              <input id="longitude" type="number" formControlName="longitude" step="0.0001" />
+              <div class="input-error" *ngIf="unitForm.get('longitude')?.touched && unitForm.get('longitude')?.hasError('required')">هذا الحقل مطلوب.</div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="button" class="btn ghost-btn" (click)="openMap()">اختر من الخريطة</button>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-header">
+            <h3>المرافق القريبة</h3>
+            <div class="actions-inline">
+              <button type="button" class="btn tiny-btn" (click)="selectAllFacilities()">تحديد الكل</button>
+              <button type="button" class="btn tiny-btn" (click)="deselectAllFacilities()">إلغاء التحديد</button>
+            </div>
+          </div>
+
+          @if (nearbyFacilities().length === 0) {
+            <p class="empty-state">لا توجد مرافق مضافة بعد</p>
+          }
+
+          @for (facility of nearbyFacilities(); track $index) {
+            <div class="facility-item">
+              <div class="facility-row">
+                <input type="checkbox" [checked]="facility.selected !== false" (change)="toggleFacilitySelection($index, $event)" />
+                <div class="facility-info">
+                  <div class="facility-name">{{ facility.name }}</div>
+                  <div class="facility-meta">{{ facility.type }} · {{ facility.distance }}</div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="form-section">
+          <h3>الوسائط</h3>
+
+          <div class="field">
+            <span>الصورة المصغرة</span>
+            <label class="file-input">
+              <input type="file" accept="image/*" (change)="onThumbnailChange($event)" />
+              <span class="file-button">رفع صورة</span>
+              <span class="file-name">{{ thumbnailName() }}</span>
+            </label>
+          </div>
+
+          <div class="field">
+            <span>صور الوحدة (متعددة)</span>
+            <label class="file-input">
+              <input type="file" multiple accept="image/*" (change)="onImagesChange($event)" />
+              <span class="file-button">رفع صور</span>
+              <span class="file-name">{{ imagesSummary() }}</span>
+            </label>
+          </div>
+
+          <div class="field">
+            <span>تصاميم الوحدة (متعددة)</span>
+            <label class="file-input">
+              <input type="file" multiple accept="image/*" (change)="onDesignsChange($event)" />
+              <span class="file-button">رفع تصاميم</span>
+              <span class="file-name">{{ designsSummary() }}</span>
+            </label>
+          </div>
+
+          <div class="field">
+            <span>صورة بانورامية 360</span>
+            <label class="file-input">
+              <input type="file" accept="image/*" (change)="onPanoramaChange($event)" />
+              <span class="file-button">رفع صورة</span>
+              <span class="file-name">{{ panoramaName() }}</span>
+            </label>
+          </div>
+
+          <div class="field">
+            <span>فيديو الوحدة</span>
+            <label class="file-input">
+              <input type="file" accept="video/*" (change)="onVideoChange($event)" />
+              <span class="file-button">رفع فيديو</span>
+              <span class="file-name">{{ videoName() }}</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn primary-btn" [disabled]="isSaving()">
+            {{ isSaving() ? 'جاري الحفظ...' : (selectedUnit() ? 'تحديث الوحدة' : 'إضافة الوحدة') }}
+          </button>
+          <button type="button" class="btn ghost-btn" (click)="clearSelection()" [disabled]="isSaving()">
+            إلغاء
+          </button>
+        </div>
+      </form>
+    </article>
+
+    <article class="card list-card">
+      <div class="list-head">
+        <h3>الوحدات</h3>
+        <span>{{ isLoading() ? 'جاري التحميل...' : (units().length + ' عنصر') }}</span>
+      </div>
+
+      <div class="filters-bar">
+        <select class="filter-select" (change)="onFilterProject($event)" [value]="filterProjectId() || ''">
+          <option value="">جميع المشاريع</option>
+          @for (project of projects(); track project.projectId) {
+            <option [value]="project.projectId">{{ project.name }}</option>
+          }
+        </select>
+
+        <select class="filter-select" (change)="onFilterBuilding($event)" [value]="filterBuildingId() || ''" [disabled]="!filterProjectId()">
+          <option value="">جميع المباني</option>
+          @for (building of filteredBuildings(); track building.buildingId) {
+            <option [value]="building.buildingId">{{ building.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="list-body">
+        @if (!isLoading() && units().length === 0) {
+          <p class="empty-state">لا توجد وحدات حالياً</p>
+        }
+
+        @for (unit of units(); track unit.unitId) {
+          <div class="row-card" [class.active]="selectedUnit()?.unitId === unit.unitId">
+            <div class="row-info" (click)="selectUnit(unit)">
+              <div>
+                <h4>{{ unit.name }}</h4>
+                <p>{{ unit.buildingName }} | {{ translateStatusLabel(unit.status) }}</p>
+              </div>
+              <div class="row-meta">
+                <span>السعر: {{ unit.price }}</span>
+                <span>المساحة: {{ unit.area }}</span>
+                <span class="badge" [class.sale]="unit.status === 'Sale'">{{ translateStatusLabel(unit.status) }}</span>
+              </div>
+            </div>
+            <div class="row-actions">
+              <button class="btn tiny-btn" type="button" (click)="selectUnit(unit)">تعديل</button>
+              <button class="btn tiny-btn danger" type="button" (click)="deleteUnit(unit)" [disabled]="isSaving()">حذف</button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="pagination">
+        <button class="btn ghost-btn" type="button" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() <= 1">السابق</button>
+        <span>صفحة {{ currentPage() }} من {{ totalPages() }}</span>
+        <button class="btn ghost-btn" type="button" (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() >= totalPages()">التالي</button>
+      </div>
+    </article>
+  </div>
+</section>
+
+<div *ngIf="showMap()" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>اختر الموقع على الخريطة</h3>
+      <button class="icon-btn" type="button" (click)="closeMap()">✖</button>
+    </div>
+    <div class="modal-body">
+      <app-project-map
+        [lat]="mapLat()"
+        [lng]="mapLng()"
+        [query]="mapQuery()"
+        [anchorLat]="mapAnchorLat()"
+        [anchorLng]="mapAnchorLng()"
+        [circleRadiusMeters]="mapCircleMeters()"
+        [mapMode]="'unitPicker'"
+        [suppressInitialMarker]="true"
+        [allowSelect]="true"
+        (selection)="onMapSelection($event)"
+        (outOfBounds)="handleMapOutOfBounds()">
+      </app-project-map>
+    </div>
+    <div class="modal-footer">
+      <button class="btn ghost-btn" type="button" (click)="closeMap()">إغلاق</button>
+    </div>
+  </div>
+</div>

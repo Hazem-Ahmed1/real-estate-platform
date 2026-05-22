@@ -5,7 +5,5 @@ public enum UnitType
     Apartment,
     Villa,
     Duplex,
-    Office,
-    Shop,
-    Land
+    Office
 }

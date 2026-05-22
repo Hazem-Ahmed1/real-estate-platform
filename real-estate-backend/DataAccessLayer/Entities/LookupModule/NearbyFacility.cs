@@ -1,11 +1,3 @@
-using DataAccessLayer.Entities;
-using DataAccessLayer.Entities.ProjectModule;
-using DataAccessLayer.Entities.UnitModule;
-using DataAccessLayer.Entities.BlogModule;
-using DataAccessLayer.Entities.AIModule;
-using DataAccessLayer.Entities.LookupModule;
-using DataAccessLayer.Entities.CommunicationModule;
-using DataAccessLayer.Enums;
 
 namespace DataAccessLayer.Entities.LookupModule;
 
@@ -13,10 +5,12 @@ public class NearbyFacility : AuditableEntity
 {
     public int FacilityId { get; set; }
 
-    public int UnitId { get; set; }
-    public Unit Unit { get; set; } = null!;
+    public int? UnitId { get; set; }
+    public Unit? Unit { get; set; }
 
     public FacilityType Type { get; set; }
+    
+    public double Area { get; set; }
 
     public string Name { get; set; } = null!;
 

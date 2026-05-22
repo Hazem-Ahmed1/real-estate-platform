@@ -49,9 +49,50 @@ public class MediaService : IMediaService
         );
     }
 
+    public async Task<MediaUploadResultDto> UploadVideoAsync(IFormFile file)
+    {
+        var uploadResult = new VideoUploadResult();
+
+        if (file.Length > 0)
+        {
+            using var stream = file.OpenReadStream();
+
+            var uploadParams = new VideoUploadParams
+            {
+                File = new FileDescription(file.FileName, stream)
+            };
+
+            uploadResult = await _cloudinary.UploadAsync(uploadParams);
+        }
+
+        if (uploadResult.Error != null)
+        {
+            throw new Exception(uploadResult.Error.Message);
+        }
+
+        return new MediaUploadResultDto(
+            uploadResult.SecureUrl.ToString(),
+            uploadResult.PublicId
+        );
+    }
     public async Task<bool> DeleteImageAsync(string publicId)
     {
-        var deleteParams = new DeletionParams(publicId);
+        var deleteParams = new DeletionParams(publicId)
+        {
+            Invalidate = true
+        };
+        var result = await _cloudinary.DestroyAsync(deleteParams);
+
+        return result.Result == "ok";
+    }
+
+    public async Task<bool> DeleteVideoAsync(string publicId)
+    {
+        var deleteParams = new DeletionParams(publicId)
+        {
+            ResourceType = ResourceType.Video,
+            Invalidate = true
+        };
         var result = await _cloudinary.DestroyAsync(deleteParams);
 
         return result.Result == "ok";

@@ -1,55 +1,84 @@
 <app-breadcrumb
-  [items]="[{ label: 'الرئيسية', url: '/' }, { label: 'المشاريع', url: '/projects' }, { label: project.title }]"
-  [status]="project.type"
+  [items]="[{ label: 'الرئيسية', url: '/' }, { label: 'المشاريع', url: '/projects' }, { label: project()?.name ?? '' }]"
+  [status]="project()?.status ?? 'Sale'"
 />
 
-<div class="container">
+@if (project()) {
+<div class="container" dir="rtl">
 
   <app-project-hero
-    [title]="project.title"
-    [location]="project.location"
+    [title]="project()!.name"
+    [location]="project()!.cityName + (project()!.regionName ? ' - ' + project()!.regionName : '')"
     [stats]="stats"
   />
 
-  <div class="row mb-5">
-    <div class="col-12">
-      <app-project-panorama [panoramaImage]="panoramaImage" />
+  @if (project()!.panorama360Url) {
+    <div class="row mb-5">
+      <div class="col-12">
+        <app-project-panorama [panoramaImage]="project()!.panorama360Url!" />
+      </div>
     </div>
-  </div>
+  }
 
-  <div class="row mb-5">
-    <div class="col-12">
-      <app-project-video-section
-        [videoUrl]="videoUrl"
-        [videoPoster]="videoPoster"
-      />
+  @if (project()!.videoUrl) {
+    <div class="row mb-5">
+      <div class="col-12">
+        <app-project-video-section
+          [videoUrl]="project()!.videoUrl!"
+        />
+      </div>
     </div>
-  </div>
+  }
 
-  <div class="row mb-5">
-    <div class="col-12">
-      <app-section-title [subtitle]="'معرض'" [title]="'صور من جوانب مختلفة للمشروع'" />
-      <app-project-gallery [images]="gallery" />
+  @if (project()!.images && project()!.images.length > 0) {
+    <div class="row mb-5">
+      <div class="col-12">
+        <app-section-title [subtitle]="'معرض'" [title]="'صور من جوانب مختلفة للمشروع'" />
+        <app-project-gallery [images]="project()!.images" />
+      </div>
     </div>
-  </div>
+  }
 
-  <div class="row mb-5">
-    <div class="col-12 mb-5">
-      <app-section-title [subtitle]="'مميزات'" [title]="'مميزات المشروع'" />
-      <app-icon-feature-grid [items]="resolvedFeatures" [variant]="'features'" />
+  @if (resolvedFeatures && resolvedFeatures.length > 0) {
+    <div class="row mb-5">
+      <div class="col-12 mb-5">
+        <app-section-title [subtitle]="'مميزات'" [title]="'مميزات المشروع'" />
+        <app-icon-feature-grid [items]="resolvedFeatures" [variant]="'features'" />
+      </div>
     </div>
-    <div class="col-12">
-      <app-section-title [subtitle]="'الضمانات'" [title]="'ضمانات المشروع'" />
-      <app-icon-feature-grid [items]="resolvedWarranties" [variant]="'warranties'" />
-    </div>
-  </div>
+  }
 
-  <div class="row mb-5">
-    <div class="col-12">
-      <app-section-title [subtitle]="'الموقع'" [title]="'موقع المشروع على الخريطة'" />
-      <app-project-map [lat]="mapLat" [lng]="mapLng" />
+  @if (resolvedWarranties && resolvedWarranties.length > 0) {
+    <div class="row mb-5">
+      <div class="col-12">
+        <app-section-title [subtitle]="'الضمانات'" [title]="'ضمانات المشروع'" />
+        <app-icon-feature-grid [items]="resolvedWarranties" [variant]="'warranties'" />
+      </div>
     </div>
-  </div>
+  }
+
+  @if (project()!.latitude && project()!.longitude) {
+    <div class="row mb-5">
+      <div class="col-12">
+        <app-section-title [subtitle]="'الموقع'" [title]="'موقع المشروع على الخريطة'" />
+        <app-project-map
+          [lat]="project()!.latitude!"
+          [lng]="project()!.longitude!"
+          [circleRadiusMeters]="computeCircleRadiusMeters(project())"
+          [showNearbyPlaces]="false"
+        />
+      </div>
+    </div>
+  }
 </div>
+} @else {
+  <!-- Gorgeous Skeek Spinner -->
+  <div class="container py-5 text-center" dir="rtl" style="min-height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+    <div class="spinner-border text-success" role="status" style="width: 3.5rem; height: 3.5rem; color: var(--text-green) !important;">
+      <span class="visually-hidden">جاري التحميل...</span>
+    </div>
+    <p class="text-muted mt-3" style="font-family: 'Cairo', sans-serif; font-size: 1.2rem;">جاري تحميل تفاصيل المشروع...</p>
+  </div>
+}
 
 <app-contact-section></app-contact-section>

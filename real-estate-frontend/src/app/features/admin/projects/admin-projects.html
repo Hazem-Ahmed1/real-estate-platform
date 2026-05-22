@@ -1,0 +1,236 @@
+<section class="admin-projects" dir="rtl">
+  <header class="page-header">
+    <div>
+      <h2>إدارة المشاريع</h2>
+      <p>إضافة وتعديل وحذف المشاريع مع الوسائط والمميزات.</p>
+    </div>
+    <button class="btn ghost-btn" type="button" (click)="loadProjects(currentPage())" [disabled]="isLoading()">
+      <i class="fa-solid fa-rotate" aria-hidden="true"></i>
+      تحديث
+    </button>
+  </header>
+
+  @if (errorMessage()) {
+    <p class="error-banner" aria-live="polite">{{ errorMessage() }}</p>
+  }
+
+  <div class="projects-grid">
+    <article class="card form-card">
+      <h3>{{ selectedProject() ? 'تعديل مشروع' : 'إضافة مشروع جديد' }}</h3>
+
+      <form [formGroup]="projectForm" (ngSubmit)="submitForm()">
+          <div class="field">
+            <label for="name">اسم المشروع <span class="required">*</span></label>
+            <input id="name" type="text" formControlName="name" placeholder="اسم المشروع" (blur)="checkProjectName()" />
+            <div class="input-error" *ngIf="projectForm.get('name')?.touched && projectForm.get('name')?.hasError('required')">هذا الحقل مطلوب.</div>
+            <div class="input-error" *ngIf="projectForm.get('name')?.touched && projectForm.get('name')?.hasError('duplicate')">اسم المشروع موجود بالفعل.</div>
+          </div>
+
+        <div class="two-col">
+          <div class="field">
+            <label for="city">المدينة <span class="required">*</span></label>
+            <input id="city" type="text" formControlName="city" placeholder="الرياض" />
+            <div class="input-error" *ngIf="projectForm.get('city')?.touched && projectForm.get('city')?.hasError('required')">هذا الحقل مطلوب.</div>
+          </div>
+          <!-- Region is derived from map; hidden from the form UI but kept in the FormGroup -->
+          <div class="field" style="display:none">
+            <input id="region" type="text" formControlName="region" readonly />
+          </div>
+        </div>
+
+        <!-- Stored full address is generated and kept in the map picker; not shown in the form -->
+
+        <div class="two-col">
+          <div class="field">
+            <label for="latitude">خط العرض <span class="required">*</span></label>
+            <input id="latitude" type="number" step="0.000001" formControlName="latitude" />
+            <div class="input-error" *ngIf="projectForm.get('latitude')?.touched && projectForm.get('latitude')?.hasError('required')">هذا الحقل مطلوب.</div>
+          </div>
+          <div class="field">
+            <label for="longitude">خط الطول <span class="required">*</span></label>
+            <input id="longitude" type="number" step="0.000001" formControlName="longitude" />
+            <div class="input-error" *ngIf="projectForm.get('longitude')?.touched && projectForm.get('longitude')?.hasError('required')">هذا الحقل مطلوب.</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="field">
+            <button class="btn ghost-btn" type="button" (click)="openMap()">اختر من الخريطة</button>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="field">
+            <label for="landArea">مساحة الأرض (م²) <span class="required">*</span></label>
+            <input id="landArea" type="number" formControlName="landArea" />
+            <div class="input-error" *ngIf="projectForm.get('landArea')?.touched && projectForm.get('landArea')?.hasError('required')">هذا الحقل مطلوب.</div>
+          </div>
+          <div class="field">
+            <label for="buildUpArea">مساحة البناء (م²) <span class="required">*</span></label>
+            <input id="buildUpArea" type="number" formControlName="buildUpArea" />
+            <div class="input-error" *ngIf="projectForm.get('buildUpArea')?.touched && projectForm.get('buildUpArea')?.hasError('required')">هذا الحقل مطلوب.</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="field" *ngIf="!selectedProject() || ((selectedProject()?.buildingsNumber ?? 0) === 0 && (selectedProject()?.unitsNumber ?? 0) === 0)">
+            <label for="status">الحالة</label>
+            <select id="status" formControlName="status">
+              @for (status of statusOptionsForForm(); track status) {
+                <option [value]="status">{{ translateStatusLabel(status) }}</option>
+              }
+            </select>
+          </div>
+          <div class="field"></div>
+        </div>
+
+        <div class="field">
+          <label>المميزات</label>
+          <div class="options-grid">
+            @for (feature of features(); track feature.featureId) {
+              <label class="option-pill">
+                <input
+                  type="checkbox"
+                  [checked]="selectedFeatureIds().has(feature.featureId)"
+                  (change)="toggleFeature(feature.featureId, $event)"
+                />
+                <span>{{ feature.name }}</span>
+              </label>
+            }
+          </div>
+        </div>
+
+        <div class="field">
+          <label>الضمانات</label>
+          <div class="options-grid">
+            @for (insurance of insurances(); track insurance.insuranceId) {
+              <label class="option-pill">
+                <input
+                  type="checkbox"
+                  [checked]="selectedInsuranceIds().has(insurance.insuranceId)"
+                  (change)="toggleInsurance(insurance.insuranceId, $event)"
+                />
+                <span>{{ insurance.name }}</span>
+              </label>
+            }
+          </div>
+        </div>
+
+        <div class="field">
+          <label>الصورة الرئيسية</label>
+          <label class="file-input">
+            <input type="file" accept="image/*" (change)="onThumbnailChange($event)" />
+            <span class="file-button">رفع صورة</span>
+            <span class="file-name">{{ thumbnailName() }}</span>
+          </label>
+        </div>
+
+        <div class="field">
+          <label>صور إضافية</label>
+          <label class="file-input">
+            <input type="file" accept="image/*" multiple (change)="onImagesChange($event)" />
+            <span class="file-button">رفع صور</span>
+            <span class="file-name">{{ imagesSummary() }}</span>
+          </label>
+        </div>
+
+        <div class="two-col">
+          <div class="field">
+            <label>بانوراما 360</label>
+            <label class="file-input">
+              <input type="file" accept="image/*" (change)="onPanoramaChange($event)" />
+              <span class="file-button">رفع ملف</span>
+              <span class="file-name">{{ panoramaName() }}</span>
+            </label>
+          </div>
+          <div class="field">
+            <label>فيديو المشروع</label>
+            <label class="file-input">
+              <input type="file" accept="video/*" (change)="onVideoChange($event)" />
+              <span class="file-button">رفع ملف</span>
+              <span class="file-name">{{ videoName() }}</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary-btn" type="submit" [disabled]="isSaving() || projectForm.invalid">
+            {{ selectedProject() ? 'حفظ التعديلات' : 'إضافة المشروع' }}
+          </button>
+          <button class="btn ghost-btn" type="button" (click)="clearSelection()" [disabled]="isSaving()">
+            إلغاء
+          </button>
+        </div>
+      </form>
+    </article>
+
+    <article class="card list-card">
+      <div class="list-head">
+        <h3>المشاريع</h3>
+        <span>{{ isLoading() ? 'جاري التحميل...' : (projects().length + ' عنصر') }} — صفحة {{ currentPage() }}/{{ totalPages() }}</span>
+      </div>
+
+      <div class="list-body">
+        @if (!isLoading() && projects().length === 0) {
+          <p class="empty-state">لا توجد مشاريع حالياً</p>
+        }
+
+        @for (project of projects(); track project.projectId) {
+          <div class="row-card" [class.active]="selectedProject()?.projectId === project.projectId">
+            <div class="row-info" (click)="selectProject(project)">
+              <div>
+                <h4>{{ project.name }}</h4>
+                <p>{{ project.city }}@if (project.region) { - {{ project.region }} } | {{ translateStatusLabel(project.status) }}</p>
+                <div class="row-meta">
+                  <span class="badge">مباني: {{ project.buildingsNumber }}</span>
+                  <span class="badge">وحدات: {{ project.unitsNumber }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="row-actions">
+              <button class="btn tiny-btn" type="button" (click)="selectProject(project)">تعديل</button>
+              <button class="btn tiny-btn danger" type="button" (click)="deleteProject(project)" [disabled]="isSaving()">
+                حذف
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="pagination">
+        <button class="btn ghost-btn" type="button" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() <= 1">
+          السابق
+        </button>
+        <span>صفحة {{ currentPage() }} من {{ totalPages() }}</span>
+        <button class="btn ghost-btn" type="button" (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() >= totalPages()">
+          التالي
+        </button>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- Map Picker Modal -->
+<div *ngIf="showMap()" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>اختر الموقع على الخريطة</h3>
+      <button class="icon-btn" (click)="closeMap()">✖</button>
+    </div>
+    <div class="modal-body">
+      <app-project-map
+        [lat]="mapLat()"
+        [lng]="mapLng()"
+        [query]="mapQuery()"
+        [circleRadiusMeters]="mapCircleMeters()"
+        mapMode="projectPicker"
+        [showNearbyPlaces]="false"
+        [allowSelect]="true"
+        (selection)="onMapSelection($event)">
+      </app-project-map>
+    </div>
+    <div class="modal-footer">
+      <button class="btn ghost-btn" type="button" (click)="closeMap()">إغلاق</button>
+    </div>
+  </div>
+</div>

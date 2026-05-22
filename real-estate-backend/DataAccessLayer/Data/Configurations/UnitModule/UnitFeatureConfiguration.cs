@@ -1,10 +1,3 @@
-using DataAccessLayer.Entities;
-using DataAccessLayer.Entities.ProjectModule;
-using DataAccessLayer.Entities.UnitModule;
-using DataAccessLayer.Entities.BlogModule;
-using DataAccessLayer.Entities.AIModule;
-using DataAccessLayer.Entities.LookupModule;
-using DataAccessLayer.Entities.CommunicationModule;
 
 
 using Microsoft.EntityFrameworkCore;
@@ -21,11 +14,13 @@ public class UnitFeatureConfiguration : IEntityTypeConfiguration<UnitFeature>
 
         builder.HasOne(uf => uf.Unit)
             .WithMany(u => u.UnitFeatures)
-            .HasForeignKey(uf => uf.UnitId);
+            .HasForeignKey(uf => uf.UnitId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(uf => uf.Feature)
             .WithMany(f => f.UnitFeatures)
-            .HasForeignKey(uf => uf.FeatureId);
+            .HasForeignKey(uf => uf.FeatureId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
 

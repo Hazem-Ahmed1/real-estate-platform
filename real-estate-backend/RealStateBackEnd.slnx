@@ -1,5 +1,6 @@
 <Solution>
-  <Project Path="APILayer/APILayer.csproj" />
-  <Project Path="BusinessLogicLayer/BusinessLogicLayer.csproj" />
-  <Project Path="DataAccessLayer/DataAccessLayer.csproj" />
+
+  <Project Path="D:/ITI/1.Hazem Ahmed/real_State Project/real-estate-platform/real-estate-backend/APILayer/APILayer.csproj" />
+  <Project Path="D:/ITI/1.Hazem Ahmed/real_State Project/real-estate-platform/real-estate-backend/BusinessLogicLayer/BusinessLogicLayer.csproj" />
+  <Project Path="D:/ITI/1.Hazem Ahmed/real_State Project/real-estate-platform/real-estate-backend/DataAccessLayer/DataAccessLayer.csproj" />
 </Solution>

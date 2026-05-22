@@ -1,11 +1,5 @@
-using DataAccessLayer.Entities;
-using DataAccessLayer.Entities.ProjectModule;
-using DataAccessLayer.Entities.UnitModule;
-using DataAccessLayer.Entities.BlogModule;
-using DataAccessLayer.Entities.AIModule;
-using DataAccessLayer.Entities.LookupModule;
-using DataAccessLayer.Entities.CommunicationModule;
-using DataAccessLayer.Enums;
+
+using System.ComponentModel.DataAnnotations;
 
 namespace DataAccessLayer.Entities.LookupModule;
 
@@ -15,6 +9,10 @@ public class Insurance : BaseEntity
 
     public string Name { get; set; } = null!;
 
+    [Range(1, 100)]
+    public int Duration { get; set; }
+
+    public bool IsActive { get; set; } = true;
     public ICollection<ProjectInsurance> ProjectInsurance { get; set; } = new List<ProjectInsurance>();
     public ICollection<UnitInsurance> UnitInsurance { get; set; } = new List<UnitInsurance>();
 }

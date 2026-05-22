@@ -1,10 +1,3 @@
-using DataAccessLayer.Entities;
-using DataAccessLayer.Entities.ProjectModule;
-using DataAccessLayer.Entities.UnitModule;
-using DataAccessLayer.Entities.BlogModule;
-using DataAccessLayer.Entities.AIModule;
-using DataAccessLayer.Entities.LookupModule;
-using DataAccessLayer.Entities.CommunicationModule;
 
 
 using Microsoft.EntityFrameworkCore;
@@ -21,11 +14,13 @@ public class UnitInsuranceConfiguration : IEntityTypeConfiguration<UnitInsurance
 
         builder.HasOne(ui => ui.Unit)
             .WithMany(u => u.UnitInsurance)
-            .HasForeignKey(ui => ui.UnitId);
+            .HasForeignKey(ui => ui.UnitId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(ui => ui.Insurance)
             .WithMany(i => i.UnitInsurance)
-            .HasForeignKey(ui => ui.InsuranceId);
+            .HasForeignKey(ui => ui.InsuranceId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
 

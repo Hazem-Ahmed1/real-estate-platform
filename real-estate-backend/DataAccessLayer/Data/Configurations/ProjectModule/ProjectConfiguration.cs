@@ -1,14 +1,6 @@
-using DataAccessLayer.Entities;
-using DataAccessLayer.Entities.ProjectModule;
-using DataAccessLayer.Entities.UnitModule;
-using DataAccessLayer.Entities.BlogModule;
-using DataAccessLayer.Entities.AIModule;
-using DataAccessLayer.Entities.LookupModule;
-using DataAccessLayer.Entities.CommunicationModule;
-
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Reflection.Emit;
 
 namespace DataAccessLayer.Data.Configurations;
 
@@ -24,8 +16,10 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
         
         builder.Property(p => p.Status).HasConversion<string>().HasMaxLength(50);
         builder.Property(p => p.City).HasMaxLength(100);
-        builder.Property(p => p.Area).HasMaxLength(100);
+        builder.Property(p => p.Region)
+            .HasMaxLength(200);
         builder.Property(p => p.Address).HasMaxLength(255);
+
 
         builder.Property(p => p.CreatedAt).HasDefaultValueSql("GETDATE()");
 
@@ -33,7 +27,7 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
         builder.HasMany(p => p.Buildings)
             .WithOne(b => b.Project)
             .HasForeignKey(b => b.ProjectId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         // One-to-Many: Project -> Media
         builder.HasMany(p => p.Media)

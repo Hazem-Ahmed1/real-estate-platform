@@ -1,10 +1,3 @@
-using DataAccessLayer.Entities;
-using DataAccessLayer.Entities.ProjectModule;
-using DataAccessLayer.Entities.UnitModule;
-using DataAccessLayer.Entities.BlogModule;
-using DataAccessLayer.Entities.AIModule;
-using DataAccessLayer.Entities.LookupModule;
-using DataAccessLayer.Entities.CommunicationModule;
 
 
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +12,8 @@ public class InsuranceConfiguration : IEntityTypeConfiguration<Insurance>
         builder.ToTable("Insurance");
         builder.HasKey(i => i.InsuranceId);
         builder.Property(i => i.Name).IsRequired().HasMaxLength(255);
-        builder.HasIndex(i => i.Name);
+        builder.HasIndex(i => i.Name).IsUnique();
+
     }
 }
 

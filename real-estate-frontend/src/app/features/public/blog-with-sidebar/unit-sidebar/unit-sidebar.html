@@ -2,7 +2,7 @@
 
   <div class="">
     @if (units.length > 0) {
-      @for (unit of units; track unit.title; let last = $last) {
+      @for (unit of units; track unit.name; let last = $last) {
         <div class="unit-sidebar__item" [class.last]="last">
           <app-unit-card
             [unit]="unit"

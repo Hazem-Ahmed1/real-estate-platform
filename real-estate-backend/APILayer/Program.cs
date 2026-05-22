@@ -24,6 +24,9 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
+        Console.OutputEncoding = Encoding.UTF8;
+        Console.InputEncoding = Encoding.UTF8;
+
         var builder = WebApplication.CreateBuilder(args);
 
         // --- 1. Add services to the container ---
@@ -112,6 +115,13 @@ public class Program
         builder.Services.AddScoped<IBlogService, BlogService>();
         builder.Services.AddScoped<IMessageService, MessageService>();
 
+        builder.Services.AddScoped<IUnitService, UnitService>();
+        builder.Services.AddScoped<IBuildingService, BuildingService>();
+        builder.Services.AddScoped<ILookupService, LookupService>();
+        builder.Services.AddScoped<IDashboardService, DashboardService>();
+        builder.Services.AddScoped<IFilterOptionsService, FilterOptionsService>();
+
+
         // Cloudinary Settings
         builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 
@@ -128,6 +138,7 @@ public class Program
             });
         });
 
+        builder.Services.AddHttpClient();
 
         var app = builder.Build();
 

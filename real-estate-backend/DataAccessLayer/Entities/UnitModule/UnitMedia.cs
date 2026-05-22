@@ -1,5 +1,3 @@
-using DataAccessLayer.Entities;
-using DataAccessLayer.Enums;
 
 namespace DataAccessLayer.Entities.UnitModule;
 
@@ -17,4 +15,5 @@ public class UnitMedia : AuditableEntity
     public string? ThumbnailUrl { get; set; }
 
     public bool IsThumbnail { get; set; }
+    public string? PublicId { get; set; }
 }

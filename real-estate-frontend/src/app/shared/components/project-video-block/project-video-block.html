@@ -4,19 +4,6 @@
     class="video-frame"
     [class.video-frame--started]="started()"
     [class.video-frame--settings-open]="settingsOpen()">
-    @if (!started()) {
-      <button
-        type="button"
-        class="video-poster-button"
-        aria-label="تشغيل فيديو المشروع"
-        (click)="playFromPoster()">
-        <img class="video-poster-image" [src]="poster()" alt="غلاف فيديو المشروع" />
-        <span class="video-poster-gradient" aria-hidden="true"></span>
-        <span class="video-center-play" aria-hidden="true">
-          <i class="fa-solid fa-play"></i>
-        </span>
-      </button>
-    }
 
     <button
       type="button"
@@ -26,13 +13,24 @@
       <i class="fa-solid fa-expand"></i>
     </button>
 
+    @if (!started()) {
+      <button
+        type="button"
+        class="video-poster-button"
+        style="background: transparent;"
+        (click)="playFromPoster()">
+        <div class="video-center-play" aria-hidden="true">
+          <i class="fa-solid fa-play"></i>
+        </div>
+      </button>
+    }
+
     <video
       #videoElement
       class="project-video"
       playsinline
       disablePictureInPicture
       preload="metadata"
-      [poster]="poster()"
       [class.project-video--active]="started()"
       (loadedmetadata)="onLoadedMetadata()"
       (timeupdate)="onTimeUpdate()"

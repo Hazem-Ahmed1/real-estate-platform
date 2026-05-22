@@ -15,7 +15,7 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
         return new PaginatedResult<ProjectListDto>(@params.Page, @params.PageSize, totalItems, data);
     }
 
-    public async Task<ProjectDetailsDto?> GetProjectByIdAsync(int id, bool publicOnly = false)
+    public async Task<ProjectDetailsDto?> GetProjectByIdAsync(int id)
     {
         var spec = new ProjectWithBuildingsSpecification(id);
         var project = await unitOfWork.Repository<Project>().GetByIdAsync(spec);
@@ -23,8 +23,38 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
         if (project == null)
             return null;
 
+        var dto = mapper.Map<ProjectDetailsDto>(project);
+        
+        // 1. Calculate Buildings count directly from DB
+        dto.BuildingsNumber = await unitOfWork.Repository<Building>().CountAsync(new BuildingsByProjectSpecification(id));
+        
+        // 2. Calculate Units count, rooms, halls, min/max price from units in project
+        var unitSpec = new UnitsByProjectSpecification(id);
+        var units = await unitOfWork.Repository<Unit>().GetAllAsync(unitSpec);
+        
+        dto.UnitsNumber = units.Count();
+        dto.AvailableUnitsCount = units.Count(u => u.Status == UnitStatus.Sale || u.Status == UnitStatus.Rent);
+        dto.TransactedUnitsCount = units.Count(u => u.Status == UnitStatus.Sold || u.Status == UnitStatus.Rented);
+        
+        if (units.Any())
+        {
+            dto.MinPrice = units.Min(u => u.Price);
+            dto.MaxPrice = units.Max(u => u.Price);
+            dto.TotalRooms = units.Sum(u => u.Rooms);
+            dto.TotalHalls = units.Sum(u => u.Salons);
+        }
+        else
+        {
+            dto.MinPrice = 0;
+            dto.MaxPrice = 0;
+            dto.TotalRooms = 0;
+            dto.TotalHalls = 0;
+        }
 
-        return mapper.Map<ProjectDetailsDto>(project);
+        // 3. Clear buildings list completely as requested!
+        dto.Buildings = new List<BuildingDto>();
+
+        return dto;
     }
 
     public async Task<ProjectDetailsDto> CreateProjectAsync(ProjectCreateDto projectDto)
@@ -32,6 +62,11 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
         ValidateMediaFiles(projectDto.ThumbnailImage, projectDto.Images, projectDto.Panorama360, projectDto.VideoFile);
 
         // 1. Initial Validation
+        var initialStatus = projectDto.Status is ProjectStatus.Sale or ProjectStatus.Rent
+            ? projectDto.Status
+            : ProjectStatus.Sale;
+        projectDto.Status = initialStatus;
+
         if (projectDto.BuildUpArea > projectDto.LandArea)
             throw new BadRequestException("Build-up area must be less than or equal to Land area.");
 
@@ -45,7 +80,6 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
             throw new ConflictException("Project with the same name already exists.");
 
         var project = mapper.Map<Project>(projectDto);
-        project.IsStatusChanged = false;
 
         if (projectDto.FeatureIds.Any())
         {
@@ -145,39 +179,21 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
         var oldStatus = existing.Status;
         var newStatus = projectDto.Status;
 
+        // Load project with buildings and units to evaluate restrictions
+        var projectWithUnits = await unitOfWork.Repository<Project>().GetByIdAsync(new ProjectWithBuildingsSpecification(id));
+        var projectUnits = projectWithUnits?.Buildings.SelectMany(b => b.Units).ToList() ?? new List<Unit>();
+
+        // Requirement: Project status can only be changed on update when the project does NOT have any buildings.
+        // If there are buildings, disallow any status change (even within the same path).
         if (oldStatus != newStatus)
         {
-            // 1. Terminal Check: Sold cannot go back to Sale
-            if (oldStatus == ProjectStatus.Sold && newStatus == ProjectStatus.Sale)
+            if (projectWithUnits != null && projectWithUnits.Buildings.Any())
             {
-                throw new BadRequestException("لا يمكن تحويل المشروع من حالة 'مباع بالكامل' (Sold) إلى 'للبيع' (Sale) مرة أخرى.");
-            }
-
-            // 2. Path Separation: No crossing between Sale and Rent paths
-            if ((oldStatus == ProjectStatus.Sale || oldStatus == ProjectStatus.Sold) && 
-                (newStatus == ProjectStatus.Rent || newStatus == ProjectStatus.Rented))
-            {
-                throw new BadRequestException($"لا يمكن تحويل المشروع من مسار البيع ({oldStatus}) إلى مسار الإيجار ({newStatus}).");
-            }
-
-            if ((oldStatus == ProjectStatus.Rent || oldStatus == ProjectStatus.Rented) && 
-                (newStatus == ProjectStatus.Sale || newStatus == ProjectStatus.Sold))
-            {
-                throw new BadRequestException($"لا يمكن تحويل المشروع من مسار الإيجار ({oldStatus}) إلى مسار البيع ({newStatus}).");
+                throw new BadRequestException("لا يمكن تغيير حالة المشروع بعد إضافة مبانٍ. قم بحذف المباني أولاً إن أردت تغيير المسار.");
             }
         }
 
         mapper.Map(projectDto, existing);
-
-
-        if (oldStatus != existing.Status)
-            existing.IsStatusChanged = true;
-
-        // Ensure explicit override from DTO if provided (since it's only modifiable in Edit)
-        if (projectDto.IsStatusChanged)
-            existing.IsStatusChanged = true;
-        else if (existing.IsStatusChanged && !projectDto.IsStatusChanged)
-            existing.IsStatusChanged = false; // User can manually reset it
 
 
         var currentFeatureIds = existing.ProjectFeatures.Select(pf => pf.FeatureId).ToList();
@@ -215,40 +231,25 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
         }
 
         // Recalculate Project Stats & Status
-        var projectWithUnits = await unitOfWork.Repository<Project>().GetByIdAsync(new ProjectWithBuildingsSpecification(id));
         if (projectWithUnits != null)
         {
             var allUnits = projectWithUnits.Buildings.SelectMany(b => b.Units).ToList();
-            var statusBefore = existing.Status;
-            existing.Status = DeriveProjectStatus(allUnits, existing.Status);
 
-            if (statusBefore != existing.Status)
-                existing.IsStatusChanged = true;
-
-            bool isSale = existing.Status == ProjectStatus.Sale || existing.Status == ProjectStatus.Sold;
-
-            if (isSale)
+            // 1. Update each building's derived status
+            foreach (var b in projectWithUnits.Buildings)
             {
-                existing.AvailableUnitsCount = allUnits.Count(u => u.Status == UnitStatus.Sale);
-                existing.TransactedUnitsCount = allUnits.Count(u => u.Status == UnitStatus.Sold);
-            }
-            else
-            {
-                existing.AvailableUnitsCount = allUnits.Count(u => u.Status == UnitStatus.Rent);
-                existing.TransactedUnitsCount = allUnits.Count(u => u.Status == UnitStatus.Rented);
-            }
-
-
-            // Recalculate Building FloorCounts and Project Area/Status
-            var projectBuildings = projectWithUnits.Buildings.ToList();
-            foreach (var b in projectBuildings)
-            {
+                b.Status = ProjectLogicHelpers.DeriveBuildingStatus(b.Type, b.Units);
                 b.FloorCount = b.Units.Any() ? b.Units.Max(u => u.Floor) : 0;
                 unitOfWork.Repository<Building>().Update(b);
             }
 
-            // TotalBuildingArea = Σ (BuildingArea_i) + Σ (Max unit area in Building_i)
-            existing.TotalBuildingArea = projectBuildings.Sum(b => b.BuildingArea + (b.Units.Any() ? b.Units.Max(u => u.Area) : 0));
+            // 2. Update project status
+            var oldStatusValue = existing.Status;
+            existing.Status = ProjectLogicHelpers.DeriveProjectStatus(allUnits, existing.Status);
+
+            existing.AvailableUnitsCount  = allUnits.Count(u => u.Status == UnitStatus.Sale   || u.Status == UnitStatus.Rent);
+            existing.TransactedUnitsCount = allUnits.Count(u => u.Status == UnitStatus.Sold   || u.Status == UnitStatus.Rented);
+            existing.TotalBuildingArea    = projectWithUnits.Buildings.Sum(b => b.BuildingArea);
         }
 
 
@@ -360,40 +361,55 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
         if (project == null)
             throw new NotFoundExpection("Project", id);
 
-        if (project.Status == ProjectStatus.Sold || project.Status == ProjectStatus.Rented)
-            throw new BadRequestException("Cannot delete a project that has reached Sold or Rented status.");
+        var cloudinaryImagesToDelete = new List<string>();
+        var cloudinaryVideosToDelete = new List<string>();
 
-        var hasBuildings = await unitOfWork.Repository<Building>()
-            .AnyAsync(b => b.ProjectId == id);
-            
-        if (hasBuildings)
-            throw new BadRequestException("Cannot delete a project that still has buildings. Delete the buildings first.");
+        // 1. Get all units and their media under this project
+        var unitSpec = new UnitsByProjectSpecification(id);
+        var units = await unitOfWork.Repository<Unit>().GetAllAsync(unitSpec);
 
-
-        var publicMediaToDelete = new List<(string PublicId, MediaType Type)>();
-
-        if (project.Media.Count > 0)
+        foreach (var unit in units)
         {
-            var mediaRepo = unitOfWork.Repository<ProjectMedia>();
-            foreach (var m in project.Media.ToList())
+            foreach (var m in unit.Media.ToList())
             {
                 if (!string.IsNullOrEmpty(m.PublicId))
                 {
-                    publicMediaToDelete.Add((m.PublicId, m.Type));
+                    if (m.Type == MediaType.Video) cloudinaryVideosToDelete.Add(m.PublicId);
+                    else cloudinaryImagesToDelete.Add(m.PublicId);
                 }
-                mediaRepo.Remove(m);
+                unitOfWork.Repository<UnitMedia>().Remove(m);
             }
+            unitOfWork.Repository<Unit>().Remove(unit);
         }
+
+        // 2. Remove all buildings in the project
+        var buildings = await unitOfWork.Repository<Building>()
+            .GetAllAsync(new BuildingsByProjectSpecification(id));
+        foreach (var building in buildings)
+        {
+            unitOfWork.Repository<Building>().Remove(building);
+        }
+
+        // 3. Collect project's own media
+        foreach (var m in project.Media.ToList())
+        {
+            if (!string.IsNullOrEmpty(m.PublicId))
+            {
+                if (m.Type == MediaType.Video) cloudinaryVideosToDelete.Add(m.PublicId);
+                else cloudinaryImagesToDelete.Add(m.PublicId);
+            }
+            unitOfWork.Repository<ProjectMedia>().Remove(m);
+        }
+
+        // 4. Remove project itself
         unitOfWork.Repository<Project>().Remove(project);
+
+        // 5. Complete Database Transaction
         await unitOfWork.CompleteAsync();
 
-        foreach (var m in publicMediaToDelete)
-        {
-            if (m.Type == MediaType.Video)
-                await mediaService.DeleteVideoAsync(m.PublicId);
-            else
-                await mediaService.DeleteImageAsync(m.PublicId);
-        }
+        // 6. Clean up Cloudinary after successful DB commit
+        foreach (var pid in cloudinaryImagesToDelete) await mediaService.DeleteImageAsync(pid);
+        foreach (var pid in cloudinaryVideosToDelete) await mediaService.DeleteVideoAsync(pid);
 
         return mapper.Map<ProjectDetailsDto>(project);
     }
@@ -427,10 +443,6 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
         }
     }
 
-    private static ProjectStatus DeriveProjectStatus(IEnumerable<DataAccessLayer.Entities.UnitModule.Unit> units, ProjectStatus currentStatus)
-    {
-        return BusinessLogicLayer.Helpers.ProjectLogicHelpers.DeriveProjectStatus(units, currentStatus);
-    }
 
     private void ValidateMediaFiles(Microsoft.AspNetCore.Http.IFormFile? thumbnail, List<Microsoft.AspNetCore.Http.IFormFile>? images, Microsoft.AspNetCore.Http.IFormFile? panorama, Microsoft.AspNetCore.Http.IFormFile? video)
     {

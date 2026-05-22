@@ -1,13 +1,32 @@
 <app-breadcrumb [items]="[{ label: 'الرئيسية', url: '/' }, { label: 'الوحــــدات' }]" />
 
-<div class="container">
+<div class="container" dir="rtl">
   <app-filters
     subTitle="وحــداتنا"
-    title="الوحــــدات الأكـــثر مبيـــعا"
+    title="الوحــــدات الحاليــــة"
+    (filterChange)="onFilterChange($event)"
   ></app-filters>
 
-  <app-units-list [units]="units"></app-units-list>
-  <app-pagination [currentPage]="currentPage" [totalPages]="10" (pageChange)="onPageChange($event)"/>
+  @if (isLoading()) {
+    <!-- Gorgeous Sleek Spinner -->
+    <div class="text-center py-5" style="min-height: 40vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <div class="spinner-border text-success" role="status" style="width: 3.5rem; height: 3.5rem; color: var(--text-green) !important;">
+        <span class="visually-hidden">جاري التحميل...</span>
+      </div>
+      <p class="text-muted mt-3" style="font-family: 'Cairo', sans-serif;">جاري تحميل الوحدات...</p>
+    </div>
+  } @else {
+    @if (units().length === 0) {
+      <div class="text-center py-5 bg-white rounded shadow-sm border mb-5">
+        <i class="fa-solid fa-building-circle-xmark text-muted mb-3" style="font-size: 48px;"></i>
+        <h4 class="text-secondary font-weight-bold">{{ getEmptyStateMessage() }}</h4>
+        <p class="text-muted mt-2">يرجى تعديل خيارات الفلترة والمحاولة مرة أخرى.</p>
+      </div>
+    } @else {
+      <app-units-list [units]="units()"></app-units-list>
+      <app-pagination [currentPage]="currentPage()" [totalPages]="totalPages()" (pageChange)="onPageChange($event)"/>
+    }
+  }
 
 </div>
 <app-contact-section></app-contact-section>

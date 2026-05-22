@@ -1,3 +1,46 @@
+:host {
+  display: block;
+}
+
+.admin-dashboard {
+  display: grid;
+  gap: 20px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.page-header h2 {
+  margin: 0 0 6px;
+}
+
+.page-header p {
+  margin: 0;
+  color: var(--admin-text-muted);
+}
+
+.btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.primary-btn {
+  background: var(--admin-primary-600);
+  color: var(--admin-white);
+}
+
+.ghost-btn {
+  background: var(--admin-bg-control);
+  color: var(--admin-text-primary);
+}
+
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -86,7 +129,8 @@
 .chart-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 16px;
+  gap: 24px;
+  margin-bottom: 32px;
 }
 
 .card {
@@ -120,8 +164,8 @@
   background: var(--admin-bg-control);
   color: var(--admin-text-muted);
   border-radius: 8px;
-  padding: 6px 10px;
-  font-size: 12px;
+  padding: 8px 12px;
+  font-size: 13px;
 }
 
 .mini-btn-active {
@@ -133,6 +177,7 @@
 .chart-area {
   position: relative;
   min-height: 260px;
+  margin-bottom: 24px; /* space below chart bars */
 }
 
 .chart-bars {
@@ -145,8 +190,65 @@
   gap: 4px;
 }
 
-.chart-bar {
+.chart-bar-container {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  height: 100%;
+  gap: 4px;
+}
+
+.chart-bar-label {
+  font-size: 10px;
+  color: var(--admin-text-subtle);
+  white-space: nowrap;
+}
+
+.loading-state,
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  gap: 16px;
+  background: var(--admin-white);
+  border-radius: 16px;
+  border: 1px solid var(--admin-border-soft);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--admin-primary-100);
+  border-top-color: var(--admin-primary-600);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-state i {
+  font-size: 48px;
+  color: var(--admin-red-500);
+}
+
+.retry-btn {
+  background: var(--admin-primary-600);
+  color: var(--admin-white);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.chart-bar {
+  width: 100%;
   border-radius: 8px 8px 0 0;
 }
 
@@ -210,8 +312,10 @@
   inset: 16px;
   border-radius: 50%;
   background: var(--admin-white);
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   text-align: center;
 }
 

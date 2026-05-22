@@ -77,7 +77,10 @@ public class MediaService : IMediaService
     }
     public async Task<bool> DeleteImageAsync(string publicId)
     {
-        var deleteParams = new DeletionParams(publicId);
+        var deleteParams = new DeletionParams(publicId)
+        {
+            Invalidate = true
+        };
         var result = await _cloudinary.DestroyAsync(deleteParams);
 
         return result.Result == "ok";
@@ -87,7 +90,8 @@ public class MediaService : IMediaService
     {
         var deleteParams = new DeletionParams(publicId)
         {
-            ResourceType = ResourceType.Video
+            ResourceType = ResourceType.Video,
+            Invalidate = true
         };
         var result = await _cloudinary.DestroyAsync(deleteParams);
 

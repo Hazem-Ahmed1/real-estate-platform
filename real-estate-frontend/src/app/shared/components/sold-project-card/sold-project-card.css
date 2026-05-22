@@ -122,8 +122,8 @@
 .feature {
   display: flex;
   align-items: center;
-  gap: 5px;
-  margin-left: 7px;
+  gap: 2px;
+  margin-left: 2px;
   white-space: nowrap;
   justify-content: flex-start;
 }

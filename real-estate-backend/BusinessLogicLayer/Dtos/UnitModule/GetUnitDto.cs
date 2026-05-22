@@ -25,11 +25,13 @@ public class GetUnitDto
 
     public UnitType Type { get; set; }
     public UnitStatus Status { get; set; }
-    public bool? IsStatusChanged { get; set; }
 
     public int StreetCount { get; set; }
 
+    public string? City { get; set; }
+    public string? Region { get; set; }
     public string? Street { get; set; }
+    public string? Address { get; set; }
     
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }

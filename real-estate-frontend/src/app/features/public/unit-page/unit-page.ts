@@ -15,17 +15,21 @@ import { ImageCard } from "./image-card/image-card";
 export class UnitPage {
 
  unit: UnitCardModel = {
-  title: 'وحدة / عمارة',
-  location: 'جدة - حي العزيزية',
-  price: '200,000 ر.س',
-  type: 'متاح للبيع',
-  imageURL: 'images/p1.jpg',
-
-  beds: 4,
-  baths: 3,
-  lounges: 2,
-  area: '148 م²',
-  streetsText: 'شارعين'
+  unitId: 1,
+  name: 'وحدة / عمارة',
+  address: 'جدة - حي العزيزية',
+  price: 200000,
+  status: 'Sale',
+  type: 'Apartment',
+  thumbnailUrl: 'images/p1.jpg',
+  rooms: 4,
+  salons: 2,
+  area: 148,
+  streetCount: 2,
+  projectName: 'مشروع العزيزية',
+  buildingName: 'عمارة 1',
+  city: 'جدة',
+  region: 'العزيزية'
 };
 
 

@@ -11,14 +11,14 @@ namespace APILayer.Controllers.Admin;
 public class BuildingsController(IBuildingService buildingService) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult> GetAllAdminBuildings([FromQuery] int? projectId)
+    public async Task<ActionResult> GetBuildings([FromQuery] int? projectId)
     {
         var result = await buildingService.GetAllBuildingsAsync(projectId);
         return Ok(result);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult> GetAdminBuilding(int id)
+    public async Task<ActionResult> GetBuilding(int id)
     {
         var result = await buildingService.GetBuildingByIdAsync(id);
         return Ok(result);

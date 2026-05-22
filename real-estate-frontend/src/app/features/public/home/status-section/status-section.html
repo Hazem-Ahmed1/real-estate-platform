@@ -15,70 +15,79 @@
 
         <!-- NUMBERS -->
         <div class="numbers d-flex justify-content-start gap-4">
-          <div>
-            <h4>12 <span>+</span></h4>
-            <p>عدد المشاريع</p>
-          </div>
+          @if (!hasLoaded()) {
+            <div class="text-muted">جاري التحميل...</div>
+          } @else {
+            <div>
+              <h4>{{ totalProjects() }} <span>+</span></h4>
+              <p>عدد المشاريع</p>
+            </div>
 
-          <div>
-            <h4>48 <span>+</span></h4>
-            <p>عدد الوحدات السكنية</p>
-          </div>
+            <div>
+              <h4>{{ totalUnits() }} <span>+</span></h4>
+              <p>عدد الوحدات السكنية</p>
+            </div>
 
-          <div>
-            <h4>10 <span>+</span></h4>
-            <p>سنوات من الخبرة</p>
-          </div>
+            <div>
+              <h4>10 <span>+</span></h4>
+              <p>سنوات من الخبرة</p>
+            </div>
+          }
         </div>
       </div>
       <!-- LEFT: CARDS -->
       <div class="col-lg-6">
         <div class="row g-3">
-          <div class="col-lg-7  col-12">
-            <div class="stat-card">
-              <img src="images/p1.jpg" />
-              <div class="overlay"></div>
-              <div class="content">
-                <h3>1.200.00 <span>+</span></h3>
-                <p>مسطحات بـــناء</p>
+          @if (!hasLoaded()) {
+            <div class="text-muted text-center w-100 py-5">جاري التحميل...</div>
+          } @else {
+            <div class="col-lg-7 col-12">
+              <div class="stat-card">
+                <img src="images/p1.jpg" alt="سنوات من الخبرة" />
+                <div class="overlay"></div>
+                <div class="content">
+                  <h3>10 <span>+</span></h3>
+                  <p>سنوات من الخبرة</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="col-lg-5 col-12">
-            <div class="stat-card">
-              <img src="images/p2.jpg" />
-              <div class="overlay"></div>
-              <div class="content">
-                <h3>1159<span>+</span></h3>
-                <p> مشـــروع سكني</p>
+            <div class="col-lg-5 col-12">
+              <div class="stat-card">
+                <img src="images/p2.jpg" alt="مشروع سكني" />
+                <div class="overlay"></div>
+                <div class="content">
+                  <h3>{{ totalProjects() }} <span>+</span></h3>
+                  <p>مشـــروع سكني</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="col-lg-5 col-12">
-            <div class="stat-card">
-              <img src="images/p3.jpg" />
-              <div class="overlay"></div>
-              <div class="content">
-                <h3>472 <span>+</span></h3>
-                <p>بــناية سكنية</p>
+            <div class="col-lg-5 col-12">
+              <div class="stat-card">
+                <img src="images/p3.jpg" alt="بناية سكنية" />
+                <div class="overlay"></div>
+                <div class="content">
+                  <h3>{{ totalBuildings() }} <span>+</span></h3>
+                  <p>بــناية سكنية</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="col-lg-7 col-12">
-            <div class="stat-card">
-              <img src="images/p1.jpg" />
-              <div class="overlay"></div>
-              <div class="content">
-                <h3>148 <span>+</span></h3>
-                <p>وحـــدة سكنية</p>
+            <div class="col-lg-7 col-12">
+              <div class="stat-card">
+                <img src="images/p1.jpg" alt="وحدة سكنية" />
+                <div class="overlay"></div>
+                <div class="content">
+                  <h3>{{ totalUnits() }} <span>+</span></h3>
+                  <p>وحـــدة سكنية</p>
+                </div>
               </div>
             </div>
-          </div>
+          }
         </div>
       </div>
     </div>
   </div>
 </section>
+

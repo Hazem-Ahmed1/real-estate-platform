@@ -18,7 +18,8 @@ public class UnitSpecParams
     public decimal? MinPrice { get; set; }
     public decimal? MaxPrice { get; set; }
     public string? Search { get; set; }
+    public string? City { get; set; }
     public int? BuildingId { get; set; }
     public int? ProjectId { get; set; }
-    public bool PublicOnly { get; set; }
+    public bool IncludeAllStatuses { get; set; }
 }

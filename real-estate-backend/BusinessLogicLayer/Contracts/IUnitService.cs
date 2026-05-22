@@ -6,6 +6,7 @@ public interface IUnitService
 {
     // Public Endpoints
     Task<PaginatedResult<UnitListDto>> GetUnitsAsync(UnitSpecParams @params);
+    Task<PaginatedResult<UnitListDto>> GetAdminUnitsAsync(UnitSpecParams @params);
     Task<GetUnitDto?> GetUnitByIdAsync(int id);
 
     // Admin Endpoints
@@ -13,8 +14,9 @@ public interface IUnitService
     Task<GetUnitDto> UpdateUnitAsync(int id, UnitUpdateDto unitDto);
     Task<GetUnitDto> DeleteUnitAsync(int id);
 
-    // Building Units
+    // Building & Project Units
     Task<IReadOnlyList<UnitListDto>> GetBuildingUnitsAsync(int buildingId);
+    Task<IReadOnlyList<UnitListDto>> GetProjectUnitsAsync(int projectId);
 }
 
 

@@ -253,14 +253,115 @@
   .map-container .leaflet-left .leaflet-control {
     margin-left: 10px;
   }
-  
+
   .map-container .leaflet-bottom .leaflet-control {
     margin-bottom: 10px;
   }
-  
+
   .map-container .leaflet-control-zoom a {
     width: 36px;
     height: 36px;
   }
+}
+
+/* Custom pulsing unit marker */
+.map-unit-marker-wrapper {
+  background: transparent !important;
+  border: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.map-unit-circle {
+  width: 40px;
+  height: 40px;
+  background: #5865ad; /* project indigo */
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 16px;
+  /* subtle indigo shadow only (remove outer white halo) */
+  box-shadow: 0 6px 14px rgba(88, 101, 173, 0.32);
+  z-index: 2;
+  position: relative;
+}
+
+.map-unit-pulse {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  background: rgba(88, 101, 173, 0.35);
+  border-radius: 50%;
+  z-index: 1;
+  animation: pulse-ring 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+.map-unit-circle:hover {
+  transform: scale(1.12);
+  box-shadow: 0 8px 22px rgba(88, 101, 173, 0.45);
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.33);
+    opacity: 1;
+  }
+  80%, 100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* Custom Facility Markers */
+.map-facility-marker-wrapper {
+  background: transparent !important;
+  border: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.map-facility-circle {
+  width: 32px;
+  height: 32px;
+  background: #5865ad; /* primary theme indigo */
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 13px;
+  box-shadow: 0 3px 8px rgba(88, 101, 173, 0.35);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.map-facility-circle:hover {
+  transform: scale(1.2);
+  background-color: #198754;
+  box-shadow: 0 4px 12px rgba(25, 135, 84, 0.55);
+}
+
+/* Tooltip custom styling */
+.map-facility-tooltip {
+  border: 0 !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  background: #ffffff !important;
+  color: #212529 !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15) !important;
+  font-family: 'Cairo', sans-serif !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  text-align: right !important;
+  direction: rtl !important;
+}
+
+.map-facility-tooltip::before {
+  border-top-color: #ffffff !important;
 }
 

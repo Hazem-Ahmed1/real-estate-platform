@@ -1,5 +1,8 @@
-import { Component } from '@angular/core';
-import { IProject } from '../../../models/IProject';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { IProject, IProjectDetails } from '../../../models/IProject';
+import { ProjectService } from '../../../services/api/project.service';
 import { SectionTitle } from '../../../shared/components/section-title/section-title';
 import { ProjectGallery } from '../../../shared/components/project-gallery/project-gallery';
 import { IconFeatureGrid } from '../../../shared/components/icon-feature-grid/icon-feature-grid';
@@ -27,103 +30,82 @@ import { ProjectVideoSection } from './project-video-section/project-video-secti
   templateUrl: './project-details.html',
   styleUrl: './project-details.css',
 })
-export class ProjectDetails {
+export class ProjectDetails implements OnInit, OnDestroy {
+  private readonly projectService = inject(ProjectService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private sub?: Subscription;
 
-  // Data source: IProject
-  project: IProject = {
-    title: 'مشروع العزيزية 1',
-    location: 'جدة - حي العزيزية',
-    imageUrl: '/images/imgForFullProject.jpg',
-    type: 'للبيع',
-  };
+  readonly project = signal<IProjectDetails | null>(null);
 
-  // Static data: stats (not in IProject)
-  readonly stats = [
-    { label: 'عدد الوحدات السكنية', value: 33, iconUrl: '/images/img_Units_builds.jpg' },
-    { label: 'عدد المباني', value: 148, iconUrl: '/images/img_Units_builds.jpg' },
-  ];
-
-  // Static data: media (not in IProject)
-  readonly panoramaImage = '/images/360_degree.png';
-  readonly videoUrl = '/videos/hero.mp4';
-  readonly videoPoster = '/images/imgForFullProject.jpg';
-  readonly gallery = [
-    '/images/PSide01.jpg',
-    '/images/PSide02.jpg',
-    '/images/PSide01.jpg',
-    '/images/PSide02.jpg',
-    '/images/PSide01.jpg',
-  ];
-
-  // ── Icon maps (centralized) ────────────────────────────────────────────────
-  private readonly featureIconMap: Record<string, string> = {
-    'خزان مستقل أرضي': 'fa-droplet',
-    'خزان مستقل علوي': 'fa-water',
-    'غرفة سائق': 'fa-car',
-    'غرفة خادمة': 'fa-user',
-  };
-
-  private readonly warrantyIconMap: Record<string, string> = {
-    'الهيكل الإنشائي': 'fa-arrows-rotate',
-    'طبلون الكهرباء': 'fa-bolt',
-    'عزل الخزانات': 'fa-faucet-drip',
-    'عزل حراري': 'fa-temperature-half',
-    'عزل مائي': 'fa-droplet',
-    'أدوات صحية': 'fa-screwdriver-wrench',
-    'المصعد': 'fa-building',
-    'ضمان شامل': 'fa-shield-halved',
-  };
-
-  getFeatureIcon(label: string): string {
-    return this.featureIconMap[label] ?? 'fa-circle-dot';
+  computeCircleRadiusMeters(proj: IProjectDetails | null): number | null {
+    if (!proj) return null;
+    // prefer buildUpArea, fall back to totalBuildingArea when available
+    const area = proj.buildUpArea ?? (proj.totalBuildingArea ?? null);
+    if (area == null || area <= 0) return null;
+    return Math.max(150, Math.min(2200, Math.sqrt(area / Math.PI)));
   }
 
-  getWarrantyIcon(label: string): string {
-    return this.warrantyIconMap[label] ?? 'fa-shield-halved';
+  get stats() {
+    const proj = this.project();
+    if (!proj) return [];
+    return [
+      { label: 'عدد الوحدات السكنية', value: proj.unitsNumber, iconUrl: '/images/img_Units_builds.jpg' },
+      { label: 'عدد المباني', value: proj.buildingsNumber, iconUrl: '/images/img_Units_builds.jpg' },
+    ];
   }
-  // ──────────────────────────────────────────────────────────────────────────
 
-  // Static data: feature labels only — no iconClass in data
-  private readonly featureLabels = [
-    'خزان مستقل أرضي',
-    'خزان مستقل علوي',
-    'غرفة سائق',
-    'غرفة خادمة',
-    'خزان مستقل أرضي',
-    'خزان مستقل علوي',
-    'غرفة سائق',
-  ];
-
-  // Resolved features: icon comes from map, not from data
   get resolvedFeatures() {
-    return this.featureLabels.map(label => ({
-      label,
-      iconClass: this.getFeatureIcon(label),
+    const proj = this.project();
+    if (!proj?.features) return [];
+    return proj.features.map(f => ({
+      label: f.name,
+      iconClass: 'fa-circle-check',
     }));
   }
 
-  // Static data: warranty labels + duration only — no iconClass in data
-  private readonly warrantyItems = [
-    { label: 'الهيكل الإنشائي', durationText: '+ 25 سنة' },
-    { label: 'طبلون الكهرباء', durationText: '+ 25 سنة' },
-    { label: 'عزل الخزانات', durationText: '+ 15 سنة' },
-    { label: 'عزل حراري', durationText: '15 سنة' },
-    { label: 'عزل مائي', durationText: '15 سنة' },
-    { label: 'أدوات صحية', durationText: '02 سنة' },
-    { label: 'المصعد', durationText: '02 سنة' },
-    { label: 'ضمان شامل', durationText: '01 سنة' },
-  ];
-
-  // Resolved warranties: icon comes from map, not from data
   get resolvedWarranties() {
-    return this.warrantyItems.map(w => ({
-      label: w.label,
-      iconClass: this.getWarrantyIcon(w.label),
-      subLabel: w.durationText,
+    const proj = this.project();
+    if (!proj?.insurance) return [];
+    return proj.insurance.map(i => ({
+      label: i.name,
+      iconClass: 'fa-shield-halved',
+      subLabel: this.formatWarrantyDuration(i.duration),
     }));
   }
 
-  // Static data: map coordinates (not in IProject)
-  readonly mapLat = 21.543333;
-  readonly mapLng = 39.172779;
+  private formatWarrantyDuration(duration?: number): string {
+    const value = duration ?? 0;
+    return `+ ${value.toString().padStart(2, '0')} سنة`;
+  }
+
+  ngOnInit(): void {
+    this.sub = this.route.paramMap.subscribe(params => {
+      const rawId = params.get('id');
+      const id = rawId ? Number(rawId) : NaN;
+      if (!Number.isFinite(id)) {
+        this.router.navigate(['/']);
+        return;
+      }
+
+      this.project.set(null);
+
+      this.projectService.getProject(id).subscribe({
+        next: (project) => {
+          if (!project) {
+            this.router.navigate(['/']);
+            return;
+          }
+          this.project.set(project);
+        },
+        error: () => {
+          this.router.navigate(['/']);
+        }
+      });
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
+  }
 }

@@ -97,10 +97,7 @@ Entities/
  BlogModule/
   BlogImage.cs
   BlogPost.cs
-<<<<<<< HEAD
  BuildingModule/Building.cs
-=======
->>>>>>> 4c6d413b73e6956162f94948d591738a11405365
  CommunicationModule/Message.cs
  Identity/ApplicationUser.cs
  LookupModule/
@@ -108,10 +105,6 @@ Entities/
   Insurance.cs
   NearbyFacility.cs
  ProjectModule/
-<<<<<<< HEAD
-=======
-  Building.cs
->>>>>>> 4c6d413b73e6956162f94948d591738a11405365
   Project.cs
   ProjectFeature.cs
   ProjectInsurance.cs
@@ -122,15 +115,13 @@ Entities/
   UnitInsurance.cs
   UnitMedia.cs
 Enums/
+ BuildingType.cs
  FacilityType.cs
  KnowledgeEntityType.cs
  MediaType.cs
  MessageType.cs
  ProjectStatus.cs
-<<<<<<< HEAD
  ProjectType.cs
-=======
->>>>>>> 4c6d413b73e6956162f94948d591738a11405365
  UnitStatus.cs
  UnitType.cs
 Implementation/Repositories/
@@ -140,7 +131,6 @@ Implementation/
  Seed/DataSeeder.cs
  SpecificationEvaluator.cs
 Migrations/
-<<<<<<< HEAD
  20260509143538_InitailCreate.cs
  20260509143538_InitailCreate.Designer.cs
  20260510124829_NEW.cs
@@ -155,14 +145,8 @@ Migrations/
  20260515184315_Again03.Designer.cs
  20260515202540_Again04.cs
  20260515202540_Again04.Designer.cs
-=======
- 20260503170343_InitialCreate.cs
- 20260503170343_InitialCreate.Designer.cs
- 20260506193534_AddIdentityAndBlogChanges.cs
- 20260506193534_AddIdentityAndBlogChanges.Designer.cs
- 20260514222313_RemoveMessageUnitId.cs
- 20260514222313_RemoveMessageUnitId.Designer.cs
->>>>>>> 4c6d413b73e6956162f94948d591738a11405365
+ 20260517144039_n00.cs
+ 20260517144039_n00.Designer.cs
  RealEstateDbContextModelSnapshot.cs
 obj/Debug/net9.0/
  .NETCoreApp,Version=v9.0.AssemblyAttributes.cs
@@ -170,11 +154,7 @@ obj/Debug/net9.0/
  DataAccessLayer.GlobalUsings.g.cs
 
 [metadataReferences]
-<<<<<<< HEAD
 <DOTNET>/packs/Microsoft.NETCore.App.Ref/9.0.16/ref/net9.0/
-=======
-<DOTNET>/packs/Microsoft.NETCore.App.Ref/9.0.15/ref/net9.0/
->>>>>>> 4c6d413b73e6956162f94948d591738a11405365
  Microsoft.CSharp.dll
  Microsoft.VisualBasic.Core.dll
  Microsoft.VisualBasic.dll
@@ -377,22 +357,14 @@ obj/Debug/net9.0/
  system.security.cryptography.protecteddata/6.0.0/lib/net6.0/System.Security.Cryptography.ProtectedData.dll
 
 [analyzerReferences]
-<<<<<<< HEAD
 <DOTNET>/packs/Microsoft.NETCore.App.Ref/9.0.16/analyzers/dotnet/cs/
-=======
-<DOTNET>/packs/Microsoft.NETCore.App.Ref/9.0.15/analyzers/dotnet/cs/
->>>>>>> 4c6d413b73e6956162f94948d591738a11405365
  Microsoft.Interop.ComInterfaceGenerator.dll
  Microsoft.Interop.JavaScript.JSImportGenerator.dll
  Microsoft.Interop.LibraryImportGenerator.dll
  Microsoft.Interop.SourceGeneration.dll
  System.Text.Json.SourceGeneration.dll
  System.Text.RegularExpressions.Generator.dll
-<<<<<<< HEAD
 <DOTNET>/sdk/10.0.300/Sdks/Microsoft.NET.Sdk/analyzers/
-=======
-<DOTNET>/sdk/10.0.203/Sdks/Microsoft.NET.Sdk/analyzers/
->>>>>>> 4c6d413b73e6956162f94948d591738a11405365
  Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll
  Microsoft.CodeAnalysis.NetAnalyzers.dll
 <NUGET>/microsoft.codeanalysis.analyzers/3.3.4/analyzers/dotnet/cs/
@@ -404,9 +376,5 @@ obj/Debug/net9.0/
  microsoft.extensions.options/9.0.2/analyzers/dotnet/roslyn4.4/cs/Microsoft.Extensions.Options.SourceGeneration.dll
 
 [analyzerConfigFiles]
-<<<<<<< HEAD
 <DOTNET>/sdk/10.0.300/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_9_default.globalconfig
-=======
-<DOTNET>/sdk/10.0.203/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_9_default.globalconfig
->>>>>>> 4c6d413b73e6956162f94948d591738a11405365
 obj/Debug/net9.0/DataAccessLayer.GeneratedMSBuildEditorConfig.editorconfig

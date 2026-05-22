@@ -1,41 +1,49 @@
 <div class="unit-tabs" dir="rtl">
     <div class="unit-tabs-nav d-flex flex-wrap justify-content-start align-items-center gap-3">
+        @if (hasFeatures()) {
         <button type="button" class="unit-tab-btn" [class.active]="activeTab() === 'features'"
             (click)="setTab('features')">
             <i class="fa-solid fa-screwdriver-wrench"></i>
             <span>المميزات</span>
         </button>
+        }
+        @if (hasWarranties()) {
         <button type="button" class="unit-tab-btn" [class.active]="activeTab() === 'warranties'"
             (click)="setTab('warranties')">
             <i class="fa-solid fa-shield-halved"></i>
             <span>الضمانات</span>
         </button>
+        }
+        @if (hasDesigns()) {
         <button type="button" class="unit-tab-btn" [class.active]="activeTab() === 'designs'"
             (click)="setTab('designs')">
             <i class="fa-regular fa-image"></i>
             <span>صور التصميم</span>
         </button>
+        }
+        @if (hasNearby()) {
         <button type="button" class="unit-tab-btn" [class.active]="activeTab() === 'nearby'"
             (click)="setTab('nearby')">
             <i class="fa-solid fa-location-dot"></i>
             <span>الأماكن القريبة</span>
         </button>
+        }
     </div>
 
     <div class="unit-tabs-content pt-4">
-        @if (activeTab() === 'features') {
+        @if (activeTab() === 'features' && hasFeatures()) {
             <app-unit-features [features]="features()" />
         }
 
-        @if (activeTab() === 'warranties') {
+        @if (activeTab() === 'warranties' && hasWarranties()) {
             <app-unit-warranties [warranties]="warranties()" />
         }
 
-        @if (activeTab() === 'designs') {
+        @if (activeTab() === 'designs' && hasDesigns()) {
             <app-unit-designs [designs]="designs()" />
         }
 
-        @if (activeTab() === 'nearby') {
+        @if (activeTab() === 'nearby' && hasNearby()) {
             <app-unit-nearby [nearbyPlaces]="nearbyPlaces()" />
         }
     </div>

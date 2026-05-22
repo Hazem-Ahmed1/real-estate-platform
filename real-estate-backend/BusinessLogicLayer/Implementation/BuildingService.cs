@@ -57,12 +57,34 @@ public class BuildingService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServi
         if (exists)
             throw new ConflictException("Building with the same name already exists in this project.");
 
+        // Building type compatibility: building type must match project's nature
+        bool projectIsSalePath = project.Status == ProjectStatus.Sale || project.Status == ProjectStatus.Sold;
+        if (dto.Type == BuildingType.Sale && !projectIsSalePath)
+            throw new BadRequestException("Cannot add a Sale building to a Rent project.");
+        if (dto.Type == BuildingType.Rent && projectIsSalePath)
+            throw new BadRequestException("Cannot add a Rent building to a Sale project.");
+
+        // Validate total building footprint does not exceed project's BuildUpArea
+        var existingBuildingsArea = await unitOfWork.Repository<Building>()
+            .GetAllAsync(new BuildingsByProjectSpecification(dto.ProjectId));
+        var currentTotalBuildingArea = existingBuildingsArea.Sum(b => b.BuildingArea);
+
+        if (currentTotalBuildingArea + dto.BuildingArea > project.BuildUpArea)
+            throw new BadRequestException(
+                $"Adding this building would exceed the project's build-up area. " +
+                $"Available: {project.BuildUpArea - currentTotalBuildingArea} m², Requested: {dto.BuildingArea} m².");
+
+        // Ensure MaxArea (max area per unit / floor) does not exceed the building footprint
+        if (dto.MaxArea > dto.BuildingArea)
+            throw new BadRequestException("MaxArea must be less than or equal to BuildingArea.");
+
         var building = new Building
         {
             Name = dto.Name,
             ProjectId = dto.ProjectId,
             MaxArea = dto.MaxArea,
             BuildingArea = dto.BuildingArea,
+            Type = dto.Type,
             FloorCount = dto.FloorCount
         };
 
@@ -90,27 +112,12 @@ public class BuildingService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServi
             if (targetProject == null)
                 throw new NotFoundExpection("Project", dto.ProjectId);
 
-            // 1. Move Protection: Cannot move building if it has Sold or Rented units (Historical Data Integrity)
-            var hasTransactedUnits = await unitOfWork.Repository<Unit>()
-                .AnyAsync(u => u.BuildingId == id && (u.Status == UnitStatus.Sold || u.Status == UnitStatus.Rented));
-            
-            if (hasTransactedUnits)
-                throw new BadRequestException("لا يمكن نقل المبنى لمشروع آخر لأنه يحتوي على وحدات تم بيعها أو تأجيرها.");
-
-            // 2. Path Compatibility Check: Project Sale/Sold vs Rent/Rented
+            // Building type compatibility: building type must match target project's nature
             bool targetIsSalePath = targetProject.Status == ProjectStatus.Sale || targetProject.Status == ProjectStatus.Sold;
-            
-            // Check if building has ANY units with incompatible status
-            var hasIncompatibleUnits = await unitOfWork.Repository<Unit>().AnyAsync(u => u.BuildingId == id && 
-                (targetIsSalePath 
-                    ? (u.Status == UnitStatus.Rent || u.Status == UnitStatus.Rented) 
-                    : (u.Status == UnitStatus.Sale || u.Status == UnitStatus.Sold)));
-
-            if (hasIncompatibleUnits)
-            {
-                var targetType = targetIsSalePath ? "تمليك (Sale/Sold)" : "إيجار (Rent/Rented)";
-                throw new BadRequestException($"لا يمكن نقل المبنى لهذا المشروع لأن نوع وحداته غير متوافق مع نوع المشروع المستهدف ({targetType}).");
-            }
+            if (existing.Type == BuildingType.Sale && !targetIsSalePath)
+                throw new BadRequestException("Cannot move a Sale building into a Rent project.");
+            if (existing.Type == BuildingType.Rent && targetIsSalePath)
+                throw new BadRequestException("Cannot move a Rent building into a Sale project.");
         }
 
         var exists = await unitOfWork.Repository<Building>()
@@ -121,11 +128,40 @@ public class BuildingService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServi
         if (exists)
             throw new ConflictException("Building with the same name already exists in this project.");
 
+        // Validate total building footprint does not exceed project's BuildUpArea (excluding current building)
+        var targetProjectToValidate = await unitOfWork.Repository<Project>().GetByIdAsync(dto.ProjectId);
+        if (targetProjectToValidate == null)
+            throw new NotFoundExpection("Project", dto.ProjectId);
+
+        var allBuildingsInProject = await unitOfWork.Repository<Building>()
+            .GetAllAsync(new BuildingsByProjectSpecification(dto.ProjectId));
+        var currentTotalExcludingSelf = allBuildingsInProject
+            .Where(b => b.BuildingId != id)
+            .Sum(b => b.BuildingArea);
+
+        if (currentTotalExcludingSelf + dto.BuildingArea > targetProjectToValidate.BuildUpArea)
+            throw new BadRequestException(
+                $"Updating this building's area would exceed the project's build-up area. " +
+                $"Available: {targetProjectToValidate.BuildUpArea - currentTotalExcludingSelf} m², Requested: {dto.BuildingArea} m².");
+
+        // Ensure MaxArea (max area per unit / floor) does not exceed the building footprint
+        if (dto.MaxArea > dto.BuildingArea)
+            throw new BadRequestException("MaxArea must be less than or equal to BuildingArea.");
+
         var oldProjectId = existing.ProjectId;
+        var unitsInBuilding = await unitOfWork.Repository<Unit>()
+            .GetAllAsync(new UnitsByBuildingSpecification(id));
+
+        if (existing.Type != dto.Type && unitsInBuilding.Any())
+        {
+            throw new BadRequestException("Cannot change the Building Type because it already contains units. You must delete the units first.");
+        }
+
         existing.Name = dto.Name;
         existing.ProjectId = dto.ProjectId;
         existing.MaxArea = dto.MaxArea;
         existing.BuildingArea = dto.BuildingArea;
+        existing.Type = dto.Type;
         existing.FloorCount = dto.FloorCount;
 
 
@@ -149,90 +185,77 @@ public class BuildingService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServi
 
     public async Task<BuildingDto> DeleteBuildingAsync(int id)
     {
+        // Load building with all its units and their media for cascade delete
+        var spec = new BuildingsByProjectSpecification(0); // we'll get by id below
         var building = await unitOfWork.Repository<Building>().GetByIdAsync(id);
         if (building == null)
             throw new NotFoundExpection("Building", id);
 
-        var hasUnits = await unitOfWork.Repository<Unit>()
-            .AnyAsync(u => u.BuildingId == id);
-
         var projectId = building.ProjectId;
+        var deletedDto = mapper.Map<BuildingDto>(building);
 
-        if (hasUnits)
+        // Cascade delete: remove all units and their Cloudinary media first
+        var units = await unitOfWork.Repository<Unit>()
+            .GetAllAsync(new UnitsByBuildingSpecification(id));
+
+        var cloudinaryImagesToDelete = new List<string>();
+        var cloudinaryVideosToDelete = new List<string>();
+
+        foreach (var unit in units)
         {
-            var units = await unitOfWork.Repository<Unit>().GetAllAsync(new UnitsByBuildingSpecification(id));
-            if (units.Any(u => u.Status is UnitStatus.Sold or UnitStatus.Rented))
-                throw new BadRequestException("Cannot delete a building with Sold or Rented units.");
-            
-            // Hard delete units too if they are just Sale/Rent
-            foreach (var u in units)
+            foreach (var m in unit.Media.ToList())
             {
-                // Cleanup Cloudinary for each unit
-                foreach (var m in u.Media)
+                if (!string.IsNullOrEmpty(m.PublicId))
                 {
-                    if (!string.IsNullOrEmpty(m.PublicId))
-                    {
-                        await mediaService.DeleteImageAsync(m.PublicId);
-                    }
+                    if (m.Type == MediaType.Video) cloudinaryVideosToDelete.Add(m.PublicId);
+                    else cloudinaryImagesToDelete.Add(m.PublicId);
                 }
-                unitOfWork.Repository<Unit>().Remove(u);
+                unitOfWork.Repository<UnitMedia>().Remove(m);
             }
+            unitOfWork.Repository<Unit>().Remove(unit);
         }
-        
+
         unitOfWork.Repository<Building>().Remove(building);
-
-
         await unitOfWork.CompleteAsync();
+
+        // Cleanup Cloudinary after successful DB commit
+        foreach (var pid in cloudinaryImagesToDelete) await mediaService.DeleteImageAsync(pid);
+        foreach (var pid in cloudinaryVideosToDelete) await mediaService.DeleteVideoAsync(pid);
 
         await RecalculateProjectAsync(projectId);
 
-        return mapper.Map<BuildingDto>(building);
+        return deletedDto;
     }
 
     private async Task RecalculateProjectAsync(int projectId)
     {
         var projectSpec = new BusinessLogicLayer.Specifications.Projects.ProjectWithBuildingsSpecification(projectId);
         var project = await unitOfWork.Repository<Project>().GetByIdAsync(projectSpec);
-        if (project == null)
-            return;
+        if (project == null) return;
 
-        var activeBuildings = project.Buildings.ToList();
+        var allUnits = project.Buildings.SelectMany(b => b.Units).ToList();
 
-        var allUnits = activeBuildings.SelectMany(b => b.Units).ToList();
-        
-        var oldStatus = project.Status;
-        project.Status = BusinessLogicLayer.Helpers.ProjectLogicHelpers.DeriveProjectStatus(allUnits, project.Status);
-
-        if (oldStatus != project.Status)
-            project.IsStatusChanged = true;
-
-        
-        bool isSale = project.Status == ProjectStatus.Sale || project.Status == ProjectStatus.Sold;
-        
-        if (isSale)
+        // 1. Update each building's derived status
+        foreach (var building in project.Buildings)
         {
-            project.AvailableUnitsCount = allUnits.Count(u => u.Status == UnitStatus.Sale);
-            project.TransactedUnitsCount = allUnits.Count(u => u.Status == UnitStatus.Sold);
-        }
-        else
-        {
-            project.AvailableUnitsCount = allUnits.Count(u => u.Status == UnitStatus.Rent);
-            project.TransactedUnitsCount = allUnits.Count(u => u.Status == UnitStatus.Rented);
+            building.Status = ProjectLogicHelpers.DeriveBuildingStatus(building.Type, building.Units);
+            // Only derive floor count from units when units exist. Preserve explicit floor count otherwise.
+            if (building.Units.Any())
+            {
+                building.FloorCount = building.Units.Max(u => u.Floor);
+            }
+            unitOfWork.Repository<Building>().Update(building);
         }
 
-        // Recalculate Building FloorCounts and Project Area/Status
-        foreach (var b in activeBuildings)
-        {
-            b.FloorCount = b.Units.Any() ? b.Units.Max(u => u.Floor) : 0;
-            unitOfWork.Repository<Building>().Update(b);
-        }
+        // 2. Update project status
+        project.Status = ProjectLogicHelpers.DeriveProjectStatus(allUnits, project.Status);
 
-        // TotalBuildingArea = Σ (BuildingArea_i) + Σ (Max unit area in Building_i)
-        project.TotalBuildingArea = activeBuildings.Sum(b => b.BuildingArea + (b.Units.Any() ? b.Units.Max(u => u.Area) : 0));
+        project.AvailableUnitsCount  = allUnits.Count(u => u.Status == UnitStatus.Sale   || u.Status == UnitStatus.Rent);
+        project.TransactedUnitsCount = allUnits.Count(u => u.Status == UnitStatus.Sold   || u.Status == UnitStatus.Rented);
+        project.TotalBuildingArea    = project.Buildings.Sum(b => b.BuildingArea);
 
         unitOfWork.Repository<Project>().Update(project);
         await unitOfWork.CompleteAsync();
-
     }
 
 }

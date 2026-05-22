@@ -2,87 +2,74 @@
   <!-- IMAGE -->
   <div class="unit-media">
     <img
-      [src]="unit().imageURL"
+      [src]="unit().thumbnailUrl ?? '/images/imgForFullProject.jpg'"
       width="900"
       height="650"
-      [alt]="unit().title"
+      [alt]="unit().name"
     />
 
     <!-- BADGE -->
     <span class="unit-badge">
-      <i class="fa-solid fa-wand-magic-sparkles"></i>
-      <span>{{ unit().type }}</span>
+      @if (unit().status === 'Sale') {
+        <i class="fa-solid fa-wand-magic-sparkles"></i> <span>للبيع</span>
+      } @else if (unit().status === 'Rent') {
+        <i class="fa-solid fa-key"></i> <span>للإيجار</span>
+      } @else if (unit().status === 'Sold') {
+        <i class="fa-solid fa-check-circle"></i> <span>مباع</span>
+      } @else {
+        <i class="fa-solid fa-lock"></i> <span>مؤجر</span>
+      }
     </span>
-
-    <!-- FAVORITE -->
-    <button class="favorite-btn" type="button" aria-label="إضافة إلى المفضلة">
-      <i class="fa-regular fa-heart heart-regular" aria-hidden="true"></i>
-      <i class="fa-solid fa-heart heart-solid" aria-hidden="true"></i>
-    </button>
 
     <!-- LOCATION -->
     <div class="unit-location" aria-label="الموقع">
       <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
-      <span>{{ unit().location }}</span>
+      <span>{{ unit().city }}@if (unit().region) { - {{ unit().region }} }</span>
     </div>
   </div>
 
   <!-- CONTENT -->
   <div class="unit-body">
-    <h3 class="unit-title text-end">{{ unit().title }}</h3>
+    <h3 class="unit-title text-end" style="margin-bottom: 12px; font-size: 16px; font-weight: 800; color: #000000;">{{ unit().name }}</h3>
 
     <!-- FEATURES -->
     <div class="unit-features" aria-label="المواصفات">
-      @if (unit().beds !== undefined) {
-        <span class="feature">
-          <i class="fa-solid fa-house-chimney"></i>
-          <span class="feature-value">{{ unit().beds | number:'2.0-0' }}</span>
-          <span class="feature-label">غرف</span>
-        </span>
-      }
+      <span class="feature">
+        <i class="fa-solid fa-house-chimney"></i>
+        <span class="feature-value">{{ unit().rooms | number:'2.0-0' }}</span>
+        <span class="feature-label">غرف</span>
+      </span>
 
-      @if (unit().lounges !== undefined) {
-        <span class="feature">
-          <i class="fa-solid fa-couch" aria-hidden="true"></i>
-          <span class="feature-value">{{ unit().lounges | number:'2.0-0' }}</span>
-          <span class="feature-label">صالات</span>
-        </span>
-      }
+      <span class="feature">
+        <i class="fa-solid fa-couch" aria-hidden="true"></i>
+        <span class="feature-value">{{ unit().salons | number:'2.0-0' }}</span>
+        <span class="feature-label">صالات</span>
+      </span>
 
-      @if (unit().area) {
-        <span class="feature">
-          <i class="fa-solid fa-vihara"></i>
-          <span class="feature-value">{{ unit().area }}</span>
-        </span>
-      }
+      <span class="feature">
+        <i class="fa-solid fa-vihara" aria-hidden="true"></i>
+        <span class="feature-value">{{ unit().area }} * {{ unit().area }}</span>
+      </span>
 
-      @if (unit().streetsText) {
-        <span class="feature">
-          <i class="fa-solid fa-compass"></i>
-          <span class="feature-label">{{ unit().streetsText }}</span>
-        </span>
-      } @else if (unit().baths !== undefined) {
-        <span class="feature">
-          <i class="fa-solid fa-bath" aria-hidden="true"></i>
-          <span class="feature-value">{{ unit().baths | number:'2.0-0' }}</span>
-          <span class="feature-label">حمامات</span>
-        </span>
-      }
+      <span class="feature">
+        <i class="fa-solid fa-road" aria-hidden="true"></i>
+        <span class="feature-value">{{ unit().streetCount | number:'2.0-0' }}</span>
+        <span class="feature-label">شوارع</span>
+      </span>
     </div>
 
     <div class="unit-separator" aria-hidden="true"></div>
 
     <!-- FOOTER -->
     <div class="unit-footer">
-      <button class="book-btn" type="button" [routerLink]="['/unit-details', unit().title]">
+      <button class="book-btn" type="button" [routerLink]="['/unit-details', unit().unitId]">
         <span>احجز الآن</span>
         <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
       </button>
 
       <div class="price" aria-label="السعر">
         <i class="fa-solid fa-sack-dollar"></i>
-        <span class="price-text">{{ unit().price }}</span>
-
+        <span class="price-text">{{ unit().price | number }} ر.س</span>
       </div>
     </div>
   </div>

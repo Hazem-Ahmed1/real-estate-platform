@@ -14,6 +14,18 @@
       <i class="fa-solid fa-chart-pie" aria-hidden="true"></i>
       <span>لوحة التحكم</span>
     </a>
+    <a routerLink="/admin/projects" routerLinkActive="nav-link-active" class="nav-link">
+      <i class="fa-solid fa-city" aria-hidden="true"></i>
+      <span>المشاريع</span>
+    </a>
+    <a routerLink="/admin/buildings" routerLinkActive="nav-link-active" class="nav-link">
+      <i class="fa-solid fa-building" aria-hidden="true"></i>
+      <span>المباني</span>
+    </a>
+    <a routerLink="/admin/units" routerLinkActive="nav-link-active" class="nav-link">
+      <i class="fa-solid fa-door-open" aria-hidden="true"></i>
+      <span>الوحدات</span>
+    </a>
     <a routerLink="/admin/blogs" routerLinkActive="nav-link-active" class="nav-link">
       <i class="fa-solid fa-pen-nib" aria-hidden="true"></i>
       <span>المدونات</span>
@@ -22,30 +34,14 @@
       <i class="fa-regular fa-envelope" aria-hidden="true"></i>
       <span>الرسائل</span>
     </a>
-        <a href="#" class="nav-link">
-      <i class="fa-solid fa-magnifying-glass-chart" aria-hidden="true"></i>
-      <span>الاستكشاف</span>
-    </a>
-    <a href="#" class="nav-link">
-      <i class="fa-solid fa-table" aria-hidden="true"></i>
-      <span>مجموعات البيانات</span>
-    </a>
-    <a href="#" class="nav-link">
-      <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
-      <span>النماذج</span>
-    </a>
-    <a href="#" class="nav-link">
-      <i class="fa-solid fa-flask" aria-hidden="true"></i>
-      <span>التجارب</span>
-    </a>
-    <a href="#" class="nav-link">
-      <i class="fa-solid fa-file-csv" aria-hidden="true"></i>
-      <span>التقارير</span>
-    </a>
-    <a href="#" class="nav-link">
-      <i class="fa-solid fa-plug" aria-hidden="true"></i>
-      <span>التكاملات</span>
-    </a>
+      <a [routerLink]="['/admin','features']" routerLinkActive="nav-link-active" [routerLinkActiveOptions]="{ exact: true }" class="nav-link">
+        <i class="fa-solid fa-gem" aria-hidden="true"></i>
+        <span>المميزات</span>
+      </a>
+      <a [routerLink]="['/admin','guarantees']" routerLinkActive="nav-link-active" [routerLinkActiveOptions]="{ exact: true }" class="nav-link">
+        <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+        <span>الضمانات</span>
+      </a>
   </nav>
 
   <div class="sidebar-user">
@@ -54,7 +50,7 @@
       <p class="user-name">دانا بارك</p>
       <p class="user-role">محللة بيانات</p>
     </div>
-    <button class="logout-btn" type="button" aria-label="تسجيل الخروج">
+    <button class="logout-btn" type="button" aria-label="تسجيل الخروج" (click)="logout()">
       <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
     </button>
   </div>

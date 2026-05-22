@@ -1,15 +1,24 @@
 <section class="sold-projects-section">
   <div class="container">
     <app-home-section-header-with-filters
-      title="مشــــاريع مبــــاعة"
+      title="مشــــاريع مبــــاعة ومؤجرة"
       subTitle="مشاريعنا"
-      url="/sold-projects"
+      url="/projects"
+      sellLabel="مباع"
+      rentLabel="مؤجر"
+      [showAllQueryParams]="{ status: 'Sold,Rented' }"
       (filterChange)="filter($event)"
     />
 
-    <app-sold-projects-list [projects]="projects">
-
-    </app-sold-projects-list>
+    @if (projects().length === 0) {
+      <div class="text-center py-5 bg-white rounded shadow-sm border mb-4" style="border-radius: 16px !important; border: 1px solid rgba(0, 0, 0, 0.05) !important;">
+        <i class="fa-solid fa-hotel text-muted mb-3" style="font-size: 48px; opacity: 0.6;"></i>
+        <h4 class="text-secondary font-weight-bold" style="font-family: 'Cairo', sans-serif;">{{ emptyStateMessage() }}</h4>
+        <p class="text-muted mt-2" style="font-family: 'Cairo', sans-serif;">يرجى التحقق من الأقسام الأخرى أو معاودة الزيارة لاحقاً.</p>
+      </div>
+    } @else {
+      <app-sold-projects-list [projects]="projects()"></app-sold-projects-list>
+    }
 
   </div>
 </section>

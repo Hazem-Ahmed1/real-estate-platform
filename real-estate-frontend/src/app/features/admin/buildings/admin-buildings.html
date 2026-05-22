@@ -1,0 +1,146 @@
+<section class="admin-buildings" dir="rtl">
+  <header class="page-header">
+    <div>
+      <h2>إدارة المباني</h2>
+      <p>إضافة وتعديل المباني وربطها بالمشاريع.</p>
+    </div>
+    <button class="btn ghost-btn" type="button" (click)="loadBuildings()" [disabled]="isLoading()">
+      <i class="fa-solid fa-rotate" aria-hidden="true"></i>
+      تحديث
+    </button>
+  </header>
+
+  @if (errorMessage()) {
+    <p class="error-banner" aria-live="polite">{{ errorMessage() }}</p>
+  }
+
+  <div class="buildings-grid">
+    <article class="card form-card">
+      <h3>{{ selectedBuilding() ? 'تعديل مبنى' : 'إضافة مبنى جديد' }}</h3>
+
+      <form [formGroup]="buildingForm" (ngSubmit)="submitForm()">
+        <div class="field">
+          <label for="name">اسم المبنى <span class="required">*</span></label>
+          <input id="name" type="text" formControlName="name" placeholder="اسم المبنى" (blur)="checkBuildingName()" />
+          <div class="input-error" *ngIf="buildingForm.get('name')?.touched && buildingForm.get('name')?.hasError('required')">هذا الحقل مطلوب.</div>
+          <div class="input-error" *ngIf="buildingForm.get('name')?.touched && buildingForm.get('name')?.hasError('duplicate')">اسم المبنى موجود بالفعل.</div>
+        </div>
+
+        <div class="field">
+          <label for="type">نوع المبنى</label>
+          @if (canEditType(selectedBuilding())) {
+            <select id="type" formControlName="type">
+              @for (t of typeOptions; track t) {
+                <option [value]="t">{{ translateBuildingTypeLabel(t) }}</option>
+              }
+            </select>
+          } @else {
+            <input
+              id="typeReadonly"
+              type="text"
+              [value]="selectedBuildingTypeLabel()"
+              readonly
+            />
+            <small class="text-muted d-block mt-1">لا يمكن تغيير النوع لأن هذا المبنى يحتوي على وحدات.</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="projectId">المشروع <span class="required">*</span></label>
+          <select id="projectId" formControlName="projectId" [disabled]="!buildingForm.get('type')?.value">
+            <option [ngValue]="null">اختر مشروع</option>
+            @for (project of getProjectsForSelectedType(); track project.projectId) {
+              <option [ngValue]="project.projectId">{{ project.name }} ({{ translateStatusLabel(project.status) }})</option>
+            }
+          </select>
+          <div class="input-error" *ngIf="buildingForm.get('projectId')?.touched && buildingForm.get('projectId')?.hasError('required')">هذا الحقل مطلوب.</div>
+          <small class="text-muted d-block mt-1">تظهر فقط المشاريع المتوافقة مع نوع المبنى الحالي.</small>
+        </div>
+
+        <div class="two-col">
+          <div class="field">
+            <label for="maxArea">أقصى مساحة <span class="required">*</span></label>
+            <input id="maxArea" type="number" formControlName="maxArea" />
+            <div class="input-error" *ngIf="buildingForm.get('maxArea')?.touched && buildingForm.get('maxArea')?.hasError('required')">هذا الحقل مطلوب.</div>
+          </div>
+          <div class="field">
+            <label for="buildingArea">مساحة المبنى <span class="required">*</span></label>
+            <input id="buildingArea" type="number" formControlName="buildingArea" />
+            <div class="input-error" *ngIf="buildingForm.get('buildingArea')?.touched && buildingForm.get('buildingArea')?.hasError('required')">هذا الحقل مطلوب.</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="field">
+            <label for="floorCount">عدد الطوابق</label>
+            <input id="floorCount" type="number" formControlName="floorCount" />
+            <div class="input-error" *ngIf="buildingForm.get('floorCount')?.touched && buildingForm.get('floorCount')?.hasError('required')">هذا الحقل مطلوب.</div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary-btn" type="submit" [disabled]="isSaving() || buildingForm.invalid">
+            {{ selectedBuilding() ? 'حفظ التعديلات' : 'إضافة المبنى' }}
+          </button>
+          <button class="btn ghost-btn" type="button" (click)="clearSelection()" [disabled]="isSaving()">
+            إلغاء
+          </button>
+        </div>
+      </form>
+    </article>
+
+    <article class="card list-card">
+      <div class="list-head">
+        <h3>المباني</h3>
+        <span>{{ isLoading() ? 'جاري التحميل...' : (filteredBuildings().length + ' عنصر') }} — صفحة {{ currentPage() }}/{{ totalPages() }}</span>
+      </div>
+
+      <div class="filter-section">
+        <select class="status-filter" (change)="onFilterProject($event)">
+          <option value="">كل المشاريع</option>
+          @for (project of projects(); track project.projectId) {
+            <option [value]="project.projectId">{{ project.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="list-body">
+        @if (!isLoading() && filteredBuildings().length === 0) {
+          <p class="empty-state">لا توجد مباني حالياً</p>
+        }
+
+        @for (building of pagedBuildings(); track building.buildingId) {
+          <div class="row-card" [class.active]="selectedBuilding()?.buildingId === building.buildingId">
+            <div class="row-info" (click)="selectBuilding(building)">
+              <div>
+                <h4>{{ building.name }}</h4>
+                <p>{{ building.projectName }} | {{ translateBuildingTypeLabel(building.type) }}</p>
+              </div>
+              <div class="row-meta">
+                <span>مساحة: {{ building.buildingArea }}</span>
+                <span>وحدات: {{ building.units?.length ?? 0 }}</span>
+                <span>طوابق: {{ building.floorCount ?? '-' }}</span>
+              </div>
+            </div>
+            <div class="row-actions">
+              <button class="btn tiny-btn" type="button" (click)="selectBuilding(building)">تعديل</button>
+              <button class="btn tiny-btn danger" type="button" (click)="deleteBuilding(building)" [disabled]="isSaving()">
+                حذف
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="pagination">
+        <button class="btn ghost-btn" type="button" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() <= 1">
+          السابق
+        </button>
+        <span>صفحة {{ currentPage() }} من {{ totalPages() }}</span>
+        <button class="btn ghost-btn" type="button" (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() >= totalPages()">
+          التالي
+        </button>
+      </div>
+    </article>
+  </div>
+</section>

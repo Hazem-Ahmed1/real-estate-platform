@@ -1,0 +1,103 @@
+<section class="admin-features" dir="rtl">
+  <header class="page-header">
+    <div>
+      <h2>إدارة المميزات</h2>
+      <p>إضافة وتعديل وحذف مميزات العقارات.</p>
+    </div>
+    <button class="btn ghost-btn" type="button" (click)="loadFeatures()" [disabled]="isLoading()">
+      <i class="fa-solid fa-rotate" aria-hidden="true"></i>
+      تحديث
+    </button>
+  </header>
+
+  @if (errorMessage()) {
+    <p class="error-banner" aria-live="polite">{{ errorMessage() }}</p>
+  }
+
+  <div class="features-grid">
+    <article class="card form-card">
+      <h3>{{ selectedFeature() ? 'تعديل الميزة' : 'إضافة ميزة جديدة' }}</h3>
+      
+      <form [formGroup]="featureForm" (ngSubmit)="submitForm()">
+        <div class="field">
+          <label for="name">اسم الميزة <span class="required">*</span></label>
+          <input id="name" type="text" formControlName="name" placeholder="مثال: مسبح خاص" />
+          @if (featureForm.controls.name.invalid && featureForm.controls.name.touched) {
+            <span class="helper-text error">الاسم مطلوب (بحد أقصى 200 حرف)</span>
+          }
+        </div>
+
+        @if (selectedFeature()) {
+          <div class="field checkbox-field">
+            <label>
+              <input type="checkbox" formControlName="isActive" />
+              مفعل
+            </label>
+          </div>
+        }
+
+        <div class="actions">
+          <button class="btn primary-btn" type="submit" [disabled]="isSaving()">
+            {{ isSaving() ? 'جاري الحفظ...' : (selectedFeature() ? 'حفظ التعديلات' : 'إضافة') }}
+          </button>
+          
+          @if (selectedFeature()) {
+            <button class="btn ghost-btn" type="button" (click)="clearSelection()" [disabled]="isSaving()">
+              إلغاء
+            </button>
+          }
+        </div>
+      </form>
+    </article>
+
+    <article class="card list-card">
+    <div class="list-head">
+      <h3>الميزات</h3>
+      <span>{{ isLoading() ? 'جاري التحميل...' : (filteredFeatures().length + ' عنصر') }} — صفحة {{ currentPage() }}/{{ totalPages() }}</span>
+    </div>
+    <div class="filter-section">
+      <input type="text" placeholder="ابحث باسم الميزة..." class="filter-input" (input)="onSearchChange($event)" />
+      <select class="status-filter" (change)="onStatusChange($event)">
+        <option value="all">الكل</option>
+        <option value="active">مفعل</option>
+        <option value="inactive">غير مفعل</option>
+      </select>
+    </div>
+  <div class="list-body">        @if (!isLoading() && filteredFeatures().length === 0) {
+          <p class="empty-state">لا توجد مميزات مضافة حالياً</p>
+        }
+
+        @for (feature of pagedFeatures(); track feature.featureId) {
+          <div class="feature-row" [class.active]="selectedFeature()?.featureId === feature.featureId" [class.inactive]="!feature.isActive">
+            <div class="feature-info" (click)="selectFeature(feature)">
+              <div>
+                <h4>{{ feature.name }}</h4>
+                <p>
+                  <span>{{ feature.isActive ? 'مفعل' : 'غير مفعل' }}</span> | 
+                  <span>مشاريع: {{ feature.projectCount }}</span> | 
+                  <span>وحدات: {{ feature.unitCount }}</span>
+                </p>
+              </div>
+            </div>
+            
+            <div class="row-actions">
+              <button class="btn tiny-btn danger" type="button" (click)="deleteFeature(feature)" [disabled]="isSaving()">
+                حذف
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="pagination">
+        <button class="btn ghost-btn" type="button" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() <= 1">
+          السابق
+        </button>
+        <span>صفحة {{ currentPage() }} من {{ totalPages() }}</span>
+        <button class="btn ghost-btn" type="button" (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() >= totalPages()">
+          التالي
+        </button>
+      </div>
+    </article>
+  </div>
+</section>

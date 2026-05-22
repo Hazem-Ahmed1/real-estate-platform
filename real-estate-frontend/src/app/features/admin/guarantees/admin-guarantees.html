@@ -1,0 +1,114 @@
+<section class="admin-guarantees" dir="rtl">
+  <header class="page-header">
+    <div>
+      <h2>إدارة الضمانات</h2>
+      <p>إضافة وتعديل وحذف الضمانات الخاصة بالعقارات.</p>
+    </div>
+    <button class="btn ghost-btn" type="button" (click)="loadGuarantees()" [disabled]="isLoading()">
+      <i class="fa-solid fa-rotate" aria-hidden="true"></i>
+      تحديث
+    </button>
+  </header>
+
+  @if (errorMessage()) {
+    <p class="error-banner" aria-live="polite">{{ errorMessage() }}</p>
+  }
+
+  <div class="features-grid">
+    <article class="card form-card">
+      <h3>{{ selectedGuarantee() ? 'تعديل الضمان' : 'إضافة ضمان جديد' }}</h3>
+      
+      <form [formGroup]="guaranteeForm" (ngSubmit)="submitForm()">
+        <div class="field">
+          <label for="name">اسم الضمان <span class="required">*</span></label>
+          <input id="name" type="text" formControlName="name" placeholder="مثال: ضمان على السباكة" />
+          @if (guaranteeForm.controls.name.invalid && guaranteeForm.controls.name.touched) {
+            <span class="helper-text error">الاسم مطلوب (بحد أقصى 200 حرف)</span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="duration">المدة (بالسنوات) <span class="required">*</span></label>
+          <input id="duration" type="number" formControlName="duration" placeholder="مثال: 5" min="1" max="100" />
+          @if (guaranteeForm.controls.duration.invalid && guaranteeForm.controls.duration.touched) {
+            <span class="helper-text error">المدة مطلوبة وتتراوح بين 1 و 100 سنة</span>
+          }
+        </div>
+
+        @if (selectedGuarantee()) {
+          <div class="field checkbox-field">
+            <label>
+              <input type="checkbox" formControlName="isActive" />
+              مفعل
+            </label>
+          </div>
+        }
+
+        <div class="actions">
+          <button class="btn primary-btn" type="submit" [disabled]="isSaving()">
+            {{ isSaving() ? 'جاري الحفظ...' : (selectedGuarantee() ? 'حفظ التعديلات' : 'إضافة') }}
+          </button>
+          
+          @if (selectedGuarantee()) {
+            <button class="btn ghost-btn" type="button" (click)="clearSelection()" [disabled]="isSaving()">
+              إلغاء
+            </button>
+          }
+        </div>
+      </form>
+    </article>
+
+    <article class="card list-card">
+    <div class="list-head">
+      <h3>الضمانات</h3>
+      <span>{{ isLoading() ? 'جاري التحميل...' : (filteredGuarantees().length + ' عنصر') }} — صفحة {{ currentPage() }}/{{ totalPages() }}</span>
+    </div>
+    <div class="filter-section">
+      <input type="text" placeholder="ابحث باسم الضمان..." class="filter-input" (input)="onSearchChange($event)" />
+      <select class="status-filter" (change)="onStatusChange($event)">
+        <option value="all">الكل</option>
+        <option value="active">مفعل</option>
+        <option value="inactive">غير مفعل</option>
+      </select>
+    </div>
+
+      <div class="list-body">
+        @if (!isLoading() && filteredGuarantees().length === 0) {
+          <p class="empty-state">لا توجد ضمانات مضافة حالياً</p>
+        }
+
+        @for (guarantee of pagedGuarantees(); track guarantee.insuranceId) {
+          <div class="feature-row" [class.active]="selectedGuarantee()?.insuranceId === guarantee.insuranceId" [class.inactive]="!guarantee.isActive">
+            <div class="feature-info" (click)="selectGuarantee(guarantee)">
+              <div>
+                <h4>{{ guarantee.name }}</h4>
+                <p>
+                  <span>{{ guarantee.duration }} سنوات</span> | 
+                  <span>{{ guarantee.isActive ? 'مفعل' : 'غير مفعل' }}</span> | 
+                  <span>مشاريع: {{ guarantee.projectCount }}</span> | 
+                  <span>وحدات: {{ guarantee.unitCount }}</span>
+                </p>
+              </div>
+            </div>
+            
+            <div class="row-actions">
+              <button class="btn tiny-btn danger" type="button" (click)="deleteGuarantee(guarantee)" [disabled]="isSaving()">
+                حذف
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="pagination">
+        <button class="btn ghost-btn" type="button" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() <= 1">
+          السابق
+        </button>
+        <span>صفحة {{ currentPage() }} من {{ totalPages() }}</span>
+        <button class="btn ghost-btn" type="button" (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() >= totalPages()">
+          التالي
+        </button>
+      </div>
+    </article>
+  </div>
+</section>

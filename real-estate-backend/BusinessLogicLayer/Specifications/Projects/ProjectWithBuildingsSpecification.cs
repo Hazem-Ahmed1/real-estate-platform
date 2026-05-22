@@ -5,11 +5,11 @@ public class ProjectWithBuildingsSpecification : BaseSpecifications<Project>
 {
     public ProjectWithBuildingsSpecification(ProjectSpecParams @params, bool isCount = false)
         : base(p => 
-            (!@params.PublicOnly || (p.Status == ProjectStatus.Sale || p.Status == ProjectStatus.Rent)) &&
-
-
+            (string.IsNullOrEmpty(@params.City) || (p.City != null && p.City.ToLower() == @params.City.ToLower())) &&
             (!@params.Status.HasValue || p.Status == @params.Status) &&
             (!@params.UnitStatus.HasValue || p.Buildings.Any(b => b.Units.Any(u => u.Status == @params.UnitStatus))) &&
+            (!@params.Type.HasValue || p.Buildings.Any(b => b.Units.Any(u => u.Type == @params.Type))) &&
+            (!@params.Rooms.HasValue || p.Buildings.Any(b => b.Units.Any(u => u.Rooms == @params.Rooms))) &&
             (!@params.MinPrice.HasValue && !@params.MaxPrice.HasValue || p.Buildings.Any(b => b.Units.Any(u => 
                 (!@params.MinPrice.HasValue || u.Price >= @params.MinPrice) && 
                 (!@params.MaxPrice.HasValue || u.Price <= @params.MaxPrice)))) &&
@@ -19,9 +19,9 @@ public class ProjectWithBuildingsSpecification : BaseSpecifications<Project>
     {
         if (!isCount)
         {
-            AddInclude(p => p.Buildings);
+            AddInclude("Buildings");
             AddInclude("Buildings.Units");
-            AddInclude(p => p.Media);
+            AddInclude("Media");
             AddInclude("ProjectFeatures.Feature");
             AddInclude("ProjectInsurance.Insurance");
             
@@ -33,9 +33,7 @@ public class ProjectWithBuildingsSpecification : BaseSpecifications<Project>
 
     public ProjectWithBuildingsSpecification(int id) : base(p => p.ProjectId == id)
     {
-        AddInclude(p => p.Buildings);
-        AddInclude("Buildings.Units");
-        AddInclude(p => p.Media);
+        AddInclude("Media");
         AddInclude("ProjectFeatures.Feature");
         AddInclude("ProjectInsurance.Insurance");
     }

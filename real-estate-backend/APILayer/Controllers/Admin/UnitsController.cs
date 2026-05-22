@@ -1,27 +1,16 @@
 using APILayer.Dtos.Units;
 using BusinessLogicLayer.Contracts;
 using BusinessLogicLayer.Dtos.UnitModule;
-using BusinessLogicLayer.Specifications.Units;
-using DataAccessLayer.Common;
-using DataAccessLayer.Entities.ProjectModule;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using DataAccessLayer.Entities.UnitModule;
 
 namespace APILayer.Controllers.Admin;
 
 [ApiController]
 [Route("api/admin/units")]
 [Authorize(Roles = "Admin")]
-public class UnitsController(IUnitService unitService, IMediaService mediaService) : ControllerBase
+public class UnitsController(IUnitService unitService) : ControllerBase
 {
-    [HttpGet]
-    public async Task<ActionResult> GetUnits([FromQuery] UnitSpecParams @params)
-    {
-        var result = await unitService.GetUnitsAsync(@params);
-        return Ok(result);
-    }
-
     [HttpPost]
     [Consumes("multipart/form-data")]
     public async Task<ActionResult> CreateUnit([FromForm] UnitCreateFormDto form)
@@ -39,7 +28,10 @@ public class UnitsController(IUnitService unitService, IMediaService mediaServic
             Type = form.Type,
             Status = form.Status,
             StreetCount = form.StreetCount,
+            City = form.City,
+            Region = form.Region,
             Street = form.Street,
+            Address = form.Address,
             Latitude = form.Latitude,
             Longitude = form.Longitude,
             FeatureIds = form.FeatureIds,
@@ -53,7 +45,26 @@ public class UnitsController(IUnitService unitService, IMediaService mediaServic
         };
 
         var created = await unitService.CreateUnitAsync(dto);
-        return CreatedAtAction("GetUnit", "Units", new { id = created.UnitId }, created);
+        return CreatedAtAction(nameof(CreateUnit), new { id = created.UnitId }, created);
+    }
+
+    [HttpGet]
+    public async Task<ActionResult> GetAllUnits([FromQuery] BusinessLogicLayer.Specifications.Units.UnitSpecParams @params)
+    {
+        var result = await unitService.GetAdminUnitsAsync(@params);
+        return Ok(result);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult> GetUnit(int id)
+    {
+        var unit = await unitService.GetUnitByIdAsync(id);
+        if (unit is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(unit);
     }
 
     [HttpPut("{id}")]
@@ -73,13 +84,15 @@ public class UnitsController(IUnitService unitService, IMediaService mediaServic
             Type = form.Type,
             Status = form.Status,
             StreetCount = form.StreetCount,
+            City = form.City,
+            Region = form.Region,
             Street = form.Street,
+            Address = form.Address,
             Latitude = form.Latitude,
             Longitude = form.Longitude,
             FeatureIds = form.FeatureIds,
             InsuranceIds = form.InsuranceIds,
             DeletedMediaIds = form.DeletedMediaIds,
-            IsStatusChanged = form.IsStatusChanged,
             NearbyFacilities = form.NearbyFacilities,
             ThumbnailImage = form.ThumbnailImage,
             Images = form.Images,

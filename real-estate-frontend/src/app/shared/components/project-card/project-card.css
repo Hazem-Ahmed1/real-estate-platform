@@ -116,7 +116,7 @@
   align-items: center;
   gap: 5px;
 
-  justify-content: flex-end; /* RTL */
+  justify-content: flex-start; /* RTL */
 }
 
 .card-arrow {

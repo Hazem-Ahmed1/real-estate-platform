@@ -1,39 +1,41 @@
 <div class="project-card" tabindex="0">
   <!-- IMAGE -->
-  <img [src]="project().imageUrl" [alt]="project().title" />
+  <img
+    [src]="project().thumbnailUrl ?? '/images/imgForFullProject.jpg'"
+    [alt]="project().name"
+  />
 
   <!-- BADGE -->
   <div class="card-badge">
-    @if (project().type == 'للبيع') {
-      <i class="fa-solid fa-wand-magic-sparkles"></i>
+    @if (project().status === 'Sale') {
+      <i class="fa-solid fa-wand-magic-sparkles"></i> للبيع
+    } @else if (project().status === 'Rent') {
+      <i class="fa-solid fa-key"></i> للإيجار
+    } @else if (project().status === 'Sold') {
+      <i class="fa-solid fa-check-circle"></i> مباع
     } @else {
-      <i class="fa-solid fa-key"></i>
+      <i class="fa-solid fa-lock"></i> مؤجر
     }
-    {{ project().type }}
   </div>
 
   <!-- OVERLAY -->
   <div class="card-overlay">
     <!-- HOVER ACTIONS -->
     <div class="card-actions">
-      <a class="card-action" aria-label="الوحدات السكنية">
+      <a class="card-action" [routerLink]="['/units', project().projectId]" aria-label="الوحدات السكنية">
         <span> <i class="fa-regular fa-house"></i>  الوحدات السكنية </span>
       </a>
-
-      <a class="card-action" aria-label="عرض التفاصيل">
+      <a class="card-action" [routerLink]="['/project-details', project().projectId]" aria-label="عرض التفاصيل">
         <span><i class="fa-solid fa-bars-staggered"></i>  عرض التفاصيل </span>
       </a>
     </div>
 
     <!-- TEXT -->
     <div class="card-content">
-      <h5 class="title">
-        {{ project().title }}
-      </h5>
-
+      <h5 class="title">{{ project().name }}</h5>
       <div class="location">
         <i class="fa-solid fa-location-dot"></i>
-        {{ project().location }}
+        {{ project().city }}@if (project().region) { - {{ project().region }} }
       </div>
     </div>
 

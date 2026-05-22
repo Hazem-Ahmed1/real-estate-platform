@@ -6,14 +6,13 @@ public class ProjectDetailsDto
     public int ProjectId { get; set; }
     public string Name { get; set; } = string.Empty;
     public ProjectStatus Status { get; set; }
-    public bool? IsStatusChanged { get; set; }
-
 
     public string CityName { get; set; } = null!;
-    public string? AreaName { get; set; }
+    public string? RegionName { get; set; }
     public string? Address { get; set; }
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
+    public double BuildUpArea { get; set; }
     public List<BuildingDto> Buildings { get; set; } = new();
 
     public int BuildingsNumber { get; set; }

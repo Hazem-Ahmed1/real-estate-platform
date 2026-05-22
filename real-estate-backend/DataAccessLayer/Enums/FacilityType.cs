@@ -10,5 +10,6 @@ public enum FacilityType
     Bank,
     Pharmacy,
     SuperMarket,
-    Club
+    Club,
+    Other
 }

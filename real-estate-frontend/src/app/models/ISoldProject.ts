@@ -1,4 +1,5 @@
 export interface ISoldProject {
+  id?: number;
   title: string;
   location: string;
   price: string;
@@ -7,8 +8,9 @@ export interface ISoldProject {
   baths?: number;
   lounges?: number;
   area?: string;
-  units:number;
-  rooms:number;
+  units: number;
+  buildings?: number;
+  rooms: number;
   streetsText?: string;
   type: 'تم البيع' | 'تم الإيجار',
 }

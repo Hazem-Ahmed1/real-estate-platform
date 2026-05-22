@@ -31,12 +31,21 @@
 
         @if (status()) {
         <span class="status w-lg-auto pt-2">
-          <i class="fa-solid fa-bag-shopping"></i>
-          @if(status() === 'للبيع'){
+          <i class="fa-solid" [class.fa-bag-shopping]="status() === 'Sale' || status() === 'للبيع' || status() === 'Rent' || status() === 'للإيجار'" [class.fa-circle-check]="status() === 'Sold' || status() === 'مباع' || status() === 'Rented' || status() === 'مؤجر'"></i>
+          @if(status() === 'Sale' || status() === 'للبيع'){
           متاح للبيع (تملك الآن)
           }
-          @else{
-          متاح للإيجار (تملك الآن)
+          @else if(status() === 'Rent' || status() === 'للإيجار'){
+          متاح للإيجار
+          }
+          @else if(status() === 'Sold' || status() === 'مباع'){
+          مباع
+          }
+          @else if(status() === 'Rented' || status() === 'مؤجر'){
+          مؤجر
+          }
+          @else {
+          {{ status() }}
           }
         </span>
         }

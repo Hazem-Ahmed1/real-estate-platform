@@ -1,5 +1,7 @@
 using BusinessLogicLayer.Common;
 
+using DataAccessLayer.Enums;
+
 namespace BusinessLogicLayer.Specifications.Projects;
 
 public class ProjectSpecParams : PaginationParams
@@ -8,6 +10,8 @@ public class ProjectSpecParams : PaginationParams
     public UnitStatus? UnitStatus { get; set; }
     public decimal? MinPrice { get; set; }
     public decimal? MaxPrice { get; set; }
-    public bool PublicOnly { get; set; } = false;
+    public string? City { get; set; }
+    public UnitType? Type { get; set; }
+    public int? Rooms { get; set; }
 }
 

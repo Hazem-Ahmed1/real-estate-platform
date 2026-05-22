@@ -2,8 +2,6 @@ using APILayer.Dtos.Projects;
 using BusinessLogicLayer.Contracts;
 using BusinessLogicLayer.Dtos.ProjectModule;
 using BusinessLogicLayer.Specifications.Projects;
-using DataAccessLayer.Common;
-using DataAccessLayer.Entities.ProjectModule;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,13 +10,25 @@ namespace APILayer.Controllers.Admin;
 [ApiController]
 [Route("api/admin/projects")]
 [Authorize(Roles = "Admin")]
-public class ProjectsController(IProjectService projectService, IMediaService mediaService) : ControllerBase
+public class ProjectsController(IProjectService projectService) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult> GetProjects([FromQuery] ProjectSpecParams @params)
     {
         var result = await projectService.GetProjectsAsync(@params);
         return Ok(result);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<ProjectDetailsDto>> GetProject(int id)
+    {
+        var project = await projectService.GetProjectByIdAsync(id);
+        if (project is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(project);
     }
 
     [HttpPost]
@@ -29,7 +39,7 @@ public class ProjectsController(IProjectService projectService, IMediaService me
         {
             Name = form.Name,
             City = form.City,
-            Area = form.Area,
+            Region = form.Region,
             Address = form.Address,
             Latitude = form.Latitude,
             Longitude = form.Longitude,
@@ -46,7 +56,7 @@ public class ProjectsController(IProjectService projectService, IMediaService me
         };
 
         var created = await projectService.CreateProjectAsync(dto);
-        return CreatedAtAction("GetProject", "Projects", new { id = created.ProjectId }, created);
+        return CreatedAtAction(nameof(CreateProject), new { id = created.ProjectId }, created);
     }
 
     [HttpPut("{id}")]
@@ -57,7 +67,7 @@ public class ProjectsController(IProjectService projectService, IMediaService me
         {
             Name = form.Name,
             City = form.City,
-            Area = form.Area,
+            Region = form.Region,
             Address = form.Address,
             Latitude = form.Latitude,
             Longitude = form.Longitude,
@@ -68,7 +78,6 @@ public class ProjectsController(IProjectService projectService, IMediaService me
             FeatureIds = form.FeatureIds,
             InsuranceIds = form.InsuranceIds,
             DeletedMediaIds = form.DeletedMediaIds,
-            IsStatusChanged = form.IsStatusChanged,
             ThumbnailImage = form.ThumbnailImage,
             Images = form.Images,
             Panorama360 = form.Panorama360,

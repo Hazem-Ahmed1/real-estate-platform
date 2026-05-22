@@ -35,14 +35,20 @@ public class Unit : AuditableEntity
     public UnitType Type { get; set; }
     public UnitStatus Status { get; set; }
     [Required]
-    [RangeAttribute(1, 10)]
+    [RangeAttribute(1, 4)]
     public int StreetCount { get; set; }
 
-    public bool IsStatusChanged { get; set; }
+    [StringLength(100)]
+    public string? City { get; set; }
 
-    [Required]
+    [StringLength(200)]
+    public string? Region { get; set; }
+
+    [StringLength(200)]
+    public string? Street { get; set; }
+
     [StringLength(500)]
-    public string Street { get; set; } = null!;
+    public string? Address { get; set; }
 
     [Required]
     [RangeAttribute(-90, 90)]

@@ -1,4 +1,5 @@
 using BusinessLogicLayer.Specifications.Units;
+using DataAccessLayer.Enums;
 
 namespace BusinessLogicLayer.Specifications.Units;
 
@@ -6,12 +7,10 @@ public class UnitWithDetailsSpecification : BaseSpecifications<Unit>
 {
     public UnitWithDetailsSpecification(UnitSpecParams @params)
         : base(x =>
-            (!@params.PublicOnly || (x.Status == UnitStatus.Sale || x.Status == UnitStatus.Rent)) &&
-
-
-            (string.IsNullOrEmpty(@params.Search) || (x.Street != null && x.Street.Contains(@params.Search))) &&
+            (string.IsNullOrEmpty(@params.Search) || (x.Address != null && x.Address.Contains(@params.Search))) &&
+            (string.IsNullOrEmpty(@params.City) || (x.Building.Project.City != null && x.Building.Project.City.ToLower() == @params.City.ToLower())) &&
             (!@params.Type.HasValue || x.Type == @params.Type) &&
-            (!@params.Status.HasValue || x.Status == @params.Status) &&
+            (@params.IncludeAllStatuses || (@params.Status.HasValue ? x.Status == @params.Status : (x.Status == UnitStatus.Sale || x.Status == UnitStatus.Rent))) &&
             (!@params.Rooms.HasValue || x.Rooms == @params.Rooms) &&
             (!@params.MinPrice.HasValue || x.Price >= @params.MinPrice) &&
             (!@params.MaxPrice.HasValue || x.Price <= @params.MaxPrice) &&
@@ -35,5 +34,7 @@ public class UnitWithDetailsSpecification : BaseSpecifications<Unit>
         AddInclude("Building.Project");
         AddInclude(x => x.Media);
         AddInclude(x => x.NearbyFacilities);
+        AddInclude("UnitFeatures.Feature");
+        AddInclude("UnitInsurance.Insurance");
     }
 }

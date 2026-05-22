@@ -21,7 +21,7 @@
         [class.active]="selectedFilter() === 'sell'"
         (click)="filterBy('sell')"
       >
-        للبيع
+        {{ sellLabel() }}
         <i class="fa-solid fa-wand-magic-sparkles"></i>
       </button>
 
@@ -30,7 +30,7 @@
         [class.active]="selectedFilter() === 'rent'"
         (click)="filterBy('rent')"
       >
-        للإيجار
+        {{ rentLabel() }}
         <i class="fa-solid fa-key"></i>
       </button>
 
@@ -41,30 +41,41 @@
     </div>
 
     @if (showFilter()) {
-      <div class="filter-panel mt-3 p-4">
+      <div class="filter-panel mt-3 p-4" [formGroup]="filterForm">
         <!-- PRICE RANGE -->
         <div class="mb-4 text-end">
           <label class="filter-label">السعر</label>
 
           <div class="range-inputs d-flex gap-2 mt-2">
-            <input
-              type="number"
-              class="form-control"
-              placeholder="من"
-              (input)="
-                advancedFilters.update((f) => ({ ...f, minPrice: $any($event.target).value }))
-              "
-            />
+            <div class="flex-grow-1">
+              <input
+                type="number"
+                class="form-control"
+                [class.is-invalid]="filterForm.get('minPrice')?.invalid || filterForm.hasError('priceRangeInvalid')"
+                placeholder="من"
+                formControlName="minPrice"
+              />
+              @if (filterForm.get('minPrice')?.hasError('min')) {
+                <div class="text-danger mt-1" style="font-size: 11px;">يجب أن تكون القيمة موجبة</div>
+              }
+            </div>
 
-            <input
-              type="number"
-              class="form-control"
-              placeholder="إلى"
-              (input)="
-                advancedFilters.update((f) => ({ ...f, maxPrice: $any($event.target).value }))
-              "
-            />
+            <div class="flex-grow-1">
+              <input
+                type="number"
+                class="form-control"
+                [class.is-invalid]="filterForm.get('maxPrice')?.invalid || filterForm.hasError('priceRangeInvalid')"
+                placeholder="إلى"
+                formControlName="maxPrice"
+              />
+              @if (filterForm.get('maxPrice')?.hasError('min')) {
+                <div class="text-danger mt-1" style="font-size: 11px;">يجب أن تكون القيمة موجبة</div>
+              }
+            </div>
           </div>
+          @if (filterForm.hasError('priceRangeInvalid')) {
+            <div class="text-danger mt-1 text-end" style="font-size: 11px;">الحد الأدنى لا يمكن أن يتجاوز الحد الأقصى</div>
+          }
         </div>
 
         <!-- ROOMS -->
@@ -74,14 +85,18 @@
           <input
             type="number"
             class="form-control mt-2"
+            [class.is-invalid]="filterForm.get('rooms')?.invalid"
             placeholder="مثلاً 3"
-            (input)="advancedFilters.update((f) => ({ ...f, rooms: $any($event.target).value }))"
+            formControlName="rooms"
           />
+          @if (filterForm.get('rooms')?.invalid) {
+            <div class="text-danger mt-1" style="font-size: 11px;">الرجاء إدخال عدد صحيح موجب</div>
+          }
         </div>
 
         <!-- APPLY -->
         <div class="text-start">
-          <button class="btn apply-btn" (click)="applyFilters()">تطبيق</button>
+          <button class="btn apply-btn" [disabled]="filterForm.invalid" (click)="applyFilters()">تطبيق</button>
         </div>
       </div>
     }

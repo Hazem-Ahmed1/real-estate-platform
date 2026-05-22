@@ -11,7 +11,7 @@ public class ProjectProfile : Profile
                 ? s.Media.FirstOrDefault(m => m.IsThumbnail)!.MediaUrl
                 : null))
             .ForMember(d => d.BuildingsNumber, o => o.MapFrom(s => s.Buildings.Count))
-            .ForMember(d => d.UnitsNumber, o => o.MapFrom(s => s.AvailableUnitsCount + s.TransactedUnitsCount))
+            .ForMember(d => d.UnitsNumber, o => o.MapFrom(s => s.Buildings.SelectMany(b => b.Units).Any() ? s.Buildings.SelectMany(b => b.Units).Count() : (s.AvailableUnitsCount + s.TransactedUnitsCount)))
             .ForMember(d => d.TotalRooms, o => o.MapFrom(s => s.Buildings.Sum(b => b.Units.Sum(u => u.Rooms))))
             .ForMember(d => d.TotalHalls, o => o.MapFrom(s => s.Buildings.Sum(b => b.Units.Sum(u => u.Salons))))
             .ForMember(d => d.MinPrice, o => o.MapFrom(s => s.Buildings.SelectMany(b => b.Units).Any() ? s.Buildings.SelectMany(b => b.Units).Min(u => u.Price) : 0))
@@ -20,21 +20,27 @@ public class ProjectProfile : Profile
 
         // Mapping for Public Details
         CreateMap<Project, ProjectDetailsDto>()
-            .ForMember(d => d.BuildingsNumber, o => o.MapFrom(s => s.Buildings.Count))
-            .ForMember(d => d.UnitsNumber, o => o.MapFrom(s => s.AvailableUnitsCount + s.TransactedUnitsCount))
-            .ForMember(d => d.TotalRooms, o => o.MapFrom(s => s.Buildings.Sum(b => b.Units.Sum(u => u.Rooms))))
-            .ForMember(d => d.TotalHalls, o => o.MapFrom(s => s.Buildings.Sum(b => b.Units.Sum(u => u.Salons))))
-            .ForMember(d => d.MinPrice, o => o.MapFrom(s => s.Buildings.SelectMany(b => b.Units).Any() ? s.Buildings.SelectMany(b => b.Units).Min(u => u.Price) : 0))
-            .ForMember(d => d.MaxPrice, o => o.MapFrom(s => s.Buildings.SelectMany(b => b.Units).Any() ? s.Buildings.SelectMany(b => b.Units).Max(u => u.Price) : 0))
-            .ForMember(d => d.Buildings, o => o.MapFrom(s => s.Buildings))
+            .ForMember(d => d.BuildingsNumber, o => o.Ignore())
+            .ForMember(d => d.UnitsNumber, o => o.Ignore())
+            .ForMember(d => d.TotalRooms, o => o.Ignore())
+            .ForMember(d => d.TotalHalls, o => o.Ignore())
+            .ForMember(d => d.MinPrice, o => o.Ignore())
+            .ForMember(d => d.MaxPrice, o => o.Ignore())
+            .ForMember(d => d.Buildings, o => o.Ignore())
 
             .ForMember(d => d.CityName, o => o.MapFrom(s => s.City))
-            .ForMember(d => d.AreaName, o => o.MapFrom(s => s.Area))
+            .ForMember(d => d.RegionName, o => o.MapFrom(s => s.Region))
             .ForMember(d => d.Features, o => o.MapFrom(s => s.ProjectFeatures.Select(pf => pf.Feature)))
             .ForMember(d => d.Insurance, o => o.MapFrom(s => s.ProjectInsurance.Select(pi => pi.Insurance)))
-            .ForMember(d => d.Panorama360Url, o => o.MapFrom(s => s.Media.FirstOrDefault(m => m.Type == MediaType.Panorama360).MediaUrl))
-            .ForMember(d => d.VideoUrl, o => o.MapFrom(s => s.Media.FirstOrDefault(m => m.Type == MediaType.Video).MediaUrl))
-            .ForMember(d => d.ThumbnailUrl, o => o.MapFrom(s => s.Media.FirstOrDefault(m => m.IsThumbnail).MediaUrl))
+            .ForMember(d => d.Panorama360Url, o => o.MapFrom(s => s.Media.FirstOrDefault(m => m.Type == MediaType.Panorama360) != null 
+                ? s.Media.FirstOrDefault(m => m.Type == MediaType.Panorama360)!.MediaUrl 
+                : null))
+            .ForMember(d => d.VideoUrl, o => o.MapFrom(s => s.Media.FirstOrDefault(m => m.Type == MediaType.Video) != null 
+                ? s.Media.FirstOrDefault(m => m.Type == MediaType.Video)!.MediaUrl 
+                : null))
+            .ForMember(d => d.ThumbnailUrl, o => o.MapFrom(s => s.Media.FirstOrDefault(m => m.IsThumbnail) != null 
+                ? s.Media.FirstOrDefault(m => m.IsThumbnail)!.MediaUrl 
+                : null))
             .ForMember(d => d.Images, o => o.MapFrom(s => s.Media.Where(m => m.Type == MediaType.Image && !m.IsThumbnail).Select(m => m.MediaUrl)));
 
         CreateMap<ProjectCreateDto, Project>()

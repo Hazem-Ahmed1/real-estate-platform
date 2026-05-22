@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(RealEstateDbContext))]
-    [Migration("20260509143538_InitailCreate")]
-    partial class InitailCreate
+    [Migration("20260522024639_LastMigration")]
+    partial class LastMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -160,6 +160,53 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("Blog", (string)null);
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Entities.BuildingModule.Building", b =>
+                {
+                    b.Property<int>("BuildingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BuildingId"));
+
+                    b.Property<double>("BuildingArea")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("FloorCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("MaxArea")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("BuildingId");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("Buildings", (string)null);
+                });
+
             modelBuilder.Entity("DataAccessLayer.Entities.CommunicationModule.Message", b =>
                 {
                     b.Property<int>("MessageId")
@@ -199,17 +246,12 @@ namespace DataAccessLayer.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int?>("UnitId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("MessageId");
 
                     b.HasIndex("Email");
-
-                    b.HasIndex("UnitId");
 
                     b.ToTable("Messages", (string)null);
                 });
@@ -311,6 +353,9 @@ namespace DataAccessLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InsuranceId"));
 
+                    b.Property<int>("Duration")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -335,6 +380,9 @@ namespace DataAccessLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FacilityId"));
 
+                    b.Property<double>("Area")
+                        .HasColumnType("float");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -358,7 +406,7 @@ namespace DataAccessLayer.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int>("UnitId")
+                    b.Property<int?>("UnitId")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -369,44 +417,6 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex("UnitId");
 
                     b.ToTable("Nearby_Facilities", (string)null);
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Entities.ProjectModule.Building", b =>
-                {
-                    b.Property<int>("BuildingId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BuildingId"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("Floors")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("BuildingId");
-
-                    b.HasIndex("Name")
-                        .IsUnique()
-                        .HasFilter("[Name] IS NOT NULL");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("Buildings", (string)null);
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.ProjectModule.Project", b =>
@@ -421,11 +431,14 @@ namespace DataAccessLayer.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<string>("Area")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<int>("AvailableUnitsCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("BuildUpArea")
+                        .HasColumnType("float");
 
                     b.Property<string>("City")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -434,16 +447,13 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETDATE()");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<double?>("Latitude")
+                    b.Property<double>("LandArea")
                         .HasColumnType("float");
 
-                    b.Property<double?>("Longitude")
+                    b.Property<double>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Longitude")
                         .HasColumnType("float");
 
                     b.Property<string>("Name")
@@ -451,13 +461,20 @@ namespace DataAccessLayer.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<string>("Region")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<double?>("TotalArea")
+                    b.Property<double?>("TotalBuildingArea")
                         .HasColumnType("float");
+
+                    b.Property<int>("TransactedUnitsCount")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -521,6 +538,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
 
+                    b.Property<string>("PublicId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ThumbnailUrl")
                         .HasColumnType("nvarchar(max)");
 
@@ -549,43 +569,50 @@ namespace DataAccessLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UnitId"));
 
-                    b.Property<double?>("Area")
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<double>("Area")
                         .HasColumnType("float");
 
-                    b.Property<int?>("Bathrooms")
+                    b.Property<int>("Bathrooms")
                         .HasColumnType("int");
 
                     b.Property<int>("BuildingId")
                         .HasColumnType("int");
 
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("Floor")
+                    b.Property<int>("Floor")
                         .HasColumnType("int");
 
-                    b.Property<bool>("HasBeenTransacted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<double?>("Latitude")
+                    b.Property<double>("Latitude")
                         .HasColumnType("float");
 
-                    b.Property<double?>("Longitude")
+                    b.Property<double>("Longitude")
                         .HasColumnType("float");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<decimal?>("Price")
+                    b.Property<decimal>("Price")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int?>("Rooms")
+                    b.Property<string>("Region")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("Rooms")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Salons")
+                    b.Property<int>("Salons")
                         .HasColumnType("int");
 
                     b.Property<string>("Status")
@@ -594,8 +621,8 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Street")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("StreetCount")
                         .HasColumnType("int");
@@ -667,6 +694,9 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<string>("MediaUrl")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PublicId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ThumbnailUrl")
@@ -836,28 +866,7 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Blog");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.CommunicationModule.Message", b =>
-                {
-                    b.HasOne("DataAccessLayer.Entities.UnitModule.Unit", "Unit")
-                        .WithMany()
-                        .HasForeignKey("UnitId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Unit");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Entities.LookupModule.NearbyFacility", b =>
-                {
-                    b.HasOne("DataAccessLayer.Entities.UnitModule.Unit", "Unit")
-                        .WithMany("NearbyFacilities")
-                        .HasForeignKey("UnitId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Unit");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Entities.ProjectModule.Building", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.BuildingModule.Building", b =>
                 {
                     b.HasOne("DataAccessLayer.Entities.ProjectModule.Project", "Project")
                         .WithMany("Buildings")
@@ -866,6 +875,16 @@ namespace DataAccessLayer.Migrations
                         .IsRequired();
 
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.LookupModule.NearbyFacility", b =>
+                {
+                    b.HasOne("DataAccessLayer.Entities.UnitModule.Unit", "Unit")
+                        .WithMany("NearbyFacilities")
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Unit");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.ProjectModule.ProjectFeature", b =>
@@ -919,7 +938,7 @@ namespace DataAccessLayer.Migrations
 
             modelBuilder.Entity("DataAccessLayer.Entities.UnitModule.Unit", b =>
                 {
-                    b.HasOne("DataAccessLayer.Entities.ProjectModule.Building", "Building")
+                    b.HasOne("DataAccessLayer.Entities.BuildingModule.Building", "Building")
                         .WithMany("Units")
                         .HasForeignKey("BuildingId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1033,6 +1052,11 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Images");
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Entities.BuildingModule.Building", b =>
+                {
+                    b.Navigation("Units");
+                });
+
             modelBuilder.Entity("DataAccessLayer.Entities.LookupModule.Feature", b =>
                 {
                     b.Navigation("ProjectFeatures");
@@ -1045,11 +1069,6 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("ProjectInsurance");
 
                     b.Navigation("UnitInsurance");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Entities.ProjectModule.Building", b =>
-                {
-                    b.Navigation("Units");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.ProjectModule.Project", b =>

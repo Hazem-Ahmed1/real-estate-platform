@@ -1,36 +1,42 @@
 <app-breadcrumb
-  [items]="[{ label: 'الرئيسية', url: '/' }, { label: 'الوحدات', url: '/units' }, { label: unit.title }]"
-  [status]="unit.type"
-  [price]="+unit.price"
+  [items]="[{ label: 'الرئيسية', url: '/' }, { label: 'الوحدات', url: '/units' }, { label: unit()?.name ?? '' }]"
+  [status]="unit()?.status ?? 'Sale'"
+  [price]="unit()?.price ?? null"
 />
 
-<div class="container unit-details-page">
+@if (unit()) {
+<div class="container unit-details-page" dir="rtl">
 
   <app-unit-hero
-    [title]="unit.title"
-    [location]="unit.location"
+    [title]="unit()!.name"
+    [location]="(unit()!.city ?? '') + (unit()!.region ? ' - ' + unit()!.region : '')"
     [metadata]="metadata"
   />
 
-  <app-unit-panorama-contact
-    [panoramaImage]="panoramaImage"
-  />
+  @if (unit()!.panoramaUrl) {
+    <app-unit-panorama-contact
+      [panoramaImage]="unit()!.panoramaUrl!"
+    />
+  }
 
-  <div class="row mb-5">
-    <div class="col-12">
-      <app-unit-video
-        [videoUrl]="videoUrl"
-        [videoPoster]="videoPoster"
-      />
+  @if (unit()!.videoUrl) {
+    <div class="row mb-5">
+      <div class="col-12">
+        <app-unit-video
+          [videoUrl]="unit()!.videoUrl!"
+        />
+      </div>
     </div>
-  </div>
+  }
 
-  <div class="row mb-5">
-    <div class="col-12">
-      <app-section-title [subtitle]="'صور'" [title]="'صور من جوانب مختلفة للوحدة'" />
-      <app-project-gallery [images]="gallery" />
+  @if (gallery && gallery.length > 0) {
+    <div class="row mb-5">
+      <div class="col-12">
+        <app-section-title [subtitle]="'صور'" [title]="'صور من جوانب مختلفة للوحدة'" />
+        <app-project-gallery [images]="gallery" />
+      </div>
     </div>
-  </div>
+  }
 
   <div class="row mb-5">
     <div class="col-12">
@@ -43,12 +49,27 @@
     </div>
   </div>
 
-  <div class="row mb-5">
-    <div class="col-12">
-      <app-section-title [subtitle]="'موقع'" [title]="'موقع الوحدة على الخريطة'" />
-      <app-project-map [lat]="mapLat" [lng]="mapLng" />
+  @if (unit()!.latitude && unit()!.longitude) {
+    <div class="row mb-5">
+      <div class="col-12">
+        <app-section-title [subtitle]="'موقع'" [title]="'موقع الوحدة على الخريطة'" />
+        <app-project-map
+          [lat]="unit()!.latitude!"
+          [lng]="unit()!.longitude!"
+          [nearbyFacilities]="unit()!.nearbyFacilities"
+        />
+      </div>
     </div>
-  </div>
+  }
 </div>
+} @else {
+  <!-- Gorgeous Skeek Spinner -->
+  <div class="container py-5 text-center" dir="rtl" style="min-height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+    <div class="spinner-border text-success" role="status" style="width: 3.5rem; height: 3.5rem; color: var(--text-green) !important;">
+      <span class="visually-hidden">جاري التحميل...</span>
+    </div>
+    <p class="text-muted mt-3" style="font-family: 'Cairo', sans-serif; font-size: 1.2rem;">جاري تحميل تفاصيل الوحدة...</p>
+  </div>
+}
 
 <app-contact-section></app-contact-section>

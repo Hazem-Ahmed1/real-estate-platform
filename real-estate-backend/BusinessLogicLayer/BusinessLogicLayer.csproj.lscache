@@ -54,7 +54,6 @@ TemporaryDependencyNodeTargetIdentifier=net9.0
 
 [sourceFiles]
 AssemblyReference.cs
-<<<<<<< HEAD
 Common/
  LookupStatus.cs
  PaginationParams.cs
@@ -62,40 +61,30 @@ Contracts/
  IBlogService.cs
  IBuildingService.cs
  IDashboardService.cs
+ IFilterOptionsService.cs
  ILookupService.cs
  IMediaService.cs
  IMessageService.cs
  IProjectService.cs
  IUnitService.cs
-=======
-Common/PaginationParams.cs
-Contracts/
- IBlogService.cs
- IMediaService.cs
- IMessageService.cs
- IProjectService.cs
->>>>>>> 4c6d413b73e6956162f94948d591738a11405365
 Dtos/BlogModule/
  BlogCreateDto.cs
  BlogDetailsDto.cs
  BlogListDto.cs
  BlogUpdateDto.cs
-<<<<<<< HEAD
 Dtos/BuildingModule/
  BuildingDto.cs
  BuildingUpsertDto.cs
-=======
->>>>>>> 4c6d413b73e6956162f94948d591738a11405365
 Dtos/CommunicationModule/
  MessageCreateDto.cs
  MessageDetailsDto.cs
  MessageListDto.cs
-<<<<<<< HEAD
 Dtos/LookupModule/
  FeatureDto.cs
  InsuranceDto.cs
  LookupDeleteResultDto.cs
  LookupUpsertDto.cs
+ SearchFilterOptionsDto.cs
  UpdateFeatureDto.cs
  UpdateInsuranceDto.cs
 Dtos/
@@ -116,21 +105,12 @@ Dtos/
   UnitMediaDto.cs
   UnitMediaUploadDto.cs
   UnitUpdateDto.cs
-=======
-Dtos/
- MediaModule/MediaUploadResultDto.cs
- ProjectModule/
-  ProjectDetailsDto.cs
-  ProjectListDto.cs
-  ProjectMediaDto.cs
->>>>>>> 4c6d413b73e6956162f94948d591738a11405365
 Exceptions/
  BadRequestException.cs
  ConflictException.cs
  NotFoundExpection.cs
  UnauthorizedException.cs
  VaildationException.cs
-<<<<<<< HEAD
 Helpers/
  CloudinarySettings.cs
  GeoLocationHelper.cs
@@ -139,6 +119,7 @@ Implementation/
  BlogService.cs
  BuildingService.cs
  DashboardService.cs
+ FilterOptionsService.cs
  LookupService.cs
  MediaService.cs
  MessageService.cs
@@ -150,17 +131,6 @@ Mapping/
  MappingProfile.cs
  ProjectProfile.cs
  UnitProfile.cs
-=======
-Helpers/CloudinarySettings.cs
-Implementation/
- BlogService.cs
- MediaService.cs
- MessageService.cs
- ProjectService.cs
-Mapping/
- MappingProfile.cs
- ProjectProfile.cs
->>>>>>> 4c6d413b73e6956162f94948d591738a11405365
 obj/Debug/net9.0/
  .NETCoreApp,Version=v9.0.AssemblyAttributes.cs
  BusinessLogicLayer.AssemblyInfo.cs
@@ -170,21 +140,18 @@ Specifications/
  Blogs/
   BlogSpecParams.cs
   BlogsWithImagesSpecification.cs
-<<<<<<< HEAD
  Buildings/
   BuildingsByProjectSpecification.cs
   BuildingWithProjectSpecification.cs
-=======
->>>>>>> 4c6d413b73e6956162f94948d591738a11405365
  Messages/
   MessageSpecParams.cs
   MessagesSpecification.cs
  Projects/
   ProjectSpecParams.cs
   ProjectWithBuildingsSpecification.cs
-<<<<<<< HEAD
  Units/
   UnitsByBuildingSpecification.cs
+  UnitsByProjectSpecification.cs
   UnitSpecParams.cs
   UnitWithDetailsSpecification.cs
   UnitWithFiltersForCountSpecification.cs
@@ -192,12 +159,6 @@ Specifications/
 [metadataReferences]
 ../DataAccessLayer/obj/Debug/net9.0/ref/DataAccessLayer.dll
 <DOTNET>/packs/Microsoft.AspNetCore.App.Ref/9.0.16/ref/net9.0/
-=======
-
-[metadataReferences]
-../DataAccessLayer/obj/Debug/net9.0/ref/DataAccessLayer.dll
-<DOTNET>/packs/Microsoft.AspNetCore.App.Ref/9.0.15/ref/net9.0/
->>>>>>> 4c6d413b73e6956162f94948d591738a11405365
  Microsoft.AspNetCore.Antiforgery.dll
  Microsoft.AspNetCore.Authentication.Abstractions.dll
  Microsoft.AspNetCore.Authentication.BearerToken.dll
@@ -332,11 +293,7 @@ Specifications/
  System.Diagnostics.EventLog.dll
  System.Security.Cryptography.Xml.dll
  System.Threading.RateLimiting.dll
-<<<<<<< HEAD
 <DOTNET>/packs/Microsoft.NETCore.App.Ref/9.0.16/ref/net9.0/
-=======
-<DOTNET>/packs/Microsoft.NETCore.App.Ref/9.0.15/ref/net9.0/
->>>>>>> 4c6d413b73e6956162f94948d591738a11405365
  Microsoft.CSharp.dll
  Microsoft.VisualBasic.Core.dll
  Microsoft.VisualBasic.dll
@@ -533,30 +490,18 @@ Specifications/
  system.security.cryptography.protecteddata/6.0.0/lib/net6.0/System.Security.Cryptography.ProtectedData.dll
 
 [analyzerReferences]
-<<<<<<< HEAD
 <DOTNET>/packs/Microsoft.AspNetCore.App.Ref/9.0.16/analyzers/dotnet/cs/
  Microsoft.AspNetCore.App.Analyzers.dll
  Microsoft.AspNetCore.App.CodeFixes.dll
  Microsoft.AspNetCore.Components.Analyzers.dll
 <DOTNET>/packs/Microsoft.NETCore.App.Ref/9.0.16/analyzers/dotnet/cs/
-=======
-<DOTNET>/packs/Microsoft.AspNetCore.App.Ref/9.0.15/analyzers/dotnet/cs/
- Microsoft.AspNetCore.App.Analyzers.dll
- Microsoft.AspNetCore.App.CodeFixes.dll
- Microsoft.AspNetCore.Components.Analyzers.dll
-<DOTNET>/packs/Microsoft.NETCore.App.Ref/9.0.15/analyzers/dotnet/cs/
->>>>>>> 4c6d413b73e6956162f94948d591738a11405365
  Microsoft.Interop.ComInterfaceGenerator.dll
  Microsoft.Interop.JavaScript.JSImportGenerator.dll
  Microsoft.Interop.LibraryImportGenerator.dll
  Microsoft.Interop.SourceGeneration.dll
  System.Text.Json.SourceGeneration.dll
  System.Text.RegularExpressions.Generator.dll
-<<<<<<< HEAD
 <DOTNET>/sdk/10.0.300/Sdks/Microsoft.NET.Sdk/analyzers/
-=======
-<DOTNET>/sdk/10.0.203/Sdks/Microsoft.NET.Sdk/analyzers/
->>>>>>> 4c6d413b73e6956162f94948d591738a11405365
  Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll
  Microsoft.CodeAnalysis.NetAnalyzers.dll
 <NUGET>/
@@ -565,9 +510,5 @@ Specifications/
  microsoft.extensions.options/10.0.0/analyzers/dotnet/roslyn4.4/cs/Microsoft.Extensions.Options.SourceGeneration.dll
 
 [analyzerConfigFiles]
-<<<<<<< HEAD
 <DOTNET>/sdk/10.0.300/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_9_default.globalconfig
-=======
-<DOTNET>/sdk/10.0.203/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_9_default.globalconfig
->>>>>>> 4c6d413b73e6956162f94948d591738a11405365
 obj/Debug/net9.0/BusinessLogicLayer.GeneratedMSBuildEditorConfig.editorconfig

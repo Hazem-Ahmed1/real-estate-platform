@@ -1,13 +1,34 @@
 <app-breadcrumb [items]="[{ label: 'الرئيسية', url: '/' }, { label: 'المشاريع' }]" />
 
-<div class="container">
+<div class="container" dir="rtl">
   <app-filters
-    subTitle="عـــقاراتنا"
-    title="المشـــــــاريع الحـــالية"
+    [subTitle]="getFilterSubTitle()"
+    [title]="getFilterTitle()"
+    [sellLabel]="getSellLabel()"
+    [rentLabel]="getRentLabel()"
+    (filterChange)="onFilterChange($event)"
   ></app-filters>
 
-  <app-projects-list [projects]="projects"></app-projects-list>
-  <app-pagination [currentPage]="currentPage" [totalPages]="10" (pageChange)="onPageChange($event)"/>
+  @if (isLoading()) {
+    <!-- Gorgeous Sleek Spinner -->
+    <div class="text-center py-5" style="min-height: 40vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <div class="spinner-border text-success" role="status" style="width: 3.5rem; height: 3.5rem; color: var(--text-green) !important;">
+        <span class="visually-hidden">جاري التحميل...</span>
+      </div>
+      <p class="text-muted mt-3" style="font-family: 'Cairo', sans-serif;">جاري تحميل المشاريع...</p>
+    </div>
+  } @else {
+    @if (projects().length === 0) {
+      <div class="text-center py-5 bg-white rounded shadow-sm border mb-5">
+        <i class="fa-solid fa-folder-open text-muted mb-3" style="font-size: 48px;"></i>
+        <h4 class="text-secondary font-weight-bold">{{ getEmptyStateMessage() }}</h4>
+        <p class="text-muted mt-2">يرجى تعديل خيارات الفلترة والمحاولة مرة أخرى.</p>
+      </div>
+    } @else {
+      <app-projects-list [projects]="projects()"></app-projects-list>
+      <app-pagination [currentPage]="currentPage()" [totalPages]="totalPages()" (pageChange)="onPageChange($event)"/>
+    }
+  }
 
 </div>
 <app-contact-section></app-contact-section>

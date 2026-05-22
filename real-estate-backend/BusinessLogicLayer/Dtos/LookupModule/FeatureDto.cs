@@ -5,4 +5,6 @@ public class FeatureDto
     public int FeatureId { get; set; }
     public string Name { get; set; } = string.Empty;
     public bool IsActive { get; set; }
+    public int UnitCount { get; set; }
+    public int ProjectCount { get; set; }
 }

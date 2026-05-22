@@ -23,6 +23,26 @@ export const adminRoutes: Routes = [
         path: 'messages',
         loadComponent: () => import('./messages/admin-messages').then((m) => m.AdminMessages),
       },
+      {
+        path: 'features',
+        loadComponent: () => import('./features/admin-features').then((m) => m.AdminFeatures),
+      },
+      {
+        path: 'guarantees',
+        loadComponent: () => import('./guarantees/admin-guarantees').then((m) => m.AdminGuarantees),
+      },
+      {
+        path: 'projects',
+        loadComponent: () => import('./projects/admin-projects').then((m) => m.AdminProjects),
+      },
+      {
+        path: 'buildings',
+        loadComponent: () => import('./buildings/admin-buildings').then((m) => m.AdminBuildings),
+      },
+      {
+        path: 'units',
+        loadComponent: () => import('./units/admin-units').then((m) => m.AdminUnits),
+      },
     ],
   },
 ];

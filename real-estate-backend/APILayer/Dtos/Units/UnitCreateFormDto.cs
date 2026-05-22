@@ -19,7 +19,7 @@ public class UnitCreateFormDto
     public int Salons { get; set; }
 
     [Required(ErrorMessage = "Area is required.")]
-    [Range(100, 100000, ErrorMessage = "Area must be at least 100.")]
+    [Range(10, 100000, ErrorMessage = "Area must be at least 10.")]
     public double Area { get; set; }
 
     [Required(ErrorMessage = "Bathrooms count is required.")]
@@ -38,12 +38,21 @@ public class UnitCreateFormDto
     public UnitStatus Status { get; set; } = UnitStatus.Sale;
 
     [Required(ErrorMessage = "Street count is required.")]
-    [Range(1, 10, ErrorMessage = "Street count must be at least 1.")]
+    [Range(1, 4, ErrorMessage = "Street count must be between 1 and 4.")]
     public int StreetCount { get; set; }
 
-    [Required(ErrorMessage = "Street address is required.")]
+    [StringLength(100)]
+    public string? City { get; set; }
+
+    [StringLength(200)]
+    public string? Region { get; set; }
+
+    [StringLength(200)]
+    public string? Street { get; set; }
+
+    [Required(ErrorMessage = "Address is required.")]
     [StringLength(500, MinimumLength = 3)]
-    public string Street { get; set; } = null!;
+    public string Address { get; set; } = null!;
 
     [Required(ErrorMessage = "Latitude is required.")]
     [Range(-90, 90)]

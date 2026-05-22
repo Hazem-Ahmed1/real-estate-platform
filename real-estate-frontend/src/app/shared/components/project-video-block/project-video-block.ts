@@ -18,7 +18,6 @@ export class ProjectVideoBlock implements OnDestroy {
   private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   videoUrl = input.required<string>();
-  poster = input.required<string>();
 
   started = signal(false);
   playing = signal(false);

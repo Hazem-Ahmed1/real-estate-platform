@@ -7,5 +7,5 @@ import { Component, input } from '@angular/core';
   styleUrl: './unit-nearby.css',
 })
 export class UnitNearby {
-  nearbyPlaces = input.required<{ name: string; distanceText: string }[]>();
+  nearbyPlaces = input.required<{ name: string; distanceText: string; iconClass?: string }[]>();
 }

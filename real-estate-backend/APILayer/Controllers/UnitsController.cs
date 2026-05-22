@@ -1,3 +1,9 @@
+using BusinessLogicLayer.Contracts;
+using BusinessLogicLayer.Dtos.UnitModule;
+using BusinessLogicLayer.Exceptions;
+using BusinessLogicLayer.Specifications.Units;
+using Microsoft.AspNetCore.Mvc;
+
 namespace APILayer.Controllers;
 
 [ApiController]
@@ -9,31 +15,17 @@ public class UnitsController(IUnitService unitService) : ApiController
     [HttpGet]
     public async Task<ActionResult> GetUnits([FromQuery] UnitSpecParams @params)
     {
-        @params.PublicOnly = true;
-        PaginatedResult<UnitListDto>? result = await unitService.GetUnitsAsync(@params);
-        foreach (var item in result.Items) item.IsStatusChanged = null;
+        var result = await unitService.GetUnitsAsync(@params);
         return Ok(result);
-
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<GetUnitDto>> GetUnit(int id)
     {
         var unit = await unitService.GetUnitByIdAsync(id);
-        
-        if (unit == null)
-            throw new NotFoundExpection("Unit", id);
-
-        // Public can only see Sale and Rent units
-        if (!User.IsInRole("Admin") && unit.Status != UnitStatus.Sale && unit.Status != UnitStatus.Rent)
-            throw new NotFoundExpection("Unit", id);
-
-
-        unit.IsStatusChanged = null; // Hide for public
+        if (unit == null) throw new NotFoundExpection("Unit", id);
         return Ok(unit);
-
     }
 
     #endregion
 }
-

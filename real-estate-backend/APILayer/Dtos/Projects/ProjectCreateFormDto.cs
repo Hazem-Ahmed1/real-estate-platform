@@ -14,7 +14,7 @@ public class ProjectCreateFormDto
     public string City { get; set; } = null!;
 
     [StringLength(200)]
-    public string? Area { get; set; } = null!;
+    public string? Region { get; set; } = null!;
 
 
 

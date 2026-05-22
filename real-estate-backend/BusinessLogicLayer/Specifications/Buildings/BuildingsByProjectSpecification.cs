@@ -2,13 +2,13 @@ namespace BusinessLogicLayer.Specifications.Buildings;
 
 public class BuildingsByProjectSpecification : BaseSpecifications<Building>
 {
-    public BuildingsByProjectSpecification(int? projectId = null, bool publicOnly = false)
+    public BuildingsByProjectSpecification(int? projectId = null)
         : base(x => 
-            (!projectId.HasValue || x.ProjectId == projectId) &&
-            (!publicOnly || (x.Project.Status == ProjectStatus.Sale || x.Project.Status == ProjectStatus.Rent))
+            (!projectId.HasValue || x.ProjectId == projectId)
         )
     {
         AddInclude(x => x.Project);
+        AddInclude(x => x.Units);
     }
 
 }

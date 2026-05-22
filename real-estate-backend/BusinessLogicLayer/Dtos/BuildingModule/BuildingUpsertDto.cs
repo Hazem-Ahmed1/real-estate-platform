@@ -22,6 +22,9 @@ public class BuildingUpsertDto
     [Range(0, double.MaxValue)]
     public double BuildingArea { get; set; }
 
+    [Required(ErrorMessage = "Building type is required (Sale, Rent, or Both).")]
+    public BuildingType Type { get; set; }
+    [Range(0, 30)]
     public int? FloorCount { get; set; }
 }
 

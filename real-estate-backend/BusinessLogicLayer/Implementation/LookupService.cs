@@ -7,9 +7,18 @@ public class LookupService(IUnitOfWork unitOfWork, IMapper mapper) : ILookupServ
     #region Features
     public async Task<IReadOnlyList<FeatureDto>> GetFeaturesAsync(LookupStatus status = LookupStatus.Active)
     {
-        var features = await unitOfWork.Repository<Feature>().GetAllAsync();
+        var features = (await unitOfWork.Repository<Feature>().GetAllAsync()).Cast<Feature>().ToList();
         var filtered = ApplyStatusFilter(features, status);
-        return mapper.Map<IReadOnlyList<FeatureDto>>(filtered);
+        
+        var dtos = new List<FeatureDto>();
+        foreach (var feature in filtered)
+        {
+            var dto = mapper.Map<FeatureDto>(feature);
+            dto.ProjectCount = (await unitOfWork.Repository<ProjectFeature>().GetAllAsync(pf => pf.FeatureId == feature.FeatureId)).Count();
+            dto.UnitCount    = (await unitOfWork.Repository<UnitFeature>().GetAllAsync(uf => uf.FeatureId == feature.FeatureId)).Count();
+            dtos.Add(dto);
+        }
+        return dtos.AsReadOnly();
     }
 
     public async Task<FeatureDto> GetFeatureByIdAsync(int id)
@@ -102,10 +111,18 @@ public class LookupService(IUnitOfWork unitOfWork, IMapper mapper) : ILookupServ
 
     public async Task<IReadOnlyList<InsuranceDto>> GetInsurancesAsync(LookupStatus status = LookupStatus.Active)
     {
-        // نفس الـ logic للـ Insurance
-        var insurance = await unitOfWork.Repository<Insurance>().GetAllAsync();
-        var filtered = ApplyStatusFilter(insurance, status);
-        return mapper.Map<IReadOnlyList<InsuranceDto>>(filtered);
+        var insurances = (await unitOfWork.Repository<Insurance>().GetAllAsync()).Cast<Insurance>().ToList();
+        var filtered = ApplyStatusFilter(insurances, status);
+
+        var dtos = new List<InsuranceDto>();
+        foreach (var insurance in filtered)
+        {
+            var dto = mapper.Map<InsuranceDto>(insurance);
+            dto.ProjectCount = (await unitOfWork.Repository<ProjectInsurance>().GetAllAsync(pi => pi.InsuranceId == insurance.InsuranceId)).Count();
+            dto.UnitCount    = (await unitOfWork.Repository<UnitInsurance>().GetAllAsync(ui => ui.InsuranceId == insurance.InsuranceId)).Count();
+            dtos.Add(dto);
+        }
+        return dtos.AsReadOnly();
     }
 
     public async Task<InsuranceDto> GetInsuranceByIdAsync(int id)
@@ -127,6 +144,7 @@ public class LookupService(IUnitOfWork unitOfWork, IMapper mapper) : ILookupServ
         var insurance = new Insurance
         {
             Name = dto.Name,
+            Duration = dto.Duration ?? 1,
             IsActive = true
         };
 
@@ -150,6 +168,7 @@ public class LookupService(IUnitOfWork unitOfWork, IMapper mapper) : ILookupServ
             throw new ConflictException("هذا الاسم موجود مسبقاً");
 
         existing.Name = dto.Name;
+        existing.Duration = dto.Duration;
         existing.IsActive = dto.IsActive;
 
         unitOfWork.Repository<Insurance>().Update(existing);
@@ -198,16 +217,11 @@ public class LookupService(IUnitOfWork unitOfWork, IMapper mapper) : ILookupServ
 
     private static IEnumerable<T> ApplyStatusFilter<T>(IEnumerable<T> items, LookupStatus status) where T : class
     {
-        // We assume T has an IsActive property. Since we don't have a shared interface for entities with IsActive,
-        // we use dynamic or just keep it simple with two specific calls if generics are too complex here.
-        // But the user wants "the same at every thing".
-        
         return status switch
         {
-            LookupStatus.Active => items.Where(x => (bool)x.GetType().GetProperty("IsActive")!.GetValue(x)!),
+            LookupStatus.Active   => items.Where(x => (bool)x.GetType().GetProperty("IsActive")!.GetValue(x)!),
             LookupStatus.Inactive => items.Where(x => !(bool)x.GetType().GetProperty("IsActive")!.GetValue(x)!),
-            LookupStatus.All => items,
-            _ => items.Where(x => (bool)x.GetType().GetProperty("IsActive")!.GetValue(x)!)
+            _                     => items
         };
     }
 }

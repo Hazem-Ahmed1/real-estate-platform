@@ -16,7 +16,8 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
         
         builder.Property(p => p.Status).HasConversion<string>().HasMaxLength(50);
         builder.Property(p => p.City).HasMaxLength(100);
-        builder.Property(p => p.Area).HasMaxLength(100);
+        builder.Property(p => p.Region)
+            .HasMaxLength(200);
         builder.Property(p => p.Address).HasMaxLength(255);
 
 

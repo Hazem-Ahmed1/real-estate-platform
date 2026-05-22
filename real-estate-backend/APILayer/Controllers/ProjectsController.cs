@@ -1,22 +1,23 @@
+using BusinessLogicLayer.Contracts;
+using BusinessLogicLayer.Dtos.ProjectModule;
+using BusinessLogicLayer.Dtos.UnitModule;
+using BusinessLogicLayer.Exceptions;
+using BusinessLogicLayer.Specifications.Projects;
+using Microsoft.AspNetCore.Mvc;
+
 namespace APILayer.Controllers;
 
 [ApiController]
 [Route("api/projects")]
-public class ProjectsController(IProjectService projectService) : ApiController
+public class ProjectsController(IProjectService projectService, IUnitService unitService) : ApiController
 {
     #region Public Endpoints
 
     [HttpGet]
     public async Task<ActionResult> GetProjects([FromQuery] ProjectSpecParams @params)
     {
-        // Public restricted filtering: cannot see sold/rented units
-        if (@params.UnitStatus is UnitStatus.Sold or UnitStatus.Rented)
-            throw new BadRequestException("Filtering projects by Sold/Rented units is restricted to admin endpoints.");
-
-        PaginatedResult<ProjectListDto>? result = await projectService.GetProjectsAsync(@params);
-        foreach (var item in result.Items) item.IsStatusChanged = null;
+        var result = await projectService.GetProjectsAsync(@params);
         return Ok(result);
-
     }
 
     [HttpGet("{id}")]
@@ -24,17 +25,15 @@ public class ProjectsController(IProjectService projectService) : ApiController
     {
         var project = await projectService.GetProjectByIdAsync(id);
         if (project == null) throw new NotFoundExpection("Project", id);
-        
-        // Public can only see Sale and Rent projects
-        if (!User.IsInRole("Admin") && project.Status != ProjectStatus.Sale && project.Status != ProjectStatus.Rent)
-            throw new NotFoundExpection("Project", id);
-
-        project.IsStatusChanged = null; // Hide for public
-
         return Ok(project);
+    }
 
+    [HttpGet("{id}/units")]
+    public async Task<ActionResult<IReadOnlyList<UnitListDto>>> GetProjectUnits(int id)
+    {
+        var units = await unitService.GetProjectUnitsAsync(id);
+        return Ok(units);
     }
 
     #endregion
 }
-

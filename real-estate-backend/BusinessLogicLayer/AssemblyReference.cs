@@ -12,6 +12,7 @@ global using BusinessLogicLayer.Specifications.Projects;
 global using BusinessLogicLayer.Specifications.Units;
 global using BusinessLogicLayer.Specifications.Buildings;
 global using BusinessLogicLayer.Common;
+global using BusinessLogicLayer.Helpers;
 global using AutoMapper;
 global using System.Linq;
 global using System.Linq.Expressions;

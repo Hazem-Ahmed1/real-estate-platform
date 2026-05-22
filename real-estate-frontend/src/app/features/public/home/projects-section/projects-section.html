@@ -3,9 +3,24 @@
     <app-home-section-header-with-filters
       (filterChange)="filter($event)"
       title="المشـــــــاريع الحـــالية"
-      subTitle="عـــقاراتنا"
+      subTitle="مشـــاريعنا"
       url="/projects"
+      [showAllQueryParams]="{ status: 'Sale,Rent' }"
     />
-    <app-projects-list [projects]="projects"></app-projects-list>
+
+    @if (!hasLoaded()) {
+      <div class="text-center py-5 text-muted">
+        <div class="spinner-border text-primary mb-3" role="status"></div>
+        <div>جاري تحميل المشاريع...</div>
+      </div>
+    } @else if (projects().length === 0) {
+      <div class="text-center py-5 bg-white rounded shadow-sm border mb-4">
+        <i class="fa-solid fa-folder-open text-muted mb-3" style="font-size: 48px;"></i>
+        <h4 class="text-secondary font-weight-bold">{{ emptyStateMessage() }}</h4>
+        <p class="text-muted mt-2">يرجى اختيار فلتر آخر أو تصفح القائمة الكاملة.</p>
+      </div>
+    } @else {
+      <app-projects-list [projects]="projects()" />
+    }
   </div>
 </section>

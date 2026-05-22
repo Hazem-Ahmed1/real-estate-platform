@@ -16,7 +16,7 @@ public class UnitConfiguration : IEntityTypeConfiguration<Unit>
         builder.Property(u => u.Type).HasConversion<string>().HasMaxLength(50);
         builder.Property(u => u.Status).HasConversion<string>().HasMaxLength(50);
         builder.Property(u => u.StreetCount).IsRequired();
-        builder.Property(u => u.Street).HasMaxLength(255);
+        builder.Property(u => u.Address).HasMaxLength(500);
 
         builder.Property(u => u.Price).HasPrecision(18, 2);
 

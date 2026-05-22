@@ -2,7 +2,11 @@
 <div class="row justify-content-center g-4">
   @for (projectCard of projects(); track $index) {
     <div class="col-lg-4 col-md-6">
-      <app-project-card [project]="projectCard"></app-project-card>
+      @if (projectCard.status === 'Sold' || projectCard.status === 'Rented') {
+        <app-sold-project-card [project]="mapToSoldProject(projectCard)"></app-sold-project-card>
+      } @else {
+        <app-project-card [project]="projectCard"></app-project-card>
+      }
     </div>
   }
 </div>

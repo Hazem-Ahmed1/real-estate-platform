@@ -1,20 +1,10 @@
 <header class="admin-header">
   <div>
-    <h2 class="header-title">لوحة التحليلات</h2>
+    <h2 class="header-title"> لوحة التحكم </h2>
     <p class="header-subtitle">رؤية شاملة للمؤشرات والبيانات</p>
   </div>
 
   <div class="header-actions">
-    <select
-      class="period-select"
-      [value]="selectedPeriod()"
-      (change)="onPeriodChange($event)"
-      aria-label="اختر الفترة الزمنية"
-    >
-      @for (period of periods(); track period) {
-        <option [value]="period">{{ period }}</option>
-      }
-    </select>
 
     <button class="export-btn" type="button">
       <i class="fa-solid fa-download" aria-hidden="true"></i>

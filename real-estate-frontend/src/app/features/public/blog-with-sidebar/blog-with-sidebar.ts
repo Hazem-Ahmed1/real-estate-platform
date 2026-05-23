@@ -9,6 +9,7 @@ import { UnitCardModel } from '../../../models/IUnit';
 import { BlogPost } from "./blog-post/blog-post";
 import { UnitSidebar } from "./unit-sidebar/unit-sidebar";
 import { BlogService } from '../../../services/api/blog.service';
+import { UnitService } from '../../../services/api/unit.service';
 import { PublicBlogDto } from '../../../models/PublicBlogDto';
 
 @Component({
@@ -20,6 +21,7 @@ import { PublicBlogDto } from '../../../models/PublicBlogDto';
 export class BlogWithSidebar implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly blogsService = inject(BlogService);
+  private readonly unitService = inject(UnitService);
   private readonly route = inject(ActivatedRoute);
   private readonly selectedBlogId = signal(0);
 
@@ -59,6 +61,17 @@ export class BlogWithSidebar implements OnInit {
       });
 
     this.units.set([]);
+    this.loadLatestUnits();
+  }
+
+  private loadLatestUnits(): void {
+    this.unitService
+      .getUnits({ page: 1, pageSize: 8 })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => this.units.set(response.items ?? []),
+        error: () => this.units.set([]),
+      });
   }
 
   private mapBlogToPost(blog: PublicBlogDto): IBlogPost {

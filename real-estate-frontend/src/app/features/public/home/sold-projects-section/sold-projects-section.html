@@ -11,10 +11,10 @@
     />
 
     @if (projects().length === 0) {
-      <div class="text-center py-5 bg-white rounded shadow-sm border mb-4" style="border-radius: 16px !important; border: 1px solid rgba(0, 0, 0, 0.05) !important;">
+      <div class="text-center py-5 bg-white mb-4;">
         <i class="fa-solid fa-hotel text-muted mb-3" style="font-size: 48px; opacity: 0.6;"></i>
-        <h4 class="text-secondary font-weight-bold" style="font-family: 'Cairo', sans-serif;">{{ emptyStateMessage() }}</h4>
-        <p class="text-muted mt-2" style="font-family: 'Cairo', sans-serif;">يرجى التحقق من الأقسام الأخرى أو معاودة الزيارة لاحقاً.</p>
+        <h4 class="text-secondary font-weight-bold">{{ emptyStateMessage() }}</h4>
+        <p class="text-muted mt-2">يرجى التحقق من الأقسام الأخرى أو معاودة الزيارة لاحقاً.</p>
       </div>
     } @else {
       <app-sold-projects-list [projects]="projects()"></app-sold-projects-list>

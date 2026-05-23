@@ -5,7 +5,7 @@ using BusinessLogicLayer.Implementation;
 using DataAccessLayer.Contracts;
 using DataAccessLayer.Data;
 using DataAccessLayer.Implementation.Repositories;
-using DataAccessLayer.Implementation.Seed;
+using APILayer.Seed;
 using DataAccessLayer.Entities.Identity;
 using Microsoft.EntityFrameworkCore;
 using DataAccessLayer.Common;
@@ -161,6 +161,7 @@ public class Program
             await context.Database.MigrateAsync();
             var seeder = services.GetRequiredService<IDataSeeder>();
             await seeder.SeedAsync();
+            Console.WriteLine("Database migration and seeding completed.");
         }
 
         app.UseHttpsRedirection();

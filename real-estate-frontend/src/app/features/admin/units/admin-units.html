@@ -212,8 +212,23 @@
             <label class="file-input">
               <input type="file" accept="image/*" (change)="onThumbnailChange($event)" />
               <span class="file-button">رفع صورة</span>
-              <span class="file-name">{{ thumbnailName() }}</span>
+              @if (thumbnailName() !== 'لم يتم اختيار ملف') {
+                <span class="file-name">{{ thumbnailName() }}</span>
+              }
             </label>
+            @if (unitThumbnailMedia()) {
+              <div class="media-grid">
+                <article class="media-card">
+                  <div class="media-preview">
+                    <img [src]="unitThumbnailMedia()!.mediaUrl" [alt]="mediaLabel(unitThumbnailMedia()!.type)" />
+                  </div>
+                  <div class="media-card-body">
+                    <span class="media-tag">{{ mediaLabel(unitThumbnailMedia()!.type) }}</span>
+                    <button class="btn tiny-btn danger" type="button" (click)="removeUnitMedia(unitThumbnailMedia()!.mediaId)">حذف</button>
+                  </div>
+                </article>
+              </div>
+            }
           </div>
 
           <div class="field">
@@ -221,8 +236,27 @@
             <label class="file-input">
               <input type="file" multiple accept="image/*" (change)="onImagesChange($event)" />
               <span class="file-button">رفع صور</span>
-              <span class="file-name">{{ imagesSummary() }}</span>
+              @if (imagesSummary() !== 'لم يتم اختيار ملفات') {
+                <span class="file-name">{{ imagesSummary() }}</span>
+              }
             </label>
+            @if (unitImageMedia().length === 0) {
+              <p class="empty-state">لا توجد صور محفوظة لهذه الوحدة.</p>
+            } @else {
+              <div class="media-grid">
+                @for (media of unitImageMedia(); track media.mediaId) {
+                  <article class="media-card">
+                    <div class="media-preview">
+                      <img [src]="media.mediaUrl" [alt]="mediaLabel(media.type)" />
+                    </div>
+                    <div class="media-card-body">
+                      <span class="media-tag">{{ mediaLabel(media.type) }}</span>
+                      <button class="btn tiny-btn danger" type="button" (click)="removeUnitMedia(media.mediaId)">حذف</button>
+                    </div>
+                  </article>
+                }
+              </div>
+            }
           </div>
 
           <div class="field">
@@ -230,8 +264,27 @@
             <label class="file-input">
               <input type="file" multiple accept="image/*" (change)="onDesignsChange($event)" />
               <span class="file-button">رفع تصاميم</span>
-              <span class="file-name">{{ designsSummary() }}</span>
+              @if (designsSummary() !== 'لم يتم اختيار ملفات') {
+                <span class="file-name">{{ designsSummary() }}</span>
+              }
             </label>
+            @if (unitDesignMedia().length === 0) {
+              <p class="empty-state">لا توجد تصاميم محفوظة لهذه الوحدة.</p>
+            } @else {
+              <div class="media-grid">
+                @for (media of unitDesignMedia(); track media.mediaId) {
+                  <article class="media-card">
+                    <div class="media-preview">
+                      <img [src]="media.mediaUrl" [alt]="mediaLabel(media.type)" />
+                    </div>
+                    <div class="media-card-body">
+                      <span class="media-tag">{{ mediaLabel(media.type) }}</span>
+                      <button class="btn tiny-btn danger" type="button" (click)="removeUnitMedia(media.mediaId)">حذف</button>
+                    </div>
+                  </article>
+                }
+              </div>
+            }
           </div>
 
           <div class="field">
@@ -239,8 +292,23 @@
             <label class="file-input">
               <input type="file" accept="image/*" (change)="onPanoramaChange($event)" />
               <span class="file-button">رفع صورة</span>
-              <span class="file-name">{{ panoramaName() }}</span>
+              @if (panoramaName() !== 'لم يتم اختيار ملف') {
+                <span class="file-name">{{ panoramaName() }}</span>
+              }
             </label>
+            @if (unitPanoramaMedia()) {
+              <div class="media-grid">
+                <article class="media-card">
+                  <div class="media-preview">
+                    <img [src]="unitPanoramaMedia()!.mediaUrl" [alt]="mediaLabel(unitPanoramaMedia()!.type)" />
+                  </div>
+                  <div class="media-card-body">
+                    <span class="media-tag">{{ mediaLabel(unitPanoramaMedia()!.type) }}</span>
+                    <button class="btn tiny-btn danger" type="button" (click)="removeUnitMedia(unitPanoramaMedia()!.mediaId)">حذف</button>
+                  </div>
+                </article>
+              </div>
+            }
           </div>
 
           <div class="field">
@@ -248,8 +316,23 @@
             <label class="file-input">
               <input type="file" accept="video/*" (change)="onVideoChange($event)" />
               <span class="file-button">رفع فيديو</span>
-              <span class="file-name">{{ videoName() }}</span>
+              @if (videoName() !== 'لم يتم اختيار ملف') {
+                <span class="file-name">{{ videoName() }}</span>
+              }
             </label>
+            @if (unitVideoMedia()) {
+              <div class="media-grid">
+                <article class="media-card">
+                  <div class="media-preview">
+                    <video controls [src]="unitVideoMedia()!.mediaUrl"></video>
+                  </div>
+                  <div class="media-card-body">
+                    <span class="media-tag">{{ mediaLabel(unitVideoMedia()!.type) }}</span>
+                    <button class="btn tiny-btn danger" type="button" (click)="removeUnitMedia(unitVideoMedia()!.mediaId)">حذف</button>
+                  </div>
+                </article>
+              </div>
+            }
           </div>
         </div>
 

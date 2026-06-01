@@ -41,7 +41,8 @@ public class ProjectProfile : Profile
             .ForMember(d => d.ThumbnailUrl, o => o.MapFrom(s => s.Media.FirstOrDefault(m => m.IsThumbnail) != null 
                 ? s.Media.FirstOrDefault(m => m.IsThumbnail)!.MediaUrl 
                 : null))
-            .ForMember(d => d.Images, o => o.MapFrom(s => s.Media.Where(m => m.Type == MediaType.Image && !m.IsThumbnail).Select(m => m.MediaUrl)));
+            .ForMember(d => d.Images, o => o.MapFrom(s => s.Media.Where(m => m.Type == MediaType.Image && !m.IsThumbnail).Select(m => m.MediaUrl)))
+            .ForMember(d => d.Media, o => o.MapFrom(s => s.Media));
 
         CreateMap<ProjectCreateDto, Project>()
             .ForMember(d => d.Media, o => o.Ignore());

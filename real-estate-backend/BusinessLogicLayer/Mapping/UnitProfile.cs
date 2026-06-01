@@ -31,7 +31,8 @@ public class UnitProfile : Profile
                 ? s.Media.FirstOrDefault(m => m.Type == MediaType.Panorama360)!.MediaUrl 
                 : null))
             .ForMember(d => d.Images, o => o.MapFrom(s => s.Media != null ? s.Media.Where(m => m.Type == MediaType.Image && !m.IsThumbnail).Select(m => m.MediaUrl) : null))
-            .ForMember(d => d.Designs, o => o.MapFrom(s => s.Media != null ? s.Media.Where(m => m.Type == MediaType.Design).Select(m => m.MediaUrl) : null));
+            .ForMember(d => d.Designs, o => o.MapFrom(s => s.Media != null ? s.Media.Where(m => m.Type == MediaType.Design).Select(m => m.MediaUrl) : null))
+            .ForMember(d => d.Media, o => o.MapFrom(s => s.Media));
 
         CreateMap<NearbyFacility, NearbyFacilityDto>()
             .ForMember(d => d.Type, o => o.MapFrom(s => s.Type.ToString()));

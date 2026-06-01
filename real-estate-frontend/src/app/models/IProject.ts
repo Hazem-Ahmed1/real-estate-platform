@@ -27,6 +27,15 @@ export interface InsuranceDto {
   isActive: boolean;
 }
 
+export interface ProjectMediaDto {
+  mediaId: number;
+  projectId: number;
+  type: string;
+  mediaUrl: string;
+  thumbnailUrl: string | null;
+  isThumbnail: boolean;
+}
+
 export interface BuildingDto {
   buildingId: number;
   name: string;
@@ -58,6 +67,7 @@ export interface IProjectDetails {
   panorama360Url: string | null;
   videoUrl: string | null;
   images: string[];
+  media: ProjectMediaDto[];
   features: FeatureDto[];
   insurance: InsuranceDto[];
 }

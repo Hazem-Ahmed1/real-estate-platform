@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-import { UnitCardModel } from '../../../models/IUnit';
+import { UnitCardModel, UnitMediaDto } from '../../../models/IUnit';
 import { FeatureDto, InsuranceDto, IProject } from '../../../models/IProject';
 import { AdminBuildingDto } from '../../../models/AdminBuildingDto';
 import { AdminUnitService } from '../../../services/api/admin-unit.service';
@@ -51,6 +51,8 @@ export class AdminUnits implements OnInit, OnDestroy {
 
   readonly selectedFeatureIds = signal<Set<number>>(new Set());
   readonly selectedInsuranceIds = signal<Set<number>>(new Set());
+  readonly unitMedia = signal<UnitMediaDto[]>([]);
+  readonly deletedUnitMediaIds = signal<Set<number>>(new Set());
   readonly nearbyFacilities = signal<any[]>([]);
   readonly selectedRegion = signal<string | null>(null);
   readonly selectedCity = signal('');
@@ -497,6 +499,8 @@ export class AdminUnits implements OnInit, OnDestroy {
           });
           this.selectedFeatureIds.set(new Set(details.features.map((f: any) => f.featureId)));
           this.selectedInsuranceIds.set(new Set(details.insurance.map((i: any) => i.insuranceId)));
+          this.unitMedia.set(this.normalizeUnitMedia(details));
+          this.deletedUnitMediaIds.set(new Set());
           this.nearbyFacilities.set(this.dedupeNearbyFacilities((details.nearbyFacilities ?? []).map((facility: any) => ({ ...facility, selected: true }))));
           this.selectedCity.set(details.city ?? '');
           this.mapQuery.set(details.city ?? '');
@@ -536,7 +540,20 @@ export class AdminUnits implements OnInit, OnDestroy {
     this.selectedRegion.set(null);
     this.mapQuery.set('');
     this.mapCircleMeters.set(null);
+    this.unitMedia.set([]);
+    this.deletedUnitMediaIds.set(new Set());
     this.resetMediaLabels();
+  }
+
+  removeUnitMedia(mediaId: number): void {
+    const remaining = this.unitMedia().filter((item) => item.mediaId !== mediaId);
+    this.unitMedia.set(remaining);
+
+    if (this.selectedUnit()) {
+      const removed = new Set(this.deletedUnitMediaIds());
+      removed.add(mediaId);
+      this.deletedUnitMediaIds.set(removed);
+    }
   }
 
   private translateAdminError(message: string): string {
@@ -628,8 +645,24 @@ export class AdminUnits implements OnInit, OnDestroy {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0] ?? null;
 
+    // Prevent adding more than one thumbnail if one already exists
+    const existingThumb = this.unitThumbnailMedia();
+    if (existingThumb) {
+      this.snackbar.error('لا يمكن إضافة أكثر من صورة رئيسية. احذف الصورة الحالية أولاً.');
+      target.value = '';
+      return;
+    }
+
     if (file && !this.isValidImageFile(file)) {
       this.snackbar.error('يرجى اختيار صورة صالحة (JPG, PNG, WebP)');
+      target.value = '';
+      return;
+    }
+
+    // Prevent selecting a file that matches an existing media (by filename)
+    if (file && this.unitMedia().some(m => this.fileMatchesMedia(file, m))) {
+      this.snackbar.error('لا يمكنك إضافة نفس الصورة في نفس المكان.');
+      target.value = '';
       return;
     }
 
@@ -641,40 +674,98 @@ export class AdminUnits implements OnInit, OnDestroy {
     const target = event.target as HTMLInputElement;
     const files = target.files ?? null;
 
-    if (files) {
-      const invalidFiles = Array.from(files).filter(f => !this.isValidImageFile(f));
-      if (invalidFiles.length > 0) {
-        this.snackbar.error('جميع الصور يجب أن تكون (JPG, PNG, WebP)');
-        return;
-      }
+    if (!files || files.length === 0) {
+      this.unitForm.patchValue({ images: files });
+      this.imagesSummary.set('لم يتم اختيار ملفات');
+      return;
     }
 
-    this.unitForm.patchValue({ images: files });
-    this.imagesSummary.set(files?.length ? `${files.length} صورة` : 'لم يتم اختيار ملفات');
+    const incoming = Array.from(files);
+    const invalidFiles = incoming.filter(f => !this.isValidImageFile(f));
+    if (invalidFiles.length > 0) {
+      this.snackbar.error('جميع الصور يجب أن تكون (JPG, PNG, WebP)');
+      target.value = '';
+      return;
+    }
+
+    // filter out files that already exist in the same image slot
+    const existingNames = new Set(this.unitImageMedia().map(m => this.mediaFileName(m.mediaUrl).toLowerCase()));
+    const filtered = incoming.filter((f) => !existingNames.has(f.name.toLowerCase()));
+    if (filtered.length !== incoming.length) {
+      this.snackbar.error('تم تجاهل بعض الصور المكررة الموجودة بالفعل.');
+    }
+
+    // dedupe selected files by name
+    const seen = new Set<string>();
+    const deduped = filtered.filter(f => {
+      const key = f.name.toLowerCase() + '|' + String(f.size);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    this.unitForm.patchValue({ images: deduped.length ? this.toFileList(deduped) : null });
+    this.imagesSummary.set(deduped.length ? `${deduped.length} صورة` : 'لم يتم اختيار ملفات');
   }
 
   onDesignsChange(event: Event): void {
     const target = event.target as HTMLInputElement;
     const files = target.files ?? null;
 
-    if (files) {
-      const invalidFiles = Array.from(files).filter(f => !this.isValidImageFile(f));
-      if (invalidFiles.length > 0) {
-        this.snackbar.error('جميع التصاميم يجب أن تكون (JPG, PNG, WebP)');
-        return;
-      }
+    if (!files || files.length === 0) {
+      this.unitForm.patchValue({ designs: files });
+      this.designsSummary.set('لم يتم اختيار ملفات');
+      return;
     }
 
-    this.unitForm.patchValue({ designs: files });
-    this.designsSummary.set(files?.length ? `${files.length} تصميم` : 'لم يتم اختيار ملفات');
+    const incoming = Array.from(files);
+    const invalidFiles = incoming.filter(f => !this.isValidImageFile(f));
+    if (invalidFiles.length > 0) {
+      this.snackbar.error('جميع التصاميم يجب أن تكون (JPG, PNG, WebP)');
+      target.value = '';
+      return;
+    }
+
+    // filter out duplicates versus existing designs
+    const existingNames = new Set(this.unitDesignMedia().map(m => this.mediaFileName(m.mediaUrl).toLowerCase()));
+    const filtered = incoming.filter((f) => !existingNames.has(f.name.toLowerCase()));
+    if (filtered.length !== incoming.length) {
+      this.snackbar.error('تم تجاهل بعض التصاميم المكررة الموجودة بالفعل.');
+    }
+
+    const seen = new Set<string>();
+    const deduped = filtered.filter(f => {
+      const key = f.name.toLowerCase() + '|' + String(f.size);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    this.unitForm.patchValue({ designs: deduped.length ? this.toFileList(deduped) : null });
+    this.designsSummary.set(deduped.length ? `${deduped.length} تصميم` : 'لم يتم اختيار ملفات');
   }
 
   onPanoramaChange(event: Event): void {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0] ?? null;
 
+    // Prevent adding more than one panorama
+    const existing = this.unitPanoramaMedia();
+    if (existing) {
+      this.snackbar.error('لا يمكن إضافة أكثر من صورة بانوراما 360. احذف الحالية أولاً.');
+      target.value = '';
+      return;
+    }
+
     if (file && !this.isValidImageFile(file)) {
       this.snackbar.error('يرجى اختيار صورة صالحة (JPG, PNG, WebP)');
+      target.value = '';
+      return;
+    }
+
+    if (file && this.unitMedia().some(m => this.fileMatchesMedia(file, m))) {
+      this.snackbar.error('لا يمكنك إضافة نفس الصورة في نفس المكان.');
+      target.value = '';
       return;
     }
 
@@ -686,13 +777,63 @@ export class AdminUnits implements OnInit, OnDestroy {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0] ?? null;
 
+    // Prevent adding more than one video
+    const existing = this.unitVideoMedia();
+    if (existing) {
+      this.snackbar.error('لا يمكن إضافة أكثر من فيديو. احذف الفيديو الحالي أولاً.');
+      target.value = '';
+      return;
+    }
+
     if (file && !this.isValidVideoFile(file)) {
       this.snackbar.error('يرجى اختيار فيديو صالح (MP4, WebM, OGG)');
+      target.value = '';
+      return;
+    }
+
+    if (file && this.unitMedia().some(m => this.fileMatchesMedia(file, m))) {
+      this.snackbar.error('لا يمكنك إضافة نفس الفيديو في نفس المكان.');
+      target.value = '';
       return;
     }
 
     this.unitForm.patchValue({ video: file });
     this.videoName.set(file?.name ?? 'لم يتم اختيار ملف');
+  }
+
+  // Helper: compare a File to existing media by filename (best-effort)
+  private fileMatchesMedia(file: File, media: UnitMediaDto): boolean {
+    try {
+      const f = (file?.name ?? '').toString().toLowerCase();
+      const m = this.mediaFileName(media.mediaUrl || media.thumbnailUrl || '').toLowerCase();
+      if (!f || !m) return false;
+      return f === m || f.includes(m) || m.includes(f);
+    } catch {
+      return false;
+    }
+  }
+
+  private mediaFileName(url?: string | null): string {
+    if (!url) return '';
+    try {
+      const parts = url.split('/');
+      const name = parts.at(-1) ?? url;
+      return name.split('?')[0];
+    } catch {
+      return url;
+    }
+  }
+
+  // Convert File[] to a FileList-like object for patchValue use
+  private toFileList(files: File[]): FileList | null {
+    // There is no standard constructor for FileList; use DataTransfer to build one
+    try {
+      const dt = new DataTransfer();
+      for (const f of files) dt.items.add(f);
+      return dt.files;
+    } catch {
+      return null;
+    }
   }
 
   async submitForm(): Promise<void> {
@@ -817,6 +958,10 @@ export class AdminUnits implements OnInit, OnDestroy {
       payload.append('insuranceIds', String(id));
     }
 
+    for (const mediaId of this.deletedUnitMediaIds()) {
+      payload.append('deletedMediaIds', String(mediaId));
+    }
+
     let facilityIndex = 0;
     const dedupedFacilities = this.dedupeNearbyFacilities(this.nearbyFacilities());
     for (const facility of dedupedFacilities) {
@@ -904,6 +1049,61 @@ export class AdminUnits implements OnInit, OnDestroy {
     this.designsSummary.set('لم يتم اختيار ملفات');
     this.panoramaName.set('لم يتم اختيار ملف');
     this.videoName.set('لم يتم اختيار ملف');
+  }
+
+  private normalizeUnitMedia(details: any): UnitMediaDto[] {
+    if (details.media?.length) {
+      return [...details.media];
+    }
+
+    const media: UnitMediaDto[] = [];
+    if (details.thumbnailUrl) {
+      media.push({ mediaId: -1, unitId: details.unitId, type: 'Image', mediaUrl: details.thumbnailUrl, thumbnailUrl: details.thumbnailUrl, isThumbnail: true });
+    }
+    details.images?.forEach((url: string, index: number) => {
+      media.push({ mediaId: -(index + 2), unitId: details.unitId, type: 'Image', mediaUrl: url, thumbnailUrl: null, isThumbnail: false });
+    });
+    details.designs?.forEach((url: string, index: number) => {
+      media.push({ mediaId: -(index + 100), unitId: details.unitId, type: 'Design', mediaUrl: url, thumbnailUrl: null, isThumbnail: false });
+    });
+    if (details.panoramaUrl) {
+      media.push({ mediaId: -1001, unitId: details.unitId, type: 'Panorama360', mediaUrl: details.panoramaUrl, thumbnailUrl: null, isThumbnail: false });
+    }
+    if (details.videoUrl) {
+      media.push({ mediaId: -1002, unitId: details.unitId, type: 'Video', mediaUrl: details.videoUrl, thumbnailUrl: null, isThumbnail: false });
+    }
+
+    return media;
+  }
+
+  mediaLabel(type: string): string {
+    switch ((type ?? '').toLowerCase()) {
+      case 'image': return 'صورة';
+      case 'design': return 'تصميم';
+      case 'panorama360': return 'بانوراما 360';
+      case 'video': return 'فيديو';
+      default: return type || 'وسيط';
+    }
+  }
+
+  unitThumbnailMedia(): UnitMediaDto | null {
+    return this.unitMedia().find((media) => media.isThumbnail) ?? null;
+  }
+
+  unitImageMedia(): UnitMediaDto[] {
+    return this.unitMedia().filter((media) => media.type.toLowerCase() === 'image' && !media.isThumbnail);
+  }
+
+  unitDesignMedia(): UnitMediaDto[] {
+    return this.unitMedia().filter((media) => media.type.toLowerCase() === 'design');
+  }
+
+  unitPanoramaMedia(): UnitMediaDto | null {
+    return this.unitMedia().find((media) => media.type.toLowerCase() === 'panorama360') ?? null;
+  }
+
+  unitVideoMedia(): UnitMediaDto | null {
+    return this.unitMedia().find((media) => media.type.toLowerCase() === 'video') ?? null;
   }
 
   private isValidImageFile(file: File): boolean {

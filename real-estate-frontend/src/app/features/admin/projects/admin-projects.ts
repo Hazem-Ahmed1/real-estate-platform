@@ -2,8 +2,7 @@ import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
-import { IProject, IProjectDetails } from '../../../models/IProject';
-import { FeatureDto, InsuranceDto } from '../../../models/IProject';
+import { IProject, IProjectDetails, ProjectMediaDto, FeatureDto, InsuranceDto } from '../../../models/IProject';
 import { AdminProjectService } from '../../../services/api/admin-project.service';
 import { ProjectMap } from '../../../shared/components/project-map/project-map';
 import { LookupService, LookupStatus } from '../../../services/api/lookup.service';
@@ -40,6 +39,8 @@ export class AdminProjects implements OnInit, OnDestroy {
   readonly insurances = signal<InsuranceDto[]>([]);
   readonly selectedFeatureIds = signal<Set<number>>(new Set());
   readonly selectedInsuranceIds = signal<Set<number>>(new Set());
+  readonly projectMedia = signal<ProjectMediaDto[]>([]);
+  readonly deletedProjectMediaIds = signal<Set<number>>(new Set());
 
   readonly thumbnailName = signal('لم يتم اختيار ملف');
   readonly imagesSummary = signal('لم يتم اختيار ملفات');
@@ -226,6 +227,8 @@ export class AdminProjects implements OnInit, OnDestroy {
           });
           this.selectedFeatureIds.set(new Set(details.features.map((f) => f.featureId)));
           this.selectedInsuranceIds.set(new Set(details.insurance.map((i) => i.insuranceId)));
+          this.projectMedia.set(this.normalizeProjectMedia(details));
+          this.deletedProjectMediaIds.set(new Set());
           this.resetMediaLabels();
           // run duplicate check so inline error appears immediately when editing
           this.checkProjectName();
@@ -244,7 +247,20 @@ export class AdminProjects implements OnInit, OnDestroy {
     this.projectForm.reset({ status: 'Sale' });
     this.selectedFeatureIds.set(new Set());
     this.selectedInsuranceIds.set(new Set());
+    this.projectMedia.set([]);
+    this.deletedProjectMediaIds.set(new Set());
     this.resetMediaLabels();
+  }
+
+  removeProjectMedia(mediaId: number): void {
+    const remaining = this.projectMedia().filter((item) => item.mediaId !== mediaId);
+    this.projectMedia.set(remaining);
+
+    if (this.selectedProject()) {
+      const removed = new Set(this.deletedProjectMediaIds());
+      removed.add(mediaId);
+      this.deletedProjectMediaIds.set(removed);
+    }
   }
 
   private translateAdminError(message: string): string {
@@ -298,8 +314,23 @@ export class AdminProjects implements OnInit, OnDestroy {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0] ?? null;
 
+    // Prevent adding more than one project thumbnail
+    const existingThumb = this.projectThumbnailMedia();
+    if (existingThumb) {
+      this.snackbar.error('لا يمكن إضافة أكثر من صورة رئيسية للمشروع. احذف الحالية أولاً.');
+      target.value = '';
+      return;
+    }
+
     if (file && !this.isValidImageFile(file)) {
       this.snackbar.error('يرجى اختيار صورة صالحة (JPG, PNG, WebP)');
+      target.value = '';
+      return;
+    }
+
+    if (file && this.projectMedia().some(m => this.fileMatchesMedia(file, m))) {
+      this.snackbar.error('لا يمكنك إضافة نفس الصورة في نفس المكان.');
+      target.value = '';
       return;
     }
 
@@ -311,28 +342,59 @@ export class AdminProjects implements OnInit, OnDestroy {
     const target = event.target as HTMLInputElement;
     const files = target.files ?? null;
 
-    if (files) {
-      const invalidFiles = Array.from(files).filter(f => !this.isValidImageFile(f));
-      if (invalidFiles.length > 0) {
-        this.snackbar.error('جميع الصور يجب أن تكون (JPG, PNG, WebP)');
-        return;
-      }
-    }
-
-    this.projectForm.patchValue({ images: files });
     if (!files || files.length === 0) {
+      this.projectForm.patchValue({ images: files });
       this.imagesSummary.set('لم يتم اختيار ملفات');
       return;
     }
-    this.imagesSummary.set(`تم اختيار ${files.length} صورة`);
+
+    const incoming = Array.from(files);
+    const invalidFiles = incoming.filter(f => !this.isValidImageFile(f));
+    if (invalidFiles.length > 0) {
+      this.snackbar.error('جميع الصور يجب أن تكون (JPG, PNG, WebP)');
+      target.value = '';
+      return;
+    }
+
+    const existingNames = new Set(this.projectImageMedia().map(m => this.mediaFileName(m.mediaUrl).toLowerCase()));
+    const filtered = incoming.filter((f) => !existingNames.has(f.name.toLowerCase()));
+    if (filtered.length !== incoming.length) {
+      this.snackbar.error('تم تجاهل بعض الصور المكررة الموجودة بالفعل.');
+    }
+
+    // dedupe selected by name+size
+    const seen = new Set<string>();
+    const deduped = filtered.filter(f => {
+      const key = f.name.toLowerCase() + '|' + String(f.size);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    this.projectForm.patchValue({ images: deduped.length ? this.toFileList(deduped) : null });
+    this.imagesSummary.set(deduped.length ? `تم اختيار ${deduped.length} صورة` : 'لم يتم اختيار ملفات');
   }
 
   onPanoramaChange(event: Event): void {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0] ?? null;
 
+    const existing = this.projectPanoramaMedia();
+    if (existing) {
+      this.snackbar.error('لا يمكن إضافة أكثر من صورة بانوراما 360 للمشروع. احذف الحالية أولاً.');
+      target.value = '';
+      return;
+    }
+
     if (file && !this.isValidImageFile(file)) {
       this.snackbar.error('يرجى اختيار صورة صالحة (JPG, PNG, WebP)');
+      target.value = '';
+      return;
+    }
+
+    if (file && this.projectMedia().some(m => this.fileMatchesMedia(file, m))) {
+      this.snackbar.error('لا يمكنك إضافة نفس الصورة في نفس المكان.');
+      target.value = '';
       return;
     }
 
@@ -344,13 +406,60 @@ export class AdminProjects implements OnInit, OnDestroy {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0] ?? null;
 
+    const existing = this.projectVideoMedia();
+    if (existing) {
+      this.snackbar.error('لا يمكن إضافة أكثر من فيديو للمشروع. احذف الفيديو الحالي أولاً.');
+      target.value = '';
+      return;
+    }
+
     if (file && !this.isValidVideoFile(file)) {
       this.snackbar.error('يرجى اختيار فيديو صالح (MP4, WebM, OGG)');
+      target.value = '';
+      return;
+    }
+
+    if (file && this.projectMedia().some(m => this.fileMatchesMedia(file, m))) {
+      this.snackbar.error('لا يمكنك إضافة نفس الفيديو في نفس المكان.');
+      target.value = '';
       return;
     }
 
     this.projectForm.patchValue({ video: file });
     this.videoName.set(file?.name ?? 'لم يتم اختيار ملف');
+  }
+
+  // Helper: compare a File to existing media by filename (best-effort)
+  private fileMatchesMedia(file: File, media: ProjectMediaDto): boolean {
+    try {
+      const f = (file?.name ?? '').toString().toLowerCase();
+      const m = this.mediaFileName(media.mediaUrl || media.thumbnailUrl || '').toLowerCase();
+      if (!f || !m) return false;
+      return f === m || f.includes(m) || m.includes(f);
+    } catch {
+      return false;
+    }
+  }
+
+  private mediaFileName(url?: string | null): string {
+    if (!url) return '';
+    try {
+      const parts = url.split('/');
+      const name = parts.at(-1) ?? url;
+      return name.split('?')[0];
+    } catch {
+      return url;
+    }
+  }
+
+  private toFileList(files: File[]): FileList | null {
+    try {
+      const dt = new DataTransfer();
+      for (const f of files) dt.items.add(f);
+      return dt.files;
+    } catch {
+      return null;
+    }
   }
 
   submitForm(): void {
@@ -484,6 +593,10 @@ export class AdminProjects implements OnInit, OnDestroy {
       payload.append('insuranceIds', String(id));
     }
 
+    for (const mediaId of this.deletedProjectMediaIds()) {
+      payload.append('deletedMediaIds', String(mediaId));
+    }
+
     if (values.thumbnail) payload.append('thumbnailImage', values.thumbnail);
     if (values.images) {
       Array.from(values.images).forEach((file) => payload.append('images', file));
@@ -499,6 +612,53 @@ export class AdminProjects implements OnInit, OnDestroy {
     this.imagesSummary.set('لم يتم اختيار ملفات');
     this.panoramaName.set('لم يتم اختيار ملف');
     this.videoName.set('لم يتم اختيار ملف');
+  }
+
+  private normalizeProjectMedia(details: IProjectDetails): ProjectMediaDto[] {
+    if (details.media?.length) {
+      return [...details.media];
+    }
+
+    const media: ProjectMediaDto[] = [];
+    if (details.thumbnailUrl) {
+      media.push({ mediaId: -1, projectId: details.projectId, type: 'Image', mediaUrl: details.thumbnailUrl, thumbnailUrl: details.thumbnailUrl, isThumbnail: true });
+    }
+    details.images?.forEach((url, index) => {
+      media.push({ mediaId: -(index + 2), projectId: details.projectId, type: 'Image', mediaUrl: url, thumbnailUrl: null, isThumbnail: false });
+    });
+    if (details.panorama360Url) {
+      media.push({ mediaId: -1001, projectId: details.projectId, type: 'Panorama360', mediaUrl: details.panorama360Url, thumbnailUrl: null, isThumbnail: false });
+    }
+    if (details.videoUrl) {
+      media.push({ mediaId: -1002, projectId: details.projectId, type: 'Video', mediaUrl: details.videoUrl, thumbnailUrl: null, isThumbnail: false });
+    }
+
+    return media;
+  }
+
+  mediaLabel(type: string): string {
+    switch ((type ?? '').toLowerCase()) {
+      case 'image': return 'صورة';
+      case 'panorama360': return 'بانوراما 360';
+      case 'video': return 'فيديو';
+      default: return type || 'وسيط';
+    }
+  }
+
+  projectThumbnailMedia(): ProjectMediaDto | null {
+    return this.projectMedia().find((media) => media.isThumbnail) ?? null;
+  }
+
+  projectImageMedia(): ProjectMediaDto[] {
+    return this.projectMedia().filter((media) => media.type.toLowerCase() === 'image' && !media.isThumbnail);
+  }
+
+  projectPanoramaMedia(): ProjectMediaDto | null {
+    return this.projectMedia().find((media) => media.type.toLowerCase() === 'panorama360') ?? null;
+  }
+
+  projectVideoMedia(): ProjectMediaDto | null {
+    return this.projectMedia().find((media) => media.type.toLowerCase() === 'video') ?? null;
   }
 
   private computeSelectionRadiusMeters(area?: number | null): number | null {

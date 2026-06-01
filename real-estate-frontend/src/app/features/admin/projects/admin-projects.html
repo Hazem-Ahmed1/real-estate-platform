@@ -73,7 +73,7 @@
         </div>
 
         <div class="two-col">
-          <div class="field" *ngIf="!selectedProject() || ((selectedProject()?.buildingsNumber ?? 0) === 0 && (selectedProject()?.unitsNumber ?? 0) === 0)">
+          <div class="field" *ngIf="!selectedProject() || (selectedProject()?.buildingsNumber === 0 && selectedProject()?.unitsNumber === 0)">
             <label for="status">الحالة</label>
             <select id="status" formControlName="status">
               @for (status of statusOptionsForForm(); track status) {
@@ -121,8 +121,23 @@
           <label class="file-input">
             <input type="file" accept="image/*" (change)="onThumbnailChange($event)" />
             <span class="file-button">رفع صورة</span>
-            <span class="file-name">{{ thumbnailName() }}</span>
+            @if (thumbnailName() !== 'لم يتم اختيار ملف') {
+              <span class="file-name">{{ thumbnailName() }}</span>
+            }
           </label>
+          @if (projectThumbnailMedia()) {
+            <div class="media-grid">
+              <article class="media-card">
+                <div class="media-preview">
+                  <img [src]="projectThumbnailMedia()!.mediaUrl" alt="{{ mediaLabel(projectThumbnailMedia()!.type) }}" />
+                </div>
+                <div class="media-card-body">
+                  <span class="media-tag">{{ mediaLabel(projectThumbnailMedia()!.type) }}</span>
+                  <button class="btn tiny-btn danger" type="button" (click)="removeProjectMedia(projectThumbnailMedia()!.mediaId)">حذف</button>
+                </div>
+              </article>
+            </div>
+          }
         </div>
 
         <div class="field">
@@ -130,8 +145,27 @@
           <label class="file-input">
             <input type="file" accept="image/*" multiple (change)="onImagesChange($event)" />
             <span class="file-button">رفع صور</span>
-            <span class="file-name">{{ imagesSummary() }}</span>
+            @if (imagesSummary() !== 'لم يتم اختيار ملفات') {
+              <span class="file-name">{{ imagesSummary() }}</span>
+            }
           </label>
+          @if (projectImageMedia().length === 0) {
+            <p class="empty-state">لا توجد صور إضافية محفوظة.</p>
+          } @else {
+            <div class="media-grid">
+              @for (media of projectImageMedia(); track media.mediaId) {
+                <article class="media-card">
+                  <div class="media-preview">
+                    <img [src]="media.mediaUrl" [alt]="mediaLabel(media.type)" />
+                  </div>
+                  <div class="media-card-body">
+                    <span class="media-tag">{{ mediaLabel(media.type) }}</span>
+                    <button class="btn tiny-btn danger" type="button" (click)="removeProjectMedia(media.mediaId)">حذف</button>
+                  </div>
+                </article>
+              }
+            </div>
+          }
         </div>
 
         <div class="two-col">
@@ -140,16 +174,46 @@
             <label class="file-input">
               <input type="file" accept="image/*" (change)="onPanoramaChange($event)" />
               <span class="file-button">رفع ملف</span>
-              <span class="file-name">{{ panoramaName() }}</span>
+              @if (panoramaName() !== 'لم يتم اختيار ملف') {
+                <span class="file-name">{{ panoramaName() }}</span>
+              }
             </label>
+            @if (projectPanoramaMedia()) {
+              <div class="media-grid">
+                <article class="media-card">
+                  <div class="media-preview">
+                    <img [src]="projectPanoramaMedia()!.mediaUrl" [alt]="mediaLabel(projectPanoramaMedia()!.type)" />
+                  </div>
+                  <div class="media-card-body">
+                    <span class="media-tag">{{ mediaLabel(projectPanoramaMedia()!.type) }}</span>
+                    <button class="btn tiny-btn danger" type="button" (click)="removeProjectMedia(projectPanoramaMedia()!.mediaId)">حذف</button>
+                  </div>
+                </article>
+              </div>
+            }
           </div>
           <div class="field">
             <label>فيديو المشروع</label>
             <label class="file-input">
               <input type="file" accept="video/*" (change)="onVideoChange($event)" />
               <span class="file-button">رفع ملف</span>
-              <span class="file-name">{{ videoName() }}</span>
+              @if (videoName() !== 'لم يتم اختيار ملف') {
+                <span class="file-name">{{ videoName() }}</span>
+              }
             </label>
+            @if (projectVideoMedia()) {
+              <div class="media-grid">
+                <article class="media-card">
+                  <div class="media-preview">
+                    <video controls [src]="projectVideoMedia()!.mediaUrl"></video>
+                  </div>
+                  <div class="media-card-body">
+                    <span class="media-tag">{{ mediaLabel(projectVideoMedia()!.type) }}</span>
+                    <button class="btn tiny-btn danger" type="button" (click)="removeProjectMedia(projectVideoMedia()!.mediaId)">حذف</button>
+                  </div>
+                </article>
+              </div>
+            }
           </div>
         </div>
 

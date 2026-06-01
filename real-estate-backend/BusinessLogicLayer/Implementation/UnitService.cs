@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -6,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace BusinessLogicLayer.Implementation;
 
-public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService mediaService, IHttpClientFactory httpClientFactory, IConfiguration configuration) : IUnitService
+public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService mediaService, IHttpClientFactory httpClientFactory, IConfiguration configuration, ILogger<UnitService> logger) : IUnitService
 {
     private readonly HttpClient httpClient = httpClientFactory.CreateClient();
     private readonly string overpassUrl = configuration["Overpass:BaseUrl"] ?? "https://overpass-api.de/api/interpreter";
@@ -42,6 +44,7 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
 
     public async Task<GetUnitDto> CreateUnitAsync(UnitCreateDto unitDto)
     {
+        var swTotal = Stopwatch.StartNew();
         ValidateMediaFiles(unitDto.ThumbnailImage, unitDto.Images, unitDto.Designs, unitDto.Panorama360, unitDto.VideoFile);
 
         var building = await unitOfWork.Repository<Building>()
@@ -158,9 +161,19 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
             }
         }
 
-        var nearbyFacilities = unitDto.NearbyFacilities.Any()
-            ? DeduplicateNearbyFacilities(unitDto.NearbyFacilities.Select(dto => mapper.Map<NearbyFacility>(dto)))
-            : DeduplicateNearbyFacilities(await FetchNearbyFacilitiesAsync(unitDto.Latitude, unitDto.Longitude));
+        var nearbyFacilities = new List<NearbyFacility>();
+        if (unitDto.NearbyFacilities.Any())
+        {
+            nearbyFacilities = DeduplicateNearbyFacilities(unitDto.NearbyFacilities.Select(dto => mapper.Map<NearbyFacility>(dto)));
+        }
+        else
+        {
+            var swNearby = Stopwatch.StartNew();
+            var fetched = await FetchNearbyFacilitiesAsync(unitDto.Latitude, unitDto.Longitude);
+            swNearby.Stop();
+            logger.LogInformation("UnitService.CreateUnitAsync: FetchNearbyFacilitiesAsync elapsed {ms} ms", swNearby.ElapsedMilliseconds);
+            nearbyFacilities = DeduplicateNearbyFacilities(fetched);
+        }
 
         foreach (var facility in nearbyFacilities)
         {
@@ -172,50 +185,93 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
 
         try
         {
+            var sw = Stopwatch.StartNew();
+
+            var uploadTasks = new List<Task<(BusinessLogicLayer.Dtos.MediaModule.MediaUploadResultDto Result, MediaType Type, bool IsThumbnail, int? Position)>>();
+            var position = 0;
+
             if (unitDto.ThumbnailImage != null)
             {
-                var res = await mediaService.UploadImageAsync(unitDto.ThumbnailImage);
-                newlyUploadedImageIds.Add(res.PublicId);
-                unit.Media.Add(new UnitMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Image, IsThumbnail = true });
+                var thumbPos = position++;
+                uploadTasks.Add(Task.Run(async () =>
+                {
+                    var r = await mediaService.UploadImageAsync(unitDto.ThumbnailImage);
+                    return (r, MediaType.Image, true, (int?)thumbPos);
+                }));
             }
 
             if (unitDto.Images != null && unitDto.Images.Any())
             {
-                foreach (var img in unitDto.Images)
+                for (var i = 0; i < unitDto.Images.Count; i++)
                 {
-                    var res = await mediaService.UploadImageAsync(img);
-                    newlyUploadedImageIds.Add(res.PublicId);
-                    unit.Media.Add(new UnitMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Image, IsThumbnail = false });
+                    var img = unitDto.Images[i];
+                    var imgPos = position++;
+                    uploadTasks.Add(Task.Run(async () =>
+                    {
+                        var r = await mediaService.UploadImageAsync(img);
+                        return (r, MediaType.Image, false, (int?)imgPos);
+                    }));
                 }
             }
 
             if (unitDto.Designs != null && unitDto.Designs.Any())
             {
-                foreach (var img in unitDto.Designs)
+                for (var i = 0; i < unitDto.Designs.Count; i++)
                 {
-                    var res = await mediaService.UploadImageAsync(img);
-                    newlyUploadedImageIds.Add(res.PublicId);
-                    unit.Media.Add(new UnitMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Design, IsThumbnail = false });
+                    var img = unitDto.Designs[i];
+                    var dPos = position++;
+                    uploadTasks.Add(Task.Run(async () =>
+                    {
+                        var r = await mediaService.UploadImageAsync(img);
+                        return (r, MediaType.Design, false, (int?)dPos);
+                    }));
                 }
             }
 
             if (unitDto.Panorama360 != null)
             {
-                var res = await mediaService.UploadImageAsync(unitDto.Panorama360);
-                newlyUploadedImageIds.Add(res.PublicId);
-                unit.Media.Add(new UnitMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Panorama360, IsThumbnail = false });
+                var panoPos = position++;
+                uploadTasks.Add(Task.Run(async () =>
+                {
+                    var r = await mediaService.UploadImageAsync(unitDto.Panorama360);
+                    return (r, MediaType.Panorama360, false, (int?)panoPos);
+                }));
             }
 
             if (unitDto.VideoFile != null)
             {
-                var res = await mediaService.UploadVideoAsync(unitDto.VideoFile);
-                newlyUploadedVideoIds.Add(res.PublicId);
-                unit.Media.Add(new UnitMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Video, IsThumbnail = false });
+                var vidPos = position++;
+                uploadTasks.Add(Task.Run(async () =>
+                {
+                    var r = await mediaService.UploadVideoAsync(unitDto.VideoFile);
+                    return (r, MediaType.Video, false, (int?)vidPos);
+                }));
             }
 
+            var results = await Task.WhenAll(uploadTasks);
 
+            foreach (var item in results.OrderBy(r => r.Position ?? int.MaxValue))
+            {
+                if (item.Type == MediaType.Video)
+                {
+                    newlyUploadedVideoIds.Add(item.Result.PublicId);
+                    unit.Media.Add(new UnitMedia { MediaUrl = item.Result.Url, PublicId = item.Result.PublicId, Type = MediaType.Video, IsThumbnail = item.IsThumbnail });
+                }
+                else
+                {
+                    newlyUploadedImageIds.Add(item.Result.PublicId);
+                    unit.Media.Add(new UnitMedia { MediaUrl = item.Result.Url, PublicId = item.Result.PublicId, Type = item.Type, IsThumbnail = item.IsThumbnail });
+                }
+            }
+
+            sw.Stop();
+            logger.LogInformation("UnitService.CreateUnitAsync: media upload elapsed {ms} ms", sw.ElapsedMilliseconds);
+
+            sw.Restart();
             await unitOfWork.Repository<Unit>().AddAsync(unit);
             await unitOfWork.CompleteAsync();
+            sw.Stop();
+            logger.LogInformation("UnitService.CreateUnitAsync: DB save elapsed {ms} ms", sw.ElapsedMilliseconds);
         }
         catch (Exception)
         {
@@ -229,6 +285,9 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
         var created = await GetUnitByIdAsync(unit.UnitId);
         if (created == null)
             throw new NotFoundExpection("Unit", unit.UnitId);
+
+        swTotal.Stop();
+        logger.LogInformation("UnitService.CreateUnitAsync: total elapsed {ms} ms", swTotal.ElapsedMilliseconds);
 
         return created;
     }
@@ -425,6 +484,7 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
 
         try
         {
+            // Remove old single-slot media first and queue for cloud delete
             if (unitDto.ThumbnailImage != null)
             {
                 var oldThumb = existing.Media.FirstOrDefault(media => media.IsThumbnail);
@@ -433,29 +493,6 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
                     if (!string.IsNullOrEmpty(oldThumb.PublicId)) publicMediaToDelete.Add((oldThumb.PublicId, oldThumb.Type));
                     unitOfWork.Repository<UnitMedia>().Remove(oldThumb);
                     existing.Media.Remove(oldThumb);
-                }
-                var res = await mediaService.UploadImageAsync(unitDto.ThumbnailImage);
-                newlyUploadedImageIds.Add(res.PublicId);
-                existing.Media.Add(new UnitMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Image, IsThumbnail = true });
-            }
-
-            if (unitDto.Images != null && unitDto.Images.Any())
-            {
-                foreach (var img in unitDto.Images)
-                {
-                    var res = await mediaService.UploadImageAsync(img);
-                    newlyUploadedImageIds.Add(res.PublicId);
-                    existing.Media.Add(new UnitMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Image, IsThumbnail = false });
-                }
-            }
-
-            if (unitDto.Designs != null && unitDto.Designs.Any())
-            {
-                foreach (var img in unitDto.Designs)
-                {
-                    var res = await mediaService.UploadImageAsync(img);
-                    newlyUploadedImageIds.Add(res.PublicId);
-                    existing.Media.Add(new UnitMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Design, IsThumbnail = false });
                 }
             }
 
@@ -468,9 +505,6 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
                     unitOfWork.Repository<UnitMedia>().Remove(oldVideo);
                     existing.Media.Remove(oldVideo);
                 }
-                var res = await mediaService.UploadVideoAsync(unitDto.VideoFile);
-                newlyUploadedVideoIds.Add(res.PublicId);
-                existing.Media.Add(new UnitMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Video, IsThumbnail = false });
             }
 
             if (unitDto.Panorama360 != null)
@@ -482,11 +516,85 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
                     unitOfWork.Repository<UnitMedia>().Remove(oldPano);
                     existing.Media.Remove(oldPano);
                 }
-                var res = await mediaService.UploadImageAsync(unitDto.Panorama360);
-                newlyUploadedImageIds.Add(res.PublicId);
-                existing.Media.Add(new UnitMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Panorama360, IsThumbnail = false });
             }
 
+            // Prepare parallel uploads
+            var uploadTasks = new List<Task<(BusinessLogicLayer.Dtos.MediaModule.MediaUploadResultDto Result, MediaType Type, bool IsThumbnail, int? Position)>>();
+            var position = 0;
+
+            if (unitDto.ThumbnailImage != null)
+            {
+                var thumbPos = position++;
+                uploadTasks.Add(Task.Run(async () =>
+                {
+                    var r = await mediaService.UploadImageAsync(unitDto.ThumbnailImage);
+                    return (r, MediaType.Image, true, (int?)thumbPos);
+                }));
+            }
+
+            if (unitDto.Images != null && unitDto.Images.Any())
+            {
+                for (var i = 0; i < unitDto.Images.Count; i++)
+                {
+                    var img = unitDto.Images[i];
+                    var imgPos = position++;
+                    uploadTasks.Add(Task.Run(async () =>
+                    {
+                        var r = await mediaService.UploadImageAsync(img);
+                        return (r, MediaType.Image, false, (int?)imgPos);
+                    }));
+                }
+            }
+
+            if (unitDto.Designs != null && unitDto.Designs.Any())
+            {
+                for (var i = 0; i < unitDto.Designs.Count; i++)
+                {
+                    var img = unitDto.Designs[i];
+                    var dPos = position++;
+                    uploadTasks.Add(Task.Run(async () =>
+                    {
+                        var r = await mediaService.UploadImageAsync(img);
+                        return (r, MediaType.Design, false, (int?)dPos);
+                    }));
+                }
+            }
+
+            if (unitDto.Panorama360 != null)
+            {
+                var panoPos = position++;
+                uploadTasks.Add(Task.Run(async () =>
+                {
+                    var r = await mediaService.UploadImageAsync(unitDto.Panorama360);
+                    return (r, MediaType.Panorama360, false, (int?)panoPos);
+                }));
+            }
+
+            if (unitDto.VideoFile != null)
+            {
+                var vidPos = position++;
+                uploadTasks.Add(Task.Run(async () =>
+                {
+                    var r = await mediaService.UploadVideoAsync(unitDto.VideoFile);
+                    return (r, MediaType.Video, false, (int?)vidPos);
+                }));
+            }
+
+            var results = await Task.WhenAll(uploadTasks);
+
+            foreach (var item in results.OrderBy(r => r.Position ?? int.MaxValue))
+            {
+                if (item.Type == MediaType.Video)
+                {
+                    newlyUploadedVideoIds.Add(item.Result.PublicId);
+                    existing.Media.Add(new UnitMedia { MediaUrl = item.Result.Url, PublicId = item.Result.PublicId, Type = MediaType.Video, IsThumbnail = item.IsThumbnail });
+                }
+                else
+                {
+                    newlyUploadedImageIds.Add(item.Result.PublicId);
+                    existing.Media.Add(new UnitMedia { MediaUrl = item.Result.Url, PublicId = item.Result.PublicId, Type = item.Type, IsThumbnail = item.IsThumbnail });
+                }
+            }
 
             await unitOfWork.CompleteAsync();
         }

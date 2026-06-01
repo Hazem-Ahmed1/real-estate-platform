@@ -1,6 +1,9 @@
 namespace BusinessLogicLayer.Implementation;
+using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 
-public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService mediaService) : IProjectService
+
+public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService mediaService, ILogger<ProjectService> logger) : IProjectService
 {
     public async Task<PaginatedResult<ProjectListDto>> GetProjectsAsync(ProjectSpecParams @params)
     {
@@ -59,6 +62,7 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
 
     public async Task<ProjectDetailsDto> CreateProjectAsync(ProjectCreateDto projectDto)
     {
+        var swTotal = Stopwatch.StartNew();
         ValidateMediaFiles(projectDto.ThumbnailImage, projectDto.Images, projectDto.Panorama360, projectDto.VideoFile);
 
         // 1. Initial Validation
@@ -110,39 +114,81 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
 
         try
         {
+            var sw = Stopwatch.StartNew();
+
+            // Prepare parallel upload tasks preserving type information
+            var uploadTasks = new List<Task<(BusinessLogicLayer.Dtos.MediaModule.MediaUploadResultDto Result, MediaType Type, bool IsThumbnail, int? Position)>>();
+            var position = 0;
+
             if (projectDto.ThumbnailImage != null)
             {
-                var res = await mediaService.UploadImageAsync(projectDto.ThumbnailImage);
-                newlyUploadedImageIds.Add(res.PublicId);
-                project.Media.Add(new ProjectMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Image, IsThumbnail = true });
+                var thumbPos = position++;
+                uploadTasks.Add(Task.Run(async () =>
+                {
+                    var r = await mediaService.UploadImageAsync(projectDto.ThumbnailImage);
+                    return (r, MediaType.Image, true, (int?)thumbPos);
+                }));
             }
 
             if (projectDto.Images != null && projectDto.Images.Any())
             {
-                foreach (var img in projectDto.Images)
+                for (var i = 0; i < projectDto.Images.Count; i++)
                 {
-                    var res = await mediaService.UploadImageAsync(img);
-                    newlyUploadedImageIds.Add(res.PublicId);
-                    project.Media.Add(new ProjectMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Image, IsThumbnail = false });
+                    var img = projectDto.Images[i];
+                    var imgPos = position++;
+                    uploadTasks.Add(Task.Run(async () =>
+                    {
+                        var r = await mediaService.UploadImageAsync(img);
+                        return (r, MediaType.Image, false, (int?)imgPos);
+                    }));
                 }
             }
 
             if (projectDto.Panorama360 != null)
             {
-                var res = await mediaService.UploadImageAsync(projectDto.Panorama360);
-                newlyUploadedImageIds.Add(res.PublicId);
-                project.Media.Add(new ProjectMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Panorama360, IsThumbnail = false });
+                var panoPos = position++;
+                uploadTasks.Add(Task.Run(async () =>
+                {
+                    var r = await mediaService.UploadImageAsync(projectDto.Panorama360);
+                    return (r, MediaType.Panorama360, false, (int?)panoPos);
+                }));
             }
 
             if (projectDto.VideoFile != null)
             {
-                var res = await mediaService.UploadVideoAsync(projectDto.VideoFile);
-                newlyUploadedVideoIds.Add(res.PublicId);
-                project.Media.Add(new ProjectMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Video, IsThumbnail = false });
+                var vidPos = position++;
+                uploadTasks.Add(Task.Run(async () =>
+                {
+                    var r = await mediaService.UploadVideoAsync(projectDto.VideoFile);
+                    return (r, MediaType.Video, false, (int?)vidPos);
+                }));
             }
 
+            var results = await Task.WhenAll(uploadTasks);
+
+            // Add results into project.Media in order of Position
+            foreach (var item in results.OrderBy(r => r.Position ?? int.MaxValue))
+            {
+                if (item.Type == MediaType.Video)
+                {
+                    newlyUploadedVideoIds.Add(item.Result.PublicId);
+                    project.Media.Add(new ProjectMedia { MediaUrl = item.Result.Url, PublicId = item.Result.PublicId, Type = MediaType.Video, IsThumbnail = item.IsThumbnail });
+                }
+                else
+                {
+                    newlyUploadedImageIds.Add(item.Result.PublicId);
+                    project.Media.Add(new ProjectMedia { MediaUrl = item.Result.Url, PublicId = item.Result.PublicId, Type = item.Type, IsThumbnail = item.IsThumbnail });
+                }
+            }
+
+            sw.Stop();
+            logger.LogInformation("ProjectService.CreateProjectAsync: media upload elapsed {ms} ms", sw.ElapsedMilliseconds);
+
+            sw.Restart();
             await unitOfWork.Repository<Project>().AddAsync(project);
             await unitOfWork.CompleteAsync();
+            sw.Stop();
+            logger.LogInformation("ProjectService.CreateProjectAsync: DB save elapsed {ms} ms", sw.ElapsedMilliseconds);
         }
         catch (Exception)
         {
@@ -154,6 +200,9 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
         var created = await GetProjectByIdAsync(project.ProjectId);
         if (created == null)
             throw new NotFoundExpection("Project", project.ProjectId);
+
+        swTotal.Stop();
+        logger.LogInformation("ProjectService.CreateProjectAsync: total elapsed {ms} ms", swTotal.ElapsedMilliseconds);
 
         return created;
     }
@@ -277,6 +326,7 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
 
         try
         {
+            // Remove old single-slot media first and queue for cloud delete
             if (projectDto.ThumbnailImage != null)
             {
                 var oldThumb = existing.Media.FirstOrDefault(media => media.IsThumbnail);
@@ -285,19 +335,6 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
                     if (!string.IsNullOrEmpty(oldThumb.PublicId)) publicMediaToDelete.Add((oldThumb.PublicId, oldThumb.Type));
                     unitOfWork.Repository<ProjectMedia>().Remove(oldThumb);
                     existing.Media.Remove(oldThumb);
-                }
-                var res = await mediaService.UploadImageAsync(projectDto.ThumbnailImage);
-                newlyUploadedImageIds.Add(res.PublicId);
-                existing.Media.Add(new ProjectMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Image, IsThumbnail = true });
-            }
-
-            if (projectDto.Images != null && projectDto.Images.Any())
-            {
-                foreach (var img in projectDto.Images)
-                {
-                    var res = await mediaService.UploadImageAsync(img);
-                    newlyUploadedImageIds.Add(res.PublicId);
-                    existing.Media.Add(new ProjectMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Image, IsThumbnail = false });
                 }
             }
 
@@ -310,9 +347,6 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
                     unitOfWork.Repository<ProjectMedia>().Remove(oldVideo);
                     existing.Media.Remove(oldVideo);
                 }
-                var res = await mediaService.UploadVideoAsync(projectDto.VideoFile);
-                newlyUploadedVideoIds.Add(res.PublicId);
-                existing.Media.Add(new ProjectMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Video, IsThumbnail = false });
             }
 
             if (projectDto.Panorama360 != null)
@@ -324,9 +358,70 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
                     unitOfWork.Repository<ProjectMedia>().Remove(oldPano);
                     existing.Media.Remove(oldPano);
                 }
-                var res = await mediaService.UploadImageAsync(projectDto.Panorama360);
-                newlyUploadedImageIds.Add(res.PublicId);
-                existing.Media.Add(new ProjectMedia { MediaUrl = res.Url, PublicId = res.PublicId, Type = MediaType.Panorama360, IsThumbnail = false });
+            }
+
+            // Prepare parallel uploads
+            var uploadTasks = new List<Task<(BusinessLogicLayer.Dtos.MediaModule.MediaUploadResultDto Result, MediaType Type, bool IsThumbnail, int? Position)>>();
+            var position = 0;
+
+            if (projectDto.ThumbnailImage != null)
+            {
+                var thumbPos = position++;
+                uploadTasks.Add(Task.Run(async () =>
+                {
+                    var r = await mediaService.UploadImageAsync(projectDto.ThumbnailImage);
+                    return (r, MediaType.Image, true, (int?)thumbPos);
+                }));
+            }
+
+            if (projectDto.Images != null && projectDto.Images.Any())
+            {
+                for (var i = 0; i < projectDto.Images.Count; i++)
+                {
+                    var img = projectDto.Images[i];
+                    var imgPos = position++;
+                    uploadTasks.Add(Task.Run(async () =>
+                    {
+                        var r = await mediaService.UploadImageAsync(img);
+                        return (r, MediaType.Image, false, (int?)imgPos);
+                    }));
+                }
+            }
+
+            if (projectDto.Panorama360 != null)
+            {
+                var panoPos = position++;
+                uploadTasks.Add(Task.Run(async () =>
+                {
+                    var r = await mediaService.UploadImageAsync(projectDto.Panorama360);
+                    return (r, MediaType.Panorama360, false, (int?)panoPos);
+                }));
+            }
+
+            if (projectDto.VideoFile != null)
+            {
+                var vidPos = position++;
+                uploadTasks.Add(Task.Run(async () =>
+                {
+                    var r = await mediaService.UploadVideoAsync(projectDto.VideoFile);
+                    return (r, MediaType.Video, false, (int?)vidPos);
+                }));
+            }
+
+            var results = await Task.WhenAll(uploadTasks);
+
+            foreach (var item in results.OrderBy(r => r.Position ?? int.MaxValue))
+            {
+                if (item.Type == MediaType.Video)
+                {
+                    newlyUploadedVideoIds.Add(item.Result.PublicId);
+                    existing.Media.Add(new ProjectMedia { MediaUrl = item.Result.Url, PublicId = item.Result.PublicId, Type = MediaType.Video, IsThumbnail = item.IsThumbnail });
+                }
+                else
+                {
+                    newlyUploadedImageIds.Add(item.Result.PublicId);
+                    existing.Media.Add(new ProjectMedia { MediaUrl = item.Result.Url, PublicId = item.Result.PublicId, Type = item.Type, IsThumbnail = item.IsThumbnail });
+                }
             }
 
             await unitOfWork.CompleteAsync();

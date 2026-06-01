@@ -1,5 +1,14 @@
 import { FeatureDto, InsuranceDto } from './IProject';
 
+export interface UnitMediaDto {
+  mediaId: number;
+  unitId: number;
+  type: string;
+  mediaUrl: string;
+  thumbnailUrl: string | null;
+  isThumbnail: boolean;
+}
+
 export interface NearbyFacilityDto {
   name: string;
   type: string;
@@ -35,6 +44,7 @@ export interface IUnitDetails {
   panoramaUrl: string | null;
   images: string[];
   designs: string[];
+  media: UnitMediaDto[];
   nearbyFacilities: NearbyFacilityDto[];
   features: FeatureDto[];
   insurance: InsuranceDto[];

@@ -30,6 +30,7 @@ public class ProjectDetailsDto
     public string? Panorama360Url { get; set; }
     public string? VideoUrl { get; set; }
     public List<string> Images { get; set; } = new();
+    public List<ProjectMediaDto> Media { get; set; } = new();
 
     public List<FeatureDto> Features { get; set; } = new();
     public List<InsuranceDto> Insurance { get; set; } = new();

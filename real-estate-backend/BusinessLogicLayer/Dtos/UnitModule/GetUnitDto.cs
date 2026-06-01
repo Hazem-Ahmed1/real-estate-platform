@@ -42,6 +42,7 @@ public class GetUnitDto
 
     public List<string> Images { get; set; } = new();
     public List<string> Designs { get; set; } = new();
+    public List<UnitMediaDto> Media { get; set; } = new();
 
     public List<NearbyFacilityDto> NearbyFacilities { get; set; } = new();
     public List<FeatureDto> Features { get; set; } = new();

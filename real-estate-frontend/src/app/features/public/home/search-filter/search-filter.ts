@@ -93,8 +93,8 @@ export class SearchFilter implements OnInit {
       { key: 'propertyType', label: 'النوع', options: ['الكل', 'شقة', 'فيلا', 'دوبلكس', 'مكتب'] },
       { key: 'offerType', label: 'العرض', options: ['الكل', 'للبيع', 'للإيجار'] },
       { key: 'rooms', label: 'عدد الغرف', options: ['الكل', '2', '3', '4', '5'] },
-      { key: 'minPrice', label: 'من سعر', options: ['الكل', '10000', '20000', '30000'] },
-      { key: 'maxPrice', label: 'الى سعر', options: ['الكل', '100000', '150000', '200000'] },
+      { key: 'minPrice', label: 'من سعر', options: ['الكل', '1000000', '2000000', '3000000'] },
+      { key: 'maxPrice', label: 'الى سعر', options: ['الكل', '3000000', '4000000', '5000000'] },
     ];
   }
 

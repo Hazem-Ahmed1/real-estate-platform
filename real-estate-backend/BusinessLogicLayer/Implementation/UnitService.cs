@@ -462,17 +462,13 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
 
         unitOfWork.Repository<Unit>().Update(existing);
 
-        var publicMediaToDelete = new List<(string PublicId, MediaType Type)>();
-
-        // Process Media deletions during update
+        // Process Media deletions during update (remove DB records only)
         if (unitDto.DeletedMediaIds != null && unitDto.DeletedMediaIds.Any())
         {
             var mediaToDelete = existing.Media.Where(m => unitDto.DeletedMediaIds.Contains(m.MediaId)).ToList();
             var mediaRepo = unitOfWork.Repository<UnitMedia>();
             foreach (var m in mediaToDelete)
             {
-                if (!string.IsNullOrEmpty(m.PublicId))
-                    publicMediaToDelete.Add((m.PublicId, m.Type));
                 mediaRepo.Remove(m);
                 existing.Media.Remove(m);
             }
@@ -490,7 +486,6 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
                 var oldThumb = existing.Media.FirstOrDefault(media => media.IsThumbnail);
                 if (oldThumb != null)
                 {
-                    if (!string.IsNullOrEmpty(oldThumb.PublicId)) publicMediaToDelete.Add((oldThumb.PublicId, oldThumb.Type));
                     unitOfWork.Repository<UnitMedia>().Remove(oldThumb);
                     existing.Media.Remove(oldThumb);
                 }
@@ -501,7 +496,6 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
                 var oldVideo = existing.Media.FirstOrDefault(media => media.Type == MediaType.Video);
                 if (oldVideo != null)
                 {
-                    if (!string.IsNullOrEmpty(oldVideo.PublicId)) publicMediaToDelete.Add((oldVideo.PublicId, oldVideo.Type));
                     unitOfWork.Repository<UnitMedia>().Remove(oldVideo);
                     existing.Media.Remove(oldVideo);
                 }
@@ -512,7 +506,6 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
                 var oldPano = existing.Media.FirstOrDefault(media => media.Type == MediaType.Panorama360);
                 if (oldPano != null)
                 {
-                    if (!string.IsNullOrEmpty(oldPano.PublicId)) publicMediaToDelete.Add((oldPano.PublicId, oldPano.Type));
                     unitOfWork.Repository<UnitMedia>().Remove(oldPano);
                     existing.Media.Remove(oldPano);
                 }
@@ -605,13 +598,7 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
             throw;
         }
 
-        foreach (var m in publicMediaToDelete)
-        {
-            if (m.Type == MediaType.Video)
-                await mediaService.DeleteVideoAsync(m.PublicId);
-            else
-                await mediaService.DeleteImageAsync(m.PublicId);
-        }
+        // NOTE: Cloudinary asset deletion during update has been removed; only DB records are removed here.
 
         var newProjectId = await GetProjectIdByBuildingIdAsync(existing.BuildingId);
         if (oldProjectId.HasValue)
@@ -640,32 +627,18 @@ public class UnitService(IUnitOfWork unitOfWork, IMapper mapper, IMediaService m
         var buildingId = unit.BuildingId;
         var projectId = await GetProjectIdByBuildingIdAsync(buildingId);
 
-        var publicMediaToDelete = new List<(string PublicId, MediaType Type)>();
-
-        // Cleanup Cloudinary and DB
+        // Cleanup DB: remove media entries and the unit itself (do not remove Cloudinary assets here)
         if (unit.Media.Count > 0)
         {
             var mediaRepo = unitOfWork.Repository<UnitMedia>();
             foreach (var m in unit.Media.ToList())
             {
-                if (!string.IsNullOrEmpty(m.PublicId))
-                {
-                    publicMediaToDelete.Add((m.PublicId, m.Type));
-                }
                 mediaRepo.Remove(m);
             }
         }
 
         unitOfWork.Repository<Unit>().Remove(unit);
         await unitOfWork.CompleteAsync();
-
-        foreach (var m in publicMediaToDelete)
-        {
-            if (m.Type == MediaType.Video)
-                await mediaService.DeleteVideoAsync(m.PublicId);
-            else
-                await mediaService.DeleteImageAsync(m.PublicId);
-        }
 
         // Keep in-memory object graph consistent
         var buildingRef = await unitOfWork.Repository<Building>().GetByIdAsync(buildingId);

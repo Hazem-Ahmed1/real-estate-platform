@@ -304,17 +304,13 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
 
         unitOfWork.Repository<Project>().Update(existing);
 
-        var publicMediaToDelete = new List<(string PublicId, MediaType Type)>();
-
-        // Process Media deletions during update
+        // Process Media deletions during update (remove DB records only)
         if (projectDto.DeletedMediaIds != null && projectDto.DeletedMediaIds.Any())
         {
             var mediaToDelete = existing.Media.Where(m => projectDto.DeletedMediaIds.Contains(m.MediaId)).ToList();
             var mediaRepo = unitOfWork.Repository<ProjectMedia>();
             foreach (var m in mediaToDelete)
             {
-                if (!string.IsNullOrEmpty(m.PublicId))
-                    publicMediaToDelete.Add((m.PublicId, m.Type));
                 mediaRepo.Remove(m);
                 existing.Media.Remove(m);
             }
@@ -332,7 +328,6 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
                 var oldThumb = existing.Media.FirstOrDefault(media => media.IsThumbnail);
                 if (oldThumb != null)
                 {
-                    if (!string.IsNullOrEmpty(oldThumb.PublicId)) publicMediaToDelete.Add((oldThumb.PublicId, oldThumb.Type));
                     unitOfWork.Repository<ProjectMedia>().Remove(oldThumb);
                     existing.Media.Remove(oldThumb);
                 }
@@ -343,7 +338,6 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
                 var oldVideo = existing.Media.FirstOrDefault(media => media.Type == MediaType.Video);
                 if (oldVideo != null)
                 {
-                    if (!string.IsNullOrEmpty(oldVideo.PublicId)) publicMediaToDelete.Add((oldVideo.PublicId, oldVideo.Type));
                     unitOfWork.Repository<ProjectMedia>().Remove(oldVideo);
                     existing.Media.Remove(oldVideo);
                 }
@@ -354,7 +348,6 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
                 var oldPano = existing.Media.FirstOrDefault(media => media.Type == MediaType.Panorama360);
                 if (oldPano != null)
                 {
-                    if (!string.IsNullOrEmpty(oldPano.PublicId)) publicMediaToDelete.Add((oldPano.PublicId, oldPano.Type));
                     unitOfWork.Repository<ProjectMedia>().Remove(oldPano);
                     existing.Media.Remove(oldPano);
                 }
@@ -433,13 +426,7 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
             throw;
         }
 
-        foreach (var m in publicMediaToDelete)
-        {
-            if (m.Type == MediaType.Video)
-                await mediaService.DeleteVideoAsync(m.PublicId);
-            else
-                await mediaService.DeleteImageAsync(m.PublicId);
-        }
+        // NOTE: Cloudinary asset deletion during update has been removed; only DB records are removed here.
 
         var updatedProject = await GetProjectByIdAsync(id);
         if (updatedProject == null)
@@ -456,9 +443,6 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
         if (project == null)
             throw new NotFoundExpection("Project", id);
 
-        var cloudinaryImagesToDelete = new List<string>();
-        var cloudinaryVideosToDelete = new List<string>();
-
         // 1. Get all units and their media under this project
         var unitSpec = new UnitsByProjectSpecification(id);
         var units = await unitOfWork.Repository<Unit>().GetAllAsync(unitSpec);
@@ -467,11 +451,6 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
         {
             foreach (var m in unit.Media.ToList())
             {
-                if (!string.IsNullOrEmpty(m.PublicId))
-                {
-                    if (m.Type == MediaType.Video) cloudinaryVideosToDelete.Add(m.PublicId);
-                    else cloudinaryImagesToDelete.Add(m.PublicId);
-                }
                 unitOfWork.Repository<UnitMedia>().Remove(m);
             }
             unitOfWork.Repository<Unit>().Remove(unit);
@@ -488,11 +467,6 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
         // 3. Collect project's own media
         foreach (var m in project.Media.ToList())
         {
-            if (!string.IsNullOrEmpty(m.PublicId))
-            {
-                if (m.Type == MediaType.Video) cloudinaryVideosToDelete.Add(m.PublicId);
-                else cloudinaryImagesToDelete.Add(m.PublicId);
-            }
             unitOfWork.Repository<ProjectMedia>().Remove(m);
         }
 
@@ -502,9 +476,7 @@ public class ProjectService(IUnitOfWork unitOfWork, IMapper mapper, IMediaServic
         // 5. Complete Database Transaction
         await unitOfWork.CompleteAsync();
 
-        // 6. Clean up Cloudinary after successful DB commit
-        foreach (var pid in cloudinaryImagesToDelete) await mediaService.DeleteImageAsync(pid);
-        foreach (var pid in cloudinaryVideosToDelete) await mediaService.DeleteVideoAsync(pid);
+        // Note: Cloudinary assets are not deleted here. Only database records are removed.
 
         return mapper.Map<ProjectDetailsDto>(project);
     }
